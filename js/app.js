@@ -6,7 +6,9 @@ import { state } from './store.js';
 import * as audio from './audio.js';
 import * as sync from './sync.js';
 import { sfx, unlock } from './sfx.js';
-import { ICONS, mascot, toast, modal, confetti, showHint, hideHint, siLine, audioBtn } from './ui.js';
+import { ICONS, mascot, toast, modal, confetti, showHint, hideHint, siLine, audioBtn, bigFlame } from './ui.js';
+import { badge } from './badges.js';
+import { pic } from './pics.js';
 import { esc, plural, fmtDuration } from './util.js';
 import { romanize } from './translit.js';
 import { strength } from './srs.js';
@@ -14,7 +16,7 @@ import { buildLesson, buildUnitReview, buildPractice, buildLetters, caps, item, 
 import { runSession } from './player.js';
 import { runStory } from './story.js';
 import { character } from './characters.js';
-import { pathScene, castLineup } from './art.js';
+import { pathScene, castLineup, unitHero } from './art.js';
 
 const app = document.getElementById('app');
 const go = (h) => { if (location.hash === '#/' + h) route(); else location.hash = '#/' + h; };
@@ -282,12 +284,12 @@ function practiceTab() {
   const due = S.dueCount();
   const mistakes = learned.filter(id => (state.srs[id].lapses || 0) > 0).length;
   const enough = learned.length >= 3;
-  const card = (href, icon, t, d, on = true) => `<a class="prac-card ${on ? '' : 'off'}" ${on ? `href="${href}"` : ''}><div class="pc-ic">${icon}</div><div><h3>${t}</h3><p>${d}</p></div></a>`;
+  const card = (href, icon, t, d, on = true) => `<a class="prac-card ${on ? '' : 'off'}" ${on ? `href="${href}"` : ''}><div class="pc-ic">${pic(icon, { size: 58, live: on })}</div><div><h3>${t}</h3><p>${d}</p></div></a>`;
   let html = `<div class="practice-tab"><div class="tab-hero"><h1>Practice</h1><p>Practice is free — no hearts lost — and it earns a heart back.</p></div>
-    ${card('#/practice-session/smart', ICONS.dumbbell, 'Personalized practice', enough ? (due ? `${plural(due, 'word')} ready for review` : 'Strengthen your weakest words') : 'Finish your first lesson to unlock', enough)}
-    ${card('#/practice-session/mistakes', ICONS.target, 'Mistakes', mistakes ? `${plural(mistakes, 'word')} you've missed before` : 'Nothing here yet — nice!', enough && mistakes > 0)}
-    ${C.listen ? card('#/practice-session/listening', ICONS.speaker, 'Listening', 'Train your ear with audio only', enough) : ''}
-    ${C.speak ? card('#/practice-session/speaking', ICONS.mic, 'Speaking', sync.canTranscribe() && state.profile.settings.speechCheck !== false ? 'Say sentences out loud — Katha checks them' : 'Say sentences out loud and compare with a native speaker', enough && S.pathNodes().some(n => n.type === 'lesson' && S.lessonDone(n.id))) : ''}
+    ${card('#/practice-session/smart', 'ui_practice', 'Personalized practice', enough ? (due ? `${plural(due, 'word')} ready for review` : 'Strengthen your weakest words') : 'Finish your first lesson to unlock', enough)}
+    ${card('#/practice-session/mistakes', 'ui_target', 'Mistakes', mistakes ? `${plural(mistakes, 'word')} you've missed before` : 'Nothing here yet — nice!', enough && mistakes > 0)}
+    ${C.listen ? card('#/practice-session/listening', 'ui_listen', 'Listening', 'Train your ear with audio only', enough) : ''}
+    ${C.speak ? card('#/practice-session/speaking', 'ui_speak', 'Speaking', sync.canTranscribe() && state.profile.settings.speechCheck !== false ? 'Say sentences out loud — Katha checks them' : 'Say sentences out loud and compare with a native speaker', enough && S.pathNodes().some(n => n.type === 'lesson' && S.lessonDone(n.id))) : ''}
     <h3 class="sec-title">Words · ${learned.length}</h3>`;
   if (!learned.length) html += `<p class="muted center">Words you learn will show up here with how well you know them.</p>`;
   else {
@@ -295,7 +297,7 @@ function practiceTab() {
     const rows = learned.map(id => ({ id, s: strength(state.srs[id]) })).sort((a, b) => a.s - b.s);
     for (const { id, s } of rows) {
       const x = LEX[id];
-      html += `<div class="word-row"><button class="mini-play" data-play="${esc(x.si)}" aria-label="Play">${ICONS.speaker}</button>
+      html += `<div class="word-row"><div class="wr-pic">${pic(id, { size: 38 })}</div><button class="mini-play" data-play="${esc(x.si)}" aria-label="Play">${ICONS.speaker}</button>
         <div class="wr-main"><span class="si" lang="si">${esc(x.si)}</span><span class="ro">${esc(romanize(x.si))}</span></div>
         <div class="wr-en">${esc(x.en)}</div><div class="bars s${s}" title="Strength ${s}/4"><i></i><i></i><i></i><i></i></div></div>`;
     }
@@ -328,7 +330,7 @@ function questsTab() {
   for (const a of S.ACHIEVEMENTS) {
     const lv = S.achievementLevel(a);
     const target = lv.max ? a.tiers[a.tiers.length - 1] : lv.next;
-    html += `<div class="ach"><div class="ach-ic">${a.icon}<small>${lv.level ? 'LVL ' + lv.level : ''}</small></div>
+    html += `<div class="ach ${lv.level ? '' : 'locked'}"><div class="ach-ic">${badge(a.id, lv.level, { size: 54 })}${lv.level ? `<small>LVL ${lv.level}</small>` : ''}</div>
       <div class="q-main"><h3>${esc(a.name)}</h3><p>${esc(a.desc(target))}</p>
       <div class="qbar gold"><i style="width:${Math.min(100, (lv.value / target) * 100)}%"></i><span>${Math.min(lv.value, target)} / ${target}</span></div></div></div>`;
   }
@@ -396,7 +398,7 @@ function profileTab() {
     <div class="stats">
       <div class="stat">${ICONS.flame}<b>${st.streak}</b><span>Day streak</span></div>
       <div class="stat">${ICONS.bolt}<b>${S.totalXP()}</b><span>Total XP</span></div>
-      <div class="stat"><span class="stat-emo">📚</span><b>${S.wordsLearned()}</b><span>Words</span></div>
+      <div class="stat">${ICONS.words}<b>${S.wordsLearned()}</b><span>Words</span></div>
       <div class="stat"><span class="stat-emo" lang="si">අ</span><b>${S.lettersMastered()}</b><span>Letters</span></div>
     </div>
     ${xpChart()}
@@ -497,7 +499,7 @@ function renderGuide(uid) {
   const ui = UNITS.indexOf(u);
   app.innerHTML = `<div class="page guide" style="--u:${u.color}">
     <div class="page-top"><a class="icon-btn" href="#/learn" aria-label="Back">${ICONS.close}</a><h1>Unit ${ui + 1} guidebook</h1><div></div></div>
-    <div class="guide-hero"><h2>${esc(u.title)}</h2><p>${esc(u.desc)}</p></div>
+    <div class="guide-hero"><div><h2>${esc(u.title)}</h2><p>${esc(u.desc)}</p></div>${unitHero(u.id)}</div>
     <h3 class="sec-title">Key phrases</h3>
     <div class="phrases">${u.phrases.map(id => { const s = sent(id); return `<div class="phrase">${audio.canPlay(s.si, s.voice) ? audioBtn(s.si, { voice: s.voice, slow: false }) : ''}<div>${siLine(s.si, s.g, { roman: true, voice: s.voice })}<div class="ph-en">${esc(s.en)}</div></div></div>`; }).join('')}</div>
     <h3 class="sec-title">Tips</h3>
@@ -524,7 +526,7 @@ function renderOnboarding(step) {
         .map(([g, l, d]) => `<button class="choice goal-opt ${p.goal === g ? 'sel' : ''}" data-goal="${g}"><b>${l}</b><span>${d}</span><i>${g} XP</i></button>`).join('')}</div>
       <div class="onb-btns"><button class="btn primary wide" data-next>Continue</button></div></div>`,
     () => `<div class="onb">${mascot('happy', 110)}<h2>Where do you want to start?</h2>
-      <button class="choice start-opt" data-start="lesson"><span class="so-ic">💬</span><div><b>Start speaking</b><span>Jump into Unit 1: Greetings. Romanization helps you read along.</span></div></button>
+      <button class="choice start-opt" data-start="lesson"><span class="so-ic">${ICONS.chat}</span><div><b>Start speaking</b><span>Jump into Unit 1: Greetings. Romanization helps you read along.</span></div></button>
       <button class="choice start-opt" data-start="letters"><span class="so-ic" lang="si">අ</span><div><b>Learn the letters first</b><span>Get to know the Sinhala script, then start speaking.</span></div></button></div>`,
   ];
   app.innerHTML = `<div class="page onboarding">${step > 0 ? `<div class="onb-progress"><i style="width:${(step / (steps.length - 1)) * 100}%"></i></div>` : ''}${steps[step]()}</div>`;
@@ -615,7 +617,7 @@ async function finishSession(r, back) {
   if (!before.doneToday && after.doneToday) {
     sfx.streak();
     host.innerHTML = `<div class="results streak-screen">
-      <div class="big-flame huge">${ICONS.flame}</div><div class="streak-num">${after.streak}</div>
+      <div class="flame-wrap">${bigFlame(170)}</div><div class="streak-num"><span class="sn-old">${Math.max(0, after.streak - 1)}</span><span class="sn-new">${after.streak}</span></div>
       <h1>${plural(after.streak, 'day')} streak!</h1>
       ${weekStrip()}
       <p class="res-sub">${after.streak === 1 ? 'Every streak starts with day one. See you tomorrow!' : 'Practice each day to keep it growing.'}</p>
@@ -623,7 +625,7 @@ async function finishSession(r, back) {
     await new Promise(res => host.querySelector('.go-on').addEventListener('click', res, { once: true }));
   }
   if (!goalBefore && goalNow) toast(`Daily goal reached! +${S.claimReward('goal:x')} gems`, { icon: ICONS.bolt });
-  achs.forEach((x, i) => setTimeout(() => toast(`Achievement: ${x.a.name} (level ${x.tier + 1}) +${S.claimReward(`ach:${x.a.id}:${x.tier}`)} gems`, { icon: x.a.icon, ms: 3200 }), 400 + i * 900));
+  achs.forEach((x, i) => setTimeout(() => toast(`Achievement: ${x.a.name} (level ${x.tier + 1}) +${S.claimReward(`ach:${x.a.id}:${x.tier}`)} gems`, { icon: badge(x.a.id, x.tier + 1, { size: 30, cls: 'pop' }), ms: 3200 }), 400 + i * 900));
   go(back);
 }
 

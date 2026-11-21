@@ -1,4 +1,5 @@
 // Builds the list of exercises for lessons, reviews, practice and letters.
+import { hasPic } from './pics.js';
 import { LEX, SENT, UNITS, SPEAKERS, DEFAULT_VOICE } from '../data/course.js';
 import { ALL_LETTERS, LETTER_GROUPS } from '../data/letters.js';
 import { romanize } from './translit.js';
@@ -143,7 +144,7 @@ export function buildLesson(node) {
     for (let i = 0; i < items.length; i += 2) {
       const chunk = items.slice(i, i + 2);
       chunk.forEach(it => out.push({ type: 'teach', item: it, tests: [] }));
-      chunk.forEach((it, j) => out.push((j === 0 && it.emoji) ? selectSi(it, pool) : selectEn(it, pool)));
+      chunk.forEach((it, j) => out.push((j === 0 && hasPic(it.id)) ? selectSi(it, pool) : selectEn(it, pool)));
     }
   } else {
     items.forEach(it => out.push(pick([selectSi, selectEn])(it, pool)));

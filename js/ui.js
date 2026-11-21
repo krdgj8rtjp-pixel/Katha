@@ -30,6 +30,8 @@ export const ICONS = {
   keyboard: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
   bolt: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.6z" fill="#FFC800"/></svg>',
   clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M12 7v5.3l3.4 2" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>',
+  words: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 5.2C5 4 8 4 11.2 6v14C8 18.2 5 18.2 2.5 19.4z" fill="#1E9FE3"/><path d="M21.5 5.2C19 4 16 4 12.8 6v14c3.2-1.8 6.2-1.8 8.7-.6z" fill="#56BDF0"/><path d="M5 9h4M5 12h4M15 9h4M15 12h4" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5.5A3.5 3.5 0 0 1 5.5 2h8A3.5 3.5 0 0 1 17 5.5v4a3.5 3.5 0 0 1-3.5 3.5H9l-4.2 3.2V13A3.5 3.5 0 0 1 2 9.5z" fill="#1E9FE3"/><path d="M22 12a3 3 0 0 0-3-3h-.6v.8a5 5 0 0 1-5 5h-3V15a3 3 0 0 0 3 3h3l3.6 2.8V18a3 3 0 0 0 2-2.8z" fill="#E8891C"/><circle cx="6.5" cy="7.6" r="1.2" fill="#fff"/><circle cx="9.5" cy="7.6" r="1.2" fill="#fff"/><circle cx="12.5" cy="7.6" r="1.2" fill="#fff"/></svg>',
   freeze: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7" stroke="#4FC3F7" stroke-width="2.4" stroke-linecap="round"/><path d="m9 3.5 3 2.2 3-2.2M9 20.5l3-2.2 3 2.2" stroke="#4FC3F7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
 };
 
@@ -147,3 +149,23 @@ export function showHint(el, text) {
   tip._el = el;
 }
 export function hideHint() { if (tip) { tip._el?.classList.remove('hinted'); tip.remove(); tip = null; } }
+
+// The streak screen's flame: three flickering layers and rising embers.
+export function bigFlame(size = 170) {
+  const embers = [[78, 60, 0], [124, 74, .7], [100, 40, 1.3], [64, 96, 1.9], [136, 104, .4]]
+    .map(([x, y, d]) => `<circle class="ember" style="animation-delay:${d}s" cx="${x}" cy="${y}" r="3.2" fill="#FFC800"/>`).join('');
+  return `<svg class="flame-big" viewBox="0 0 200 220" width="${size}" height="${Math.round(size * 1.1)}" aria-hidden="true">
+    <ellipse cx="100" cy="208" rx="58" ry="8" fill="#000" opacity=".08"/>
+    <ellipse class="fl-glow" cx="100" cy="136" rx="62" ry="58" fill="#FFB000" opacity=".3"/>
+    ${embers}
+    <path class="fl fl1" d="M100 6 C110 44 134 58 146 80 C150 66 148 56 144 46 C162 68 166 100 160 132 A61 61 0 0 1 40 132 C38 104 50 84 66 72 C66 90 74 102 88 106 C76 72 86 38 100 6Z" fill="#FF9600"/>
+    <path class="fl fl2" d="M104 66 C113 96 142 110 142 144 A42 42 0 0 1 58 144 C58 124 68 112 80 104 C82 118 89 126 97 126 C90 104 95 84 104 66Z" fill="#FFC800"/>
+    <path class="fl fl3" d="M101 118 C107 134 122 144 122 162 A21 21 0 0 1 80 162 C80 149 88 141 93 137 C94 146 98 149 101 149 C98 140 98 128 101 118Z" fill="#FFF3B8"/>
+    <path d="M62 118 C60 104 66 92 74 86" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".35"/>
+  </svg>`;
+}
+
+// Animated Sinhala letter: the outline is traced, then filled in.
+export function letterDraw(ch) {
+  return `<svg class="letter-draw" viewBox="0 0 200 170" width="190" height="162" aria-hidden="true"><text x="100" y="128" text-anchor="middle" font-size="128">${esc(ch)}</text></svg>`;
+}

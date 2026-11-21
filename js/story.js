@@ -6,6 +6,7 @@ import * as audio from './audio.js';
 import { sfx } from './sfx.js';
 import { lessonDone } from './store.js';
 import { character, react } from './characters.js';
+import { storyScene } from './art.js';
 
 export function runStory(id, { host, onQuit, onComplete }) {
   const st = STORIES[id];
@@ -20,8 +21,10 @@ export function runStory(id, { host, onQuit, onComplete }) {
       <div class="hearts-pill"></div>
     </div>
     <div class="lesson-body story-body">
+      <div class="story-stage intro">${storyScene(id)}
+        <div class="stage-cast">${cast.map((c, k) => `<div class="stage-slot" style="--k:${k};--dir:${k % 2 ? 1 : -1}">${character(c, { size: 96, mood: 'wave' })}<span>${esc(SPEAKERS[c].name)}</span></div>`).join('')}</div>
+      </div>
       <div class="story-head"><h2>${esc(st.title)}</h2><p>${esc(st.blurb)}</p></div>
-      <div class="story-stage">${cast.map(id => `<div class="stage-slot">${character(id, { size: 104 })}<span>${esc(SPEAKERS[id].name)}</span></div>`).join('')}</div>
       <div class="story-lines"></div>
     </div>
     <div class="lesson-foot"><div class="foot-inner"><button class="btn primary go">Start story</button></div></div>
@@ -84,6 +87,8 @@ export function runStory(id, { host, onQuit, onComplete }) {
     if (i >= lines.length) return finish();
     const l = lines[i];
     $('.story-head')?.classList.add('small');
+    const stg = $('.story-stage');
+    if (stg.classList.contains('intro')) { stg.classList.remove('intro'); stg.querySelectorAll('.char.wave').forEach(c => c.classList.remove('wave')); }
     const el = l.q ? question(l) : line(l);
     box.appendChild(el);
     requestAnimationFrame(() => { el.classList.add('in'); body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' }); });

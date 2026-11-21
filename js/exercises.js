@@ -2,8 +2,9 @@
 //   { el, footer: 'check'|'continue'|'none', check(): {ok, solution, meaning, items?}, autoplay?(), ungraded? }
 import { esc, shuffle, siTokens, enTokens } from './util.js';
 import { romanize, matchAnswer, foldSinhala, isSinhala } from './translit.js';
-import { ICONS, siLine, audioBtn } from './ui.js';
+import { ICONS, siLine, audioBtn, letterDraw } from './ui.js';
 import { character } from './characters.js';
+import { pic, hasPic } from './pics.js';
 import * as audio from './audio.js';
 import { sfx, unlock as unlockSfx } from './sfx.js';
 import { speechCheckOn, checkRecording } from './speech.js';
@@ -22,7 +23,7 @@ function teach(ex) {
   const el = h(`<div class="ex teach">
     <div class="ex-kicker">${ICONS.star} New word</div>
     <div class="teach-card">
-      ${it.emoji ? `<div class="teach-emoji">${it.emoji}</div>` : ''}
+      ${hasPic(it.id) ? `<div class="teach-pic">${pic(it.id, { size: 148, live: true })}</div>` : ''}
       <div class="teach-si" lang="si">${esc(it.si)}</div>
       <div class="teach-ro">${esc(it.ro)}</div>
       ${audio.canPlay(it.si) ? audioBtn(it.si, { big: true }) : ''}
@@ -38,7 +39,7 @@ function teachLetter(ex) {
   const el = h(`<div class="ex teach">
     <div class="ex-kicker">${ICONS.star} New letter</div>
     <div class="teach-card">
-      <div class="teach-letter" lang="si">${esc(l.ch)}</div>
+      <div class="teach-letter draw" lang="si">${letterDraw(l.ch)}</div>
       <div class="teach-ro big">${esc(l.ro)}</div>
       ${audio.canPlay(l.ch) ? audioBtn(l.ch, { big: true, slow: false }) : ''}
       <p class="teach-note">${esc(l.hint)}</p>
@@ -63,18 +64,18 @@ function choiceList(options, render, onPick) {
 
 function selectSi(ex, ctx) {
   const it = ex.item;
-  const pics = ex.options.every(o => o.emoji);
+  const pics = ex.options.every(o => hasPic(o.id));
   let picked = null;
   const el = h(`<div class="ex">${title(`Which one means “${esc(it.en)}”?`)}</div>`);
   const grid = h(`<div class="cards ${pics ? 'pics' : ''}"></div>`);
   ex.options.forEach((o, i) => {
     const b = h(`<button class="card-choice" data-i="${i}">
-      ${pics ? `<div class="pic">${o.emoji}</div>` : ''}
+      ${pics ? `<div class="pic-wrap">${pic(o.id, { size: 84 })}</div>` : ''}
       <div class="si" lang="si">${esc(o.si)}</div>${roSpan(o.si)}
     </button>`);
     b.addEventListener('click', () => {
-      grid.querySelectorAll('.card-choice').forEach(x => x.classList.remove('sel'));
-      b.classList.add('sel'); picked = o; sfx.tap(); playIf(o.si); ctx.onReady(true);
+      grid.querySelectorAll('.card-choice').forEach(x => { x.classList.remove('sel'); x.querySelector('.pic')?.classList.remove('live'); });
+      b.classList.add('sel'); b.querySelector('.pic')?.classList.add('live'); picked = o; sfx.tap(); playIf(o.si); ctx.onReady(true);
     });
     grid.appendChild(b);
   });
@@ -322,7 +323,7 @@ function speak(ex, ctx) {
         </div>
         <div class="self-check">
           <button class="btn small again">Try again</button>
-          <button class="btn small primary said">I said it ✓</button>
+          <button class="btn small primary said">I said it ${ICONS.check}</button>
           <button class="btn small primary go-on" hidden>Continue</button>
         </div>
       </div>

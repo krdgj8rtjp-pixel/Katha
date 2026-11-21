@@ -127,12 +127,12 @@ export function applyFreezes() {
 
 // ---------- gems (derived from claims and purchases, so merging never double-counts)
 export const ACHIEVEMENTS = [
-  { id: 'streak', name: 'Keep the Fire', icon: '🔥', desc: n => `Reach a ${n} day streak`, tiers: [3, 7, 14, 30, 60, 100], stat: () => streakInfo().longest },
-  { id: 'xp', name: 'XP Collector', icon: '⚡', desc: n => `Earn ${n} XP`, tiers: [100, 250, 500, 1000, 2500, 5000], stat: () => totalXP() },
-  { id: 'words', name: 'Word Hoard', icon: '📚', desc: n => `Learn ${n} words and phrases`, tiers: [10, 25, 50, 75, 100, 200], stat: () => wordsLearned() },
-  { id: 'perfect', name: 'Flawless', icon: '💎', desc: n => `Finish ${n} lessons with no mistakes`, tiers: [1, 5, 10, 25, 50, 100], stat: () => sumLog('perfect') },
-  { id: 'letters', name: 'Script Reader', icon: '✍️', desc: n => `Master ${n} letters`, tiers: [6, 12, 24, 36, 48, 54], stat: () => lettersMastered() },
-  { id: 'stories', name: 'Storyteller', icon: '📖', desc: n => `Finish ${n} stories`, tiers: [1, 2, 4, 8, 12, 20], stat: () => storiesDone() },
+  { id: 'streak', name: 'Keep the Fire', desc: n => `Reach a ${n} day streak`, tiers: [3, 7, 14, 30, 60, 100], stat: () => streakInfo().longest },
+  { id: 'xp', name: 'XP Collector', desc: n => `Earn ${n} XP`, tiers: [100, 250, 500, 1000, 2500, 5000], stat: () => totalXP() },
+  { id: 'words', name: 'Word Hoard', desc: n => `Learn ${n} words and phrases`, tiers: [10, 25, 50, 75, 100, 200], stat: () => wordsLearned() },
+  { id: 'perfect', name: 'Flawless', desc: n => `Finish ${n} lessons with no mistakes`, tiers: [1, 5, 10, 25, 50, 100], stat: () => sumLog('perfect') },
+  { id: 'letters', name: 'Script Reader', desc: n => `Master ${n} letters`, tiers: [6, 12, 24, 36, 48, 54], stat: () => lettersMastered() },
+  { id: 'stories', name: 'Storyteller', desc: n => `Finish ${n} stories`, tiers: [1, 2, 4, 8, 12, 20], stat: () => storiesDone() },
 ];
 const ACH_REWARD = [10, 15, 20, 30, 40, 50];
 

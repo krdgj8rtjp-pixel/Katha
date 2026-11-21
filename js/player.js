@@ -129,7 +129,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
       }
     }
     const tag = $('.combo-tag');
-    if (combo >= 3) { tag.hidden = false; tag.textContent = `🔥 ${combo}`; } else tag.hidden = true;
+    if (combo >= 3) { tag.hidden = false; tag.innerHTML = `${ICONS.flame}${combo}`; tag.classList.remove('bump'); void tag.offsetWidth; tag.classList.add('bump'); } else tag.hidden = true;
     fb.hidden = false;
     go.textContent = 'Continue'; go.disabled = false; go.hidden = false;
     setProgress(1);
