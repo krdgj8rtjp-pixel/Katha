@@ -1,4 +1,5 @@
 import { esc, rawTokens } from './util.js';
+import { isSi, L } from './lang.js';
 import { romanize } from './translit.js';
 import { state } from './store.js';
 import { character } from './characters.js';
@@ -65,11 +66,11 @@ export function mascotStatic(size = 120) {
 export function siLine(si, glosses = [], { cls = '', roman = null, voice = '' } = {}) {
   const toks = rawTokens(si);
   const words = toks.map((t, i) => {
-    const clean = t.replace(/[.,!?;:]+/g, '');
+    const clean = t.replace(/[.,!?;:¿¡…]+/g, '');
     return `<span class="w" tabindex="0" data-t="${esc(clean)}" data-g="${esc(glosses[i] || '')}" data-v="${esc(voice)}">${esc(t)}</span>`;
   }).join(' ');
-  const showRoman = roman ?? state.profile.settings.roman;
-  return `<div class="si-line ${cls}"><div class="si" lang="si">${words}</div>${showRoman ? `<div class="ro">${esc(romanize(si))}</div>` : ''}</div>`;
+  const showRoman = (roman ?? state.profile.settings.roman) && isSi();
+  return `<div class="si-line ${cls}"><div class="si" lang="${L()}">${words}</div>${showRoman ? `<div class="ro">${esc(romanize(si))}</div>` : ''}</div>`;
 }
 
 export function audioBtn(text, { voice = '', big = false, slow = true, label = 'Play audio' } = {}) {

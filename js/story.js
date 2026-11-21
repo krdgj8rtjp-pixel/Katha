@@ -21,7 +21,7 @@ export function runStory(id, { host, onQuit, onComplete }) {
       <div class="hearts-pill"></div>
     </div>
     <div class="lesson-body story-body">
-      <div class="story-stage intro">${storyScene(id)}
+      <div class="story-stage intro">${storyScene(st.scene || id)}
         <div class="stage-cast">${cast.map((c, k) => `<div class="stage-slot" style="--k:${k};--dir:${k % 2 ? 1 : -1}">${character(c, { size: 96, mood: 'wave' })}<span>${esc(SPEAKERS[c].name)}</span></div>`).join('')}</div>
       </div>
       <div class="story-head"><h2>${esc(st.title)}</h2><p>${esc(st.blurb)}</p></div>

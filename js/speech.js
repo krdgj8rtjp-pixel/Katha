@@ -1,6 +1,8 @@
 // Speaking check: turn a recording into 16 kHz mono WAV, send it to the
 // "transcribe" helper (Azure, via Supabase), and grade it against the target.
-import { foldSinhala, levenshtein } from './translit.js';
+import { levenshtein } from './translit.js';
+import { foldT, isSi } from './lang.js';
+import { COURSE } from '../data/course.js';
 import { transcribe, canTranscribe } from './sync.js';
 import { state } from './store.js';
 
@@ -63,15 +65,17 @@ function encodeWav(samples, rate) {
 }
 
 // ---------- grading
-const DIGITS = { 1: 'එක', 2: 'දෙක', 3: 'තුන', 4: 'හතර', 5: 'පහ', 6: 'හය', 7: 'හත', 8: 'අට', 9: 'නවය', 10: 'දහය', 20: 'විස්ස', 50: 'පනහ', 80: 'අසූව', 100: 'සීය' };
+const DIGITS_SI = { 1: 'එක', 2: 'දෙක', 3: 'තුන', 4: 'හතර', 5: 'පහ', 6: 'හය', 7: 'හත', 8: 'අට', 9: 'නවය', 10: 'දහය', 20: 'විස්ස', 50: 'පනහ', 80: 'අසූව', 100: 'සීය' };
 // Spoken/written spellings the recognizer may use for the same word.
+const DIGITS_ES = { 1: 'uno', 2: 'dos', 3: 'tres', 4: 'cuatro', 5: 'cinco', 6: 'seis', 7: 'siete', 8: 'ocho', 9: 'nueve', 10: 'diez', 15: 'quince', 20: 'veinte', 50: 'cincuenta', 100: 'cien' };
 const SAME = [['නැහැ', 'නෑ', 'නැ'], ['ඕනේ', 'ඕනෑ'], ['හොඳයි', 'හොදයි'], ['ස්තුතියි', 'ස්තූතියි'], ['මොකක්ද', 'මොකද්ද'], ['කීයද', 'කීයක්ද']];
 const canon = {};
 SAME.forEach(g => g.forEach(w => { canon[w] = g[0]; }));
 
 function tokens(s) {
-  const withWords = String(s || '').replace(/\d+/g, d => ` ${DIGITS[d] || d} `);
-  return foldSinhala(withWords).split(' ').filter(Boolean).map(w => canon[w] || w);
+  const D = isSi() ? DIGITS_SI : DIGITS_ES;
+  const withWords = String(s || '').replace(/\d+/g, d => ` ${D[d] || d} `);
+  return foldT(withWords).split(' ').filter(Boolean).map(w => canon[w] || w);
 }
 const close = (a, b) => a === b || levenshtein(a, b) <= Math.max(1, Math.floor(Math.max(a.length, b.length) / 4));
 
@@ -100,7 +104,7 @@ export function grade(target, heardOptions) {
 export async function checkRecording(blob, target) {
   const { wav, seconds } = await toWav16k(blob);
   if (seconds < 0.3) return { score: 0, hits: [], heard: '', empty: true };
-  const res = await transcribe(wav);
+  const res = await transcribe(wav, COURSE.speechLang);
   const options = [res.text, ...(res.alternatives || []).flatMap(a => [a.text, a.lexical])].filter(Boolean);
   if (!options.length) return { score: 0, hits: tokens(target).map(() => false), heard: '', empty: true };
   return grade(target, options);

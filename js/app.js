@@ -1,5 +1,6 @@
-// Katha — spoken Sinhala. App shell, routing and screens.
-import { UNITS, COMING, LEX, STORIES, DEFAULT_VOICE } from '../data/course.js';
+// Katha — spoken Sinhala and Spanish. App shell, routing and screens.
+import { UNITS, COMING, LEX, STORIES, DEFAULT_VOICE, COURSE, COURSES, COURSE_IDS, useCourse } from '../data/course.js';
+import { isSi, L, ro } from './lang.js';
 import { LETTER_GROUPS, ALL_LETTERS } from '../data/letters.js';
 import * as S from './store.js';
 import { state } from './store.js';
@@ -68,20 +69,21 @@ function topbar() {
   const h = S.heartsNow();
   const hearts = state.profile.settings.hearts;
   return `<header class="topbar">
-    <a class="tb-item brand" href="#/learn" aria-label="Katha home"><span class="brand-mark" lang="si">ක</span></a>
+    <button class="tb-item brand" data-act="course" aria-label="Change course: ${COURSE.name}"><span class="brand-mark c-${COURSE.id}" lang="${L()}">${COURSE.mark}</span></button>
     <button class="tb-item streak ${st.doneToday ? 'lit' : ''}" data-act="streak">${st.doneToday || st.streak ? ICONS.flame : ICONS.flameOff}<b>${st.streak}</b></button>
     <button class="tb-item gems" data-act="gems">${ICONS.gem}<b>${S.gems()}</b></button>
     ${S.boostLeft() > 0 ? `<button class="tb-item boost" data-act="boost">${ICONS.bolt}<b>2×</b></button>` : ''}
     <button class="tb-item hearts" data-act="hearts">${hearts ? ICONS.heart + `<b>${h}</b>` : ICONS.infinity}</button>
   </header>`;
 }
-const TABS = [
+const TABS_ALL = [
   ['learn', 'Learn', ICONS.home], ['letters', 'Letters', ICONS.letters], ['practice', 'Practice', ICONS.dumbbell],
   ['quests', 'Quests', ICONS.target], ['friends', 'Friends', ICONS.trophy], ['profile', 'Profile', ICONS.user],
 ];
+const tabsNow = () => TABS_ALL.filter(([id]) => id !== 'letters' || isSi());
 function tabbar(active) {
   const claimable = S.questsFor(S.today(), questCaps()).some(q => q.done && !q.claimed);
-  return `<nav class="tabbar">${TABS.map(([id, label, icon]) => `<a href="#/${id}" class="tab ${id === active ? 'on' : ''}" aria-label="${label}">
+  return `<nav class="tabbar">${tabsNow().map(([id, label, icon]) => `<a href="#/${id}" class="tab ${id === active ? 'on' : ''}" aria-label="${label}">
     <span class="tab-ic">${icon}${id === 'quests' && claimable ? '<i class="dot"></i>' : ''}</span><span class="tab-l">${label}</span></a>`).join('')}</nav>`;
 }
 function shell(active, body) {
@@ -94,6 +96,7 @@ async function topbarClick(e) {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act;
   if (act === 'gems') return go('shop');
+  if (act === 'course') return coursePicker();
   if (act === 'boost') {
     const m = Math.max(1, Math.ceil(S.boostLeft() / 60000));
     return modal({ art: `<div class="boost-art">${ICONS.bolt}<b>2×</b></div>`, title: 'XP Boost is on', body: `<p>Everything you do earns double XP for the next ${plural(m, 'minute')}.</p>`, buttons: [{ label: 'Keep going', value: 1, cls: 'primary' }] });
@@ -143,7 +146,7 @@ function weekStrip() {
   return `<div class="week">${days.join('')}</div>`;
 }
 
-const questCaps = () => ({ speech: caps().speak && sync.canTranscribe() && state.profile.settings.speechCheck !== false, audio: caps().listen, practice: S.learnedItemIds().length >= 3, story: S.pathNodes().some(n => n.type === 'story' && S.lessonDone(n.id)) || S.currentNodeIndex() > 4 });
+const questCaps = () => ({ letters: isSi(), speech: caps().speak && sync.canTranscribe() && state.profile.settings.speechCheck !== false, audio: caps().listen, practice: S.learnedItemIds().length >= 3, story: S.pathNodes().some(n => n.type === 'story' && S.lessonDone(n.id)) || S.currentNodeIndex() > 4 });
 
 // ------------------------------------------------------------ tabs
 function renderTab(name) {
@@ -171,7 +174,7 @@ function learnTab() {
     const unitDone = unitNodes.every(S.nodeDone);
     html += `<section class="unit" style="--u:${u.color}">
       <div class="unit-banner ${unitDone ? 'done' : ''}">
-        <div><div class="unit-k">Unit ${ui + 1} · <span lang="si">${esc(u.si)}</span></div><h2>${esc(u.title)}</h2><p>${esc(u.desc)}</p></div>
+        <div><div class="unit-k">Unit ${ui + 1} · <span lang="${L()}">${esc(u.si)}</span></div><h2>${esc(u.title)}</h2><p>${esc(u.desc)}</p></div>
         <a class="guide-btn" href="#/guide/${u.id}" aria-label="Guidebook">${ICONS.book}<span>Guide</span></a>
       </div><div class="nodes">`;
     unitNodes.forEach((n, i) => {
@@ -303,8 +306,8 @@ function practiceTab() {
     const rows = learned.map(id => ({ id, s: strength(state.srs[id]) })).sort((a, b) => a.s - b.s);
     for (const { id, s } of rows) {
       const x = LEX[id];
-      html += `<div class="word-row"><div class="wr-pic">${pic(id, { size: 38 })}</div><button class="mini-play" data-play="${esc(x.si)}" aria-label="Play">${ICONS.speaker}</button>
-        <div class="wr-main"><span class="si" lang="si">${esc(x.si)}</span><span class="ro">${esc(romanize(x.si))}</span></div>
+      html += `<div class="word-row"><div class="wr-pic">${pic(LEX[id].pic || id, { size: 38 })}</div><button class="mini-play" data-play="${esc(x.si)}" aria-label="Play">${ICONS.speaker}</button>
+        <div class="wr-main"><span class="si" lang="${L()}">${esc(x.si)}</span>${isSi() ? `<span class="ro">${esc(ro(x.si))}</span>` : ''}</div>
         <div class="wr-en">${esc(x.en)}</div><div class="bars s${s}" title="Strength ${s}/4"><i></i><i></i><i></i><i></i></div></div>`;
     }
     html += '</div>';
@@ -443,7 +446,7 @@ function mountFriends() {
     const b = e.target.closest('[data-act], [data-follow], [data-unfollow]'); if (!b) return;
     if (b.dataset.act === 'share') {
       const url = inviteLink();
-      if (navigator.share) { try { await navigator.share({ title: 'Learn Sinhala with me on Katha', text: `Add me on Katha — my friend code is ${sync.friendCode()}`, url }); } catch {} }
+      if (navigator.share) { try { await navigator.share({ title: `Learn ${COURSE.name} with me on Katha`, text: `Add me on Katha — my friend code is ${sync.friendCode()}`, url }); } catch {} }
       else { await navigator.clipboard?.writeText(url).catch(() => {}); toast('Invite link copied', { icon: ICONS.check }); }
     }
     if (b.dataset.act === 'copy') { await navigator.clipboard?.writeText(sync.friendCode()).catch(() => {}); toast('Friend code copied', { icon: ICONS.check }); }
@@ -532,12 +535,12 @@ function profileTab() {
   }
   return `<div class="profile-tab">
     <div class="prof-head"><div class="avatar-big char-av">${character(p.avatar || 'aliya', { head: true, size: 72 })}</div>
-      <div><h1 class="prof-name">${esc(p.name || 'Learner')}</h1><p class="muted">Learning spoken Sinhala since ${since}</p></div></div>
+      <div><h1 class="prof-name">${esc(p.name || 'Learner')}</h1><p class="muted">Learning ${COURSE_IDS.filter(c => c === COURSE.id || S.courseStarted(COURSES[c])).map(c => COURSES[c].name).join(' and ')} since ${since}</p></div></div>
     <div class="stats">
       <div class="stat">${ICONS.flame}<b>${st.streak}</b><span>Day streak</span></div>
       <div class="stat">${ICONS.bolt}<b>${S.totalXP()}</b><span>Total XP</span></div>
-      <div class="stat">${ICONS.words}<b>${S.wordsLearned()}</b><span>Words</span></div>
-      <div class="stat"><span class="stat-emo" lang="si">අ</span><b>${S.lettersMastered()}</b><span>Letters</span></div>
+      <div class="stat">${ICONS.words}<b>${courseStats(COURSE).words}</b><span>${COURSE.name} words</span></div>
+      ${isSi() ? `<div class="stat"><span class="stat-emo" lang="si">අ</span><b>${S.lettersMastered()}</b><span>Letters</span></div>` : `<div class="stat">${ICONS.book || ICONS.words}<b>${Object.keys(STORIES).filter(id => S.lessonDone(id)).length}</b><span>Stories</span></div>`}
     </div>
     ${xpChart()}
     <a class="shop-link" href="#/shop">${ICONS.gem}<div><b>Shop</b><small>${S.gems()} gems · ${plural(S.freezesOwned(), 'streak freeze')}</small></div><span>›</span></a>
@@ -548,7 +551,7 @@ function profileTab() {
       <div class="setting avatar-set"><div><b>Avatar</b><small>What friends see on the leaderboard</small></div>
         <div class="av-pick">${AVATARS.map(a => `<button class="av-opt ${a === (p.avatar || 'aliya') ? 'on' : ''}" data-avatar="${a}" aria-label="${a}">${character(a, { head: true, size: 44 })}</button>`).join('')}</div></div>
       <label class="setting"><div><b>Daily goal</b></div><select data-goal>${[10, 20, 30, 50].map(g => `<option value="${g}" ${p.goal === g ? 'selected' : ''}>${g} XP · ${{ 10: 'Casual', 20: 'Regular', 30: 'Serious', 50: 'Intense' }[g]}</option>`).join('')}</select></label>
-      ${tog('roman', 'Show romanization', 'English letters under Sinhala script')}
+      ${isSi() ? tog('roman', 'Show romanization', 'English letters under Sinhala script') : ''}
       ${tog('sound', 'Sound effects')}
       ${tog('hearts', 'Hearts', 'Mistakes cost hearts in lessons')}
       ${tog('listening', 'Listening exercises')}
@@ -556,7 +559,7 @@ function profileTab() {
       ${tog('speechCheck', 'Check my speaking', 'Sends your recordings to Azure to grade them (needs sign-in)')}
     </div>
     <h3 class="sec-title">Audio</h3>
-    <div class="panel"><p class="muted">${audio.hasClips() ? 'Using recorded Sinhala voices.' : audio.deviceVoice() ? `Using this device's Sinhala voice (${esc(audio.deviceVoice().name)}). Recorded voices will replace it once they're generated.` : 'No Sinhala audio yet on this device — listening exercises are hidden until voice clips are generated (see README).'}</p></div>
+    <div class="panel"><p class="muted">${audio.hasClips() ? `Using recorded ${COURSE.name} voices.` : audio.deviceVoice() ? `Using this device's ${COURSE.name} voice (${esc(audio.deviceVoice().name)}). Recorded voices will replace it once they're generated.` : 'No Sinhala audio yet on this device — listening exercises are hidden until voice clips are generated (see README).'}</p></div>
     <div class="danger-zone"><button class="link-btn danger" data-act="reset">Reset all progress on this device</button>
     <p class="muted small">Katha v${window.KATHA_VERSION || 'dev'}</p></div>
   </div>`;
@@ -615,6 +618,47 @@ function mountProfile() {
   root.querySelectorAll('.xc-col').forEach(c => c.addEventListener('click', () => { root.querySelectorAll('.xc-col').forEach(x => x.classList.remove('show')); c.classList.add('show'); }));
 }
 
+// ------------------------------------------------------------ courses
+function applyCourse(id) {
+  const c = useCourse(COURSES[id] ? id : 'si');
+  document.documentElement.dataset.course = c.id;
+  return c;
+}
+function setCourse(id) {
+  if (!COURSES[id]) return;
+  S.setProfile({ course: id });
+  applyCourse(id);
+  sync.syncSoon();
+}
+function courseStats(c) {
+  const lessons = c.UNITS.flatMap(u => u.path.filter(n => n.type !== 'chest'));
+  const done = lessons.filter(n => S.lessonDone(n.id)).length;
+  const words = Object.keys(c.LEX).filter(id => state.srs[id]).length;
+  return { done, total: lessons.length, words };
+}
+async function coursePicker() {
+  const v = await modal({
+    title: 'Your courses',
+    body: `<div class="course-list">${COURSE_IDS.map(id => { const c = COURSES[id], st = courseStats(c); return `<button class="course-row ${id === COURSE.id ? 'on' : ''}" data-cid="${id}">
+      <span class="brand-mark c-${id}" lang="${c.lang}">${c.mark}</span>
+      <span class="cr-main"><b>${c.name}</b><small>${st.done ? `${plural(st.words, 'word')} · ${st.done} of ${st.total} lessons` : 'Not started yet'}</small><i class="cr-bar"><i style="width:${Math.round(st.done / st.total * 100)}%"></i></i></span>
+      ${id === COURSE.id ? `<span class="cr-on">${ICONS.check}</span>` : ''}</button>`; }).join('')}</div>
+      <p class="muted small">Your streak, XP, gems and friends are shared across courses.</p>`,
+    buttons: [{ label: 'Done', value: null, cls: '' }], dismiss: null,
+  });
+  if (v) return;
+}
+document.addEventListener('click', (e) => {
+  const row = e.target.closest('.course-row'); if (!row) return;
+  const id = row.dataset.cid;
+  row.closest('.modal-wrap')?.querySelector('.modal-btns .btn')?.click();
+  if (id !== COURSE.id) {
+    setCourse(id); sfx.whoosh();
+    toast(`Switched to ${COURSE.name}`, { icon: `<span class="brand-mark c-${id} mini">${COURSE.mark}</span>` });
+    if (currentTab === 'learn') renderTab('learn'); else go('learn');
+  }
+});
+
 // ------------------------------------------------------------ shop & guide
 function renderShop() {
   currentTab = null;
@@ -661,8 +705,9 @@ function renderOnboarding(step) {
   const p = state.profile;
   const steps = [
     () => `<div class="onb center">${castLineup(['kumari', 'aliya', 'nimal', 'john'], 82, 'wave')}
-      <h1>Learn to <span class="accent">speak</span> Sinhala</h1>
-      <p>Short, game-like lessons in everyday spoken Sinhala — the way people really talk in Sri Lanka.</p>
+      <h1>Learn to <span class="accent">speak</span> ${COURSE.name}</h1>
+      <p>Short, game-like lessons in ${COURSE.tagline}.</p>
+      <div class="course-pick">${COURSE_IDS.map(c => `<button class="cp-opt ${c === COURSE.id ? 'on' : ''}" data-pick-course="${c}"><span class="brand-mark c-${c}" lang="${COURSES[c].lang}">${COURSES[c].mark}</span><b>${COURSES[c].name}</b></button>`).join('')}</div>
       <div class="onb-btns"><button class="btn primary wide" data-next>Get started</button>
       ${sync.configured() && !window.KATHA_PREVIEW ? '<button class="btn ghost wide" data-signin>I already have an account</button>' : ''}</div></div>`,
     () => `<div class="onb">${mascot('idle', 110)}<h2>What should I call you?</h2>
@@ -673,8 +718,8 @@ function renderOnboarding(step) {
         .map(([g, l, d]) => `<button class="choice goal-opt ${p.goal === g ? 'sel' : ''}" data-goal="${g}"><b>${l}</b><span>${d}</span><i>${g} XP</i></button>`).join('')}</div>
       <div class="onb-btns"><button class="btn primary wide" data-next>Continue</button></div></div>`,
     () => `<div class="onb">${mascot('happy', 110)}<h2>Where do you want to start?</h2>
-      <button class="choice start-opt" data-start="lesson"><span class="so-ic">${ICONS.chat}</span><div><b>Start speaking</b><span>Jump into Unit 1: Greetings. Romanization helps you read along.</span></div></button>
-      <button class="choice start-opt" data-start="letters"><span class="so-ic" lang="si">අ</span><div><b>Learn the letters first</b><span>Get to know the Sinhala script, then start speaking.</span></div></button></div>`,
+      <button class="choice start-opt" data-start="lesson"><span class="so-ic">${ICONS.chat}</span><div><b>Start speaking</b><span>Jump into Unit 1: Greetings.${isSi() ? ' Romanization helps you read along.' : ''}</span></div></button>
+      ${isSi() ? `<button class="choice start-opt" data-start="letters"><span class="so-ic" lang="si">අ</span><div><b>Learn the letters first</b><span>Get to know the Sinhala script, then start speaking.</span></div></button>` : ''}</div>`,
   ];
   app.innerHTML = `<div class="page onboarding">${step > 0 ? `<div class="onb-progress"><i style="width:${(step / (steps.length - 1)) * 100}%"></i></div>` : ''}${steps[step]()}</div>`;
   const root = app.querySelector('.onboarding');
@@ -684,6 +729,8 @@ function renderOnboarding(step) {
       const n = root.querySelector('.name-in'); if (n) S.setProfile({ name: n.value.trim() });
       renderOnboarding(step + 1);
     }
+    const cb = e.target.closest('[data-pick-course]');
+    if (cb) { setCourse(cb.dataset.pickCourse); return renderOnboarding(step); }
     if (e.target.closest('[data-signin]')) { state.profile.onboarded = true; S.save({ quiet: true }); S.ensureWelcome(); go('profile'); }
     const gb = e.target.closest('[data-goal]');
     if (gb) { root.querySelectorAll('.goal-opt').forEach(x => x.classList.remove('sel')); gb.classList.add('sel'); S.setProfile({ goal: Number(gb.dataset.goal) }); }
@@ -739,7 +786,7 @@ function lessonIntro(n) {
       <div class="ic-meta">Unit ${ui + 1} · ${n.type === 'review' ? 'Unit review' : `Lesson ${li + 1} of ${lessons.length}`}</div>
       <h1>${esc(n.type === 'review' ? `Review: ${u.title}` : n.title)}</h1>
       ${words.length ? `<p class="ic-sub">${first ? 'New words' : 'Words in this lesson'}</p>
-        <div class="ic-words">${words.map((id, i) => `<div class="ic-w" style="--i:${i}">${pic(id, { size: 56, live: true })}<span lang="si">${esc(LEX[id].si)}</span></div>`).join('')}</div>`
+        <div class="ic-words">${words.map((id, i) => `<div class="ic-w" style="--i:${i}">${pic(LEX[id].pic || id, { size: 56, live: true })}<span lang="${L()}">${esc(LEX[id].si)}</span></div>`).join('')}</div>`
         : `<p class="ic-sub">Everything from Unit ${ui + 1}, mixed together. Finish it to complete the unit.</p><div class="ic-trophy">${trophyArt(90)}</div>`}
       ${S.boostLeft() > 0 ? `<p class="ic-boost">${ICONS.bolt} 2× XP is on</p>` : ''}
     </div>
@@ -850,13 +897,14 @@ function countUp(el, to, icon = '', suffix = '', ms = 800) {
 
 // ------------------------------------------------------------ boot
 async function boot() {
+  applyCourse(state.profile.course || 'si');
   await audio.initAudio('audio/');
   if (await sync.captureRedirect()) setTimeout(() => toast('Email confirmed — you\'re signed in and synced', { icon: ICONS.cloud, ms: 3500 }), 400);
   const used = S.applyFreezes();
   route();
   if (used) setTimeout(() => toast(`A streak freeze saved your streak!`, { icon: ICONS.freeze, ms: 4000 }), 600);
   if (sync.configured() && sync.user()) {
-    sync.syncNow().then(ok => { if (ok && !inSession && currentTab) renderTab(currentTab); });
+    sync.syncNow().then(ok => { if (ok && (state.profile.course || 'si') !== COURSE.id) applyCourse(state.profile.course); if (ok && !inSession && currentTab) renderTab(currentTab); });
   }
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {

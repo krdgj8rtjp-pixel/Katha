@@ -1,5 +1,6 @@
 // Little Sri Lankan scenes for the learning path.
-import { character } from './characters.js';
+import { character, castId } from './characters.js';
+import { UNITS } from '../data/course.js';
 
 const palm = (x = 0, y = 0, s = 1, flip = false) => `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})">
   <path d="M0 0 C-2 -30 4 -60 14 -86" stroke="#8B5A2B" stroke-width="7" fill="none" stroke-linecap="round"/>
@@ -25,6 +26,21 @@ const teaBushes = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) s
   ${[0, 1, 2].map(r => [0, 1, 2, 3].map(c => `<ellipse cx="${c * 26 - 39 + (r % 2) * 13}" cy="${-r * 14}" rx="15" ry="9" fill="${['#3FA35F', '#4FB36D', '#5CC07A'][r]}"/>`).join('')).join('')}
   <path d="M-58 4 h116" stroke="#8a5a2b" stroke-width="3" opacity=".3"/>
 </g>`;
+
+export const taxi = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+  <ellipse cx="0" cy="2" rx="42" ry="4" fill="#000" opacity=".1"/>
+  <path d="M-40 -8 L-40 -22 Q-40 -28 -32 -30 L-20 -32 L-10 -46 Q-7 -50 0 -50 L20 -50 Q26 -50 30 -44 L38 -32 Q44 -30 44 -24 L44 -8Z" fill="#F5C518"/>
+  <path d="M-16 -32 L-6 -45 L6 -45 L6 -32Z M10 -32 L10 -45 L20 -45 Q24 -45 27 -41 L33 -32Z" fill="#AEDCF0"/>
+  <rect x="-6" y="-58" width="20" height="8" rx="2" fill="#1B1B1F"/><path d="M-3 -54 h14" stroke="#F5C518" stroke-width="2" stroke-dasharray="3 2"/>
+  <path d="M-40 -18 H44" stroke="#1B1B1F" stroke-width="3" stroke-dasharray="5 5"/>
+  <circle cx="-24" cy="-6" r="8" fill="#222"/><circle cx="-24" cy="-6" r="3" fill="#bbb"/><circle cx="28" cy="-6" r="8" fill="#222"/><circle cx="28" cy="-6" r="3" fill="#bbb"/>
+</g>`;
+const fountain = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="-2" rx="34" ry="8" fill="#9AA0AE"/><ellipse cx="0" cy="-6" rx="30" ry="6" fill="#7FD0F5"/><rect x="-5" y="-34" width="10" height="28" fill="#B8BECB"/><ellipse cx="0" cy="-34" rx="16" ry="4" fill="#9AA0AE"/>
+  <g class="s-steam" style="animation-duration:1.6s"><path d="M0 -38 q-10 -14 -18 6 M0 -38 q10 -14 18 6" stroke="#7FD0F5" stroke-width="2.6" fill="none" stroke-linecap="round"/></g></g>`;
+const colonial = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-34" y="-48" width="68" height="48" fill="#F2D9A0"/><path d="M-34 -48 Q0 -74 34 -48Z" fill="#E8C27A"/>
+  <rect x="-44" y="-78" width="18" height="78" fill="#F2D9A0"/><path d="M-46 -78 Q-35 -96 -24 -78Z" fill="#C0533A"/><rect x="26" y="-78" width="18" height="78" fill="#F2D9A0"/><path d="M24 -78 Q35 -96 46 -78Z" fill="#C0533A"/>
+  <path d="M-35 -104 V-92 M-39 -99 H-31 M35 -104 V-92 M31 -99 H39" stroke="#E8B53A" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M-9 0 V-20 a9 9 0 0 1 18 0 V0Z" fill="#7A4A2A"/><circle cx="0" cy="-36" r="6" fill="#7FB6D9"/><path d="M-40 -62 v-8 a5 5 0 0 1 10 0 v8Z M30 -62 v-8 a5 5 0 0 1 10 0 v8Z" fill="#3E3346"/></g>`;
 
 export const tuktuk = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
   <ellipse cx="0" cy="2" rx="40" ry="4" fill="#000" opacity=".1"/>
@@ -58,6 +74,8 @@ const SCENES = {
   u6: { who: 'john', art: () => `<path d="M0 150 H190" stroke="#9AA0AE" stroke-width="10"/>${roadSign(30, 150)}${tuktuk(130, 146, .72)}${cloud(60, 30, .9)}` },
   u7: { who: 'duva', art: () => `${palm(28, 150, .85)}${kite(140, 40)}${sun(60, 28, 11)}${cloud(150, 70, .7)}` },
   u8: { who: 'nimal', art: () => `${smallChurch(120, 150, .9)}${palm(24, 150, .8)}${sun(40, 28, 11)}${cloud(150, 26, .7)}` },
+  esplaza: { who: 'kumari', art: () => `${colonial(146, 150, .72)}${fountain(30, 150, .72)}${sun(36, 30, 11)}${cloud(96, 24, .7)}` },
+  esmarket: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${taxi(150, 150, .62)}${cloud(40, 28, .8)}` },
 };
 const smallHouse = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-34" y="-40" width="68" height="40" fill="#FFF3DC"/><path d="M-42 -38 L0 -70 L42 -38Z" fill="#C0533A"/><rect x="-9" y="-24" width="18" height="24" rx="2" fill="#7A4A2A"/><rect x="-27" y="-30" width="13" height="12" rx="1.5" fill="#FFD36E"/><rect x="14" y="-30" width="13" height="12" rx="1.5" fill="#FFD36E"/></g>`;
 const smallChurch = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-30" y="-40" width="60" height="40" fill="#FBF7EE"/><path d="M-36 -38 L0 -64 L36 -38Z" fill="#C0533A"/><rect x="-9" y="-92" width="18" height="36" fill="#FBF7EE"/><path d="M-12 -92 L0 -104 L12 -92Z" fill="#C0533A"/><path d="M0 -118 V-104 M-5 -112 H5" stroke="#E8B53A" stroke-width="3" stroke-linecap="round"/><path d="M-8 0 V-16 a8 8 0 0 1 16 0 V0Z" fill="#7A4A2A"/><circle cx="0" cy="-48" r="5" fill="#7FB6D9"/></g>`;
@@ -65,22 +83,23 @@ const roadSign = (x, y) => `<g transform="translate(${x} ${y})"><rect x="-2.5" y
 const kite = (x, y) => `<g transform="translate(${x} ${y})"><g class="s-kite"><path d="M0 -14 L11 0 L0 16 L-11 0Z" fill="#E5484D"/><path d="M0 -14 V16 M-11 0 H11" stroke="#fff" stroke-width="1.4" opacity=".8"/><path d="M0 16 q-4 8 0 14 q4 6 0 12" stroke="#E5484D" stroke-width="1.6" fill="none"/><path d="M0 16 L-40 110" stroke="#fff" stroke-width=".9" opacity=".8"/></g></g>`;
 
 // A scene beside the path: scenery plus a waving character.
+const sceneOf = (unitId) => SCENES[UNITS.find(u => u.id === unitId)?.scene || unitId] || SCENES.u1;
 export function pathScene(unitId, side = 'left') {
-  const sc = SCENES[unitId] || SCENES.u1;
+  const sc = sceneOf(unitId);
   return `<div class="path-scene ${side}">
     <svg class="scene-bg" viewBox="0 0 190 160" aria-hidden="true">${sc.art()}</svg>
-    <div class="scene-char">${character(sc.who, { size: 74, mood: 'wave' })}</div>
+    <div class="scene-char">${character(castId(sc.who), { size: 74, mood: 'wave' })}</div>
   </div>`;
 }
 
 // Bigger version of a unit's scene for the guidebook header.
 export function unitHero(unitId) {
-  const sc = SCENES[unitId] || SCENES.u1;
-  return `<div class="unit-hero"><svg class="scene-bg" viewBox="0 0 190 160" aria-hidden="true">${sc.art()}</svg><div class="scene-char">${character(sc.who, { size: 92, mood: 'wave' })}</div></div>`;
+  const sc = sceneOf(unitId);
+  return `<div class="unit-hero"><svg class="scene-bg" viewBox="0 0 190 160" aria-hidden="true">${sc.art()}</svg><div class="scene-char">${character(castId(sc.who), { size: 92, mood: 'wave' })}</div></div>`;
 }
 
 export function castLineup(ids = ['kumari', 'aliya', 'nimal', 'john'], size = 84, mood = '') {
-  return `<div class="cast-lineup">${ids.map(id => character(id, { size, mood })).join('')}</div>`;
+  return `<div class="cast-lineup">${ids.map(id => character(castId(id), { size, mood })).join('')}</div>`;
 }
 
 // ---------------------------------------------------------------- story scenes
@@ -202,6 +221,8 @@ Object.assign(SCENE_ART, {
     <rect x="0" y="138" width="360" height="62" fill="#D9BE90"/>${[148, 166, 184].map((y, i) => `<rect x="${10 + i * 6}" y="${y}" width="${130 - i * 12}" height="10" rx="3" fill="#8B5A2B"/><rect x="${220 + i * 6}" y="${y}" width="${130 - i * 12}" height="10" rx="3" fill="#8B5A2B"/>`).join('')}
     <rect x="160" y="128" width="40" height="12" rx="2" fill="#7A4A2A"/><rect x="164" y="122" width="14" height="6" rx="1" fill="#2B2F3A"/>`,
 });
+
+SCENE_ART.st_esu4 = (id) => SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55));
 
 export function storyScene(id) {
   const art = SCENE_ART[id] || SCENE_ART.st_u1;

@@ -1,20 +1,22 @@
 // Exercise renderers. Each returns a controller:
 //   { el, footer: 'check'|'continue'|'none', check(): {ok, solution, meaning, items?}, autoplay?(), ungraded? }
 import { esc, shuffle, siTokens, enTokens } from './util.js';
-import { romanize, matchAnswer, foldSinhala, isSinhala } from './translit.js';
+import { matchAnswer, foldSinhala, isSinhala } from './translit.js';
+import { ro, foldT, isSi, L, courseName } from './lang.js';
 import { ICONS, siLine, audioBtn, letterDraw } from './ui.js';
-import { character } from './characters.js';
+import { character, castId } from './characters.js';
 import { pic, hasPic } from './pics.js';
+const picId = (it) => it?.pic || LEX[it?.id]?.pic || it?.id;
 import * as audio from './audio.js';
 import { sfx, unlock as unlockSfx } from './sfx.js';
 import { speechCheckOn, checkRecording } from './speech.js';
 import { state } from './store.js';
-import { DEFAULT_VOICE } from '../data/course.js';
+import { DEFAULT_VOICE, LEX } from '../data/course.js';
 
 const roOn = () => state.profile.settings.roman;
 function h(html) { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; }
 const title = (t) => `<h2 class="ex-title">${t}</h2>`;
-const roSpan = (si) => roOn() ? `<span class="ro">${esc(romanize(si))}</span>` : '';
+const roSpan = (si) => roOn() && isSi() ? `<span class="ro">${esc(ro(si))}</span>` : '';
 const playIf = (text, voice) => { if (audio.canPlay(text, voice)) audio.play(text, { voice }); };
 
 // ---------------------------------------------------------------- teach
@@ -23,8 +25,8 @@ function teach(ex) {
   const el = h(`<div class="ex teach">
     <div class="ex-kicker">${ICONS.star} New word</div>
     <div class="teach-card">
-      ${hasPic(it.id) ? `<div class="teach-pic">${pic(it.id, { size: 148, live: true })}</div>` : ''}
-      <div class="teach-si" lang="si">${esc(it.si)}</div>
+      ${hasPic(picId(it)) ? `<div class="teach-pic">${pic(picId(it), { size: 148, live: true })}</div>` : ''}
+      <div class="teach-si" lang="${L()}">${esc(it.si)}</div>
       <div class="teach-ro">${esc(it.ro)}</div>
       ${audio.canPlay(it.si) ? audioBtn(it.si, { big: true }) : ''}
       <div class="teach-en">${esc(it.en)}</div>
@@ -39,7 +41,7 @@ function teachLetter(ex) {
   const el = h(`<div class="ex teach">
     <div class="ex-kicker">${ICONS.star} New letter</div>
     <div class="teach-card">
-      <div class="teach-letter draw" lang="si">${letterDraw(l.ch)}</div>
+      <div class="teach-letter draw" lang="${L()}">${letterDraw(l.ch)}</div>
       <div class="teach-ro big">${esc(l.ro)}</div>
       ${audio.canPlay(l.ch) ? audioBtn(l.ch, { big: true, slow: false }) : ''}
       <p class="teach-note">${esc(l.hint)}</p>
@@ -64,14 +66,14 @@ function choiceList(options, render, onPick) {
 
 function selectSi(ex, ctx) {
   const it = ex.item;
-  const pics = ex.options.every(o => hasPic(o.id));
+  const pics = ex.options.every(o => hasPic(picId(o)));
   let picked = null;
   const el = h(`<div class="ex">${title(`Which one means “${esc(it.en)}”?`)}</div>`);
   const grid = h(`<div class="cards ${pics ? 'pics' : ''}"></div>`);
   ex.options.forEach((o, i) => {
     const b = h(`<button class="card-choice" data-i="${i}">
-      ${pics ? `<div class="pic-wrap">${pic(o.id, { size: 84 })}</div>` : ''}
-      <div class="si" lang="si">${esc(o.si)}</div>${roSpan(o.si)}
+      ${pics ? `<div class="pic-wrap">${pic(picId(o), { size: 84 })}</div>` : ''}
+      <div class="si" lang="${L()}">${esc(o.si)}</div>${roSpan(o.si)}
     </button>`);
     b.addEventListener('click', () => {
       grid.querySelectorAll('.card-choice').forEach(x => { x.classList.remove('sel'); x.querySelector('.pic')?.classList.remove('live'); });
@@ -82,7 +84,7 @@ function selectSi(ex, ctx) {
   el.appendChild(grid);
   return {
     el, footer: 'check',
-    check: () => ({ ok: picked?.id === it.id, solution: `<span lang="si">${esc(it.si)}</span> <i>${esc(it.ro)}</i>`, meaning: it.en }),
+    check: () => ({ ok: picked?.id === it.id, solution: `<span lang="${L()}">${esc(it.si)}</span> <i>${esc(it.ro)}</i>`, meaning: it.en }),
   };
 }
 
@@ -101,10 +103,10 @@ function listenSelect(ex, ctx) {
   const it = ex.item;
   let picked = null;
   const el = h(`<div class="ex">${title('Tap what you hear')}<div class="listen-hero">${audioBtn(it.si, { big: true })}</div></div>`);
-  el.appendChild(choiceList(ex.options, o => `<span class="si" lang="si">${esc(o.si)}</span>${roSpan(o.si)}`, (i, o) => { picked = o; ctx.onReady(true); }));
+  el.appendChild(choiceList(ex.options, o => `<span class="si" lang="${L()}">${esc(o.si)}</span>${roSpan(o.si)}`, (i, o) => { picked = o; ctx.onReady(true); }));
   return {
     el, footer: 'check', autoplay: () => playIf(it.si),
-    check: () => ({ ok: picked?.id === it.id, solution: `<span lang="si">${esc(it.si)}</span> <i>${esc(it.ro)}</i>`, meaning: it.en }),
+    check: () => ({ ok: picked?.id === it.id, solution: `<span lang="${L()}">${esc(it.si)}</span> <i>${esc(it.ro)}</i>`, meaning: it.en }),
   };
 }
 
@@ -117,7 +119,7 @@ function matchPairs(ex, ctx, { letters = false } = {}) {
   let sel = null, done = 0;
   const el = h(`<div class="ex">${title('Tap the matching pairs')}<div class="match ${letters ? 'letters' : ''}"><div class="col l"></div><div class="col r"></div></div></div>`);
   const mk = (o, side) => {
-    const b = h(`<button class="choice match-btn ${o.si ? 'si-btn' : ''}" data-side="${side}" data-i="${o.i}">${o.si ? `<span class="si" lang="si">${esc(o.label)}</span>` : `<span>${esc(o.label)}</span>`}</button>`);
+    const b = h(`<button class="choice match-btn ${o.si ? 'si-btn' : ''}" data-side="${side}" data-i="${o.i}">${o.si ? `<span class="si" lang="${L()}">${esc(o.label)}</span>` : `<span>${esc(o.label)}</span>`}</button>`);
     b.addEventListener('click', () => {
       if (b.classList.contains('done')) return;
       if (side === 'l') playIf(letters ? pairs[o.i].ch : pairs[o.i].si);
@@ -165,7 +167,7 @@ function tilesWidget(tiles, { si = false, onChange }) {
   const bank = wrap.querySelector('.bank');
   const placed = [];
   const btns = tiles.map((t, i) => {
-    const b = h(`<button class="tile ${si ? 'si-tile' : ''}" data-i="${i}">${si ? `<span lang="si">${esc(t)}</span>${roOn() ? `<small>${esc(romanize(t))}</small>` : ''}` : esc(t)}</button>`);
+    const b = h(`<button class="tile ${si ? 'si-tile' : ''}" data-i="${i}">${si ? `<span lang="${L()}">${esc(t)}</span>${roOn() && isSi() ? `<small>${esc(ro(t))}</small>` : ''}` : esc(t)}</button>`);
     const slot = h(`<span class="tile-slot"></span>`);
     slot.appendChild(b); bank.appendChild(slot);
     b.addEventListener('click', () => {
@@ -189,7 +191,7 @@ function speakerOf(x) {
   if (x?.speaker) return x.speaker;
   const key = String(x?.id || x?.si || '');
   let h = 0; for (const c of key) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return h % 2 ? 'kumari' : 'aliya';
+  return h % 2 ? castId('kumari') : 'aliya';
 }
 function bubble(inner, who = 'aliya', say = '') {
   return `<div class="speaker-row"><div class="speaker-mascot">${character(who, { size: 92, cls: 'speaker', say })}</div><div class="bubble">${inner}</div></div>`;
@@ -238,7 +240,7 @@ function tilesEn(ex, ctx) {
 function tilesSi(ex, ctx) {
   const s = ex.sent;
   const listen = ex.type === 'listen_tiles';
-  const el = h(`<div class="ex">${title(listen ? 'Tap what you hear' : 'Write this in Sinhala')}
+  const el = h(`<div class="ex">${title(listen ? 'Tap what you hear' : `Write this in ${courseName()}`)}
     ${listen ? `<div class="listen-hero">${audioBtn(s.si, { voice: s.voice, big: true })}</div>` : bubble(`<div class="en-prompt">${esc(s.en)}</div>`, speakerOf(s))}
     <div class="tiles-host"></div>
   </div>`);
@@ -247,9 +249,9 @@ function tilesSi(ex, ctx) {
   return {
     el, footer: 'check', autoplay: listen ? () => playIf(s.si, s.voice) : null,
     check: () => {
-      const got = foldSinhala(w.value().join(' '));
-      const want = foldSinhala(ex.answer.join(' '));
-      return { ok: got === want, solution: `<span lang="si">${esc(s.si)}</span> <i>${esc(s.ro)}</i>`, meaning: listen ? s.en : null };
+      const got = foldT(w.value().join(' '));
+      const want = foldT(ex.answer.join(' '));
+      return { ok: got === want, solution: `<span lang="${L()}">${esc(s.si)}</span> <i>${esc(s.ro)}</i>`, meaning: listen ? s.en : null };
     },
   };
 }
@@ -267,22 +269,22 @@ function fillBlank(ex, ctx) {
   }).join(' ');
   const el = h(`<div class="ex">${title('Fill in the blank')}
     <div class="en-sub">${esc(s.en)}</div>
-    <div class="si-line big"><div class="si fill-line" lang="si">${line}</div></div>
+    <div class="si-line big"><div class="si fill-line" lang="${L()}">${line}</div></div>
   </div>`);
   const blankEl = el.querySelector('.blank');
-  el.appendChild(choiceList(ex.options, o => `<span class="si" lang="si">${esc(o)}</span>${roSpan(o)}`, (i, o) => {
+  el.appendChild(choiceList(ex.options, o => `<span class="si" lang="${L()}">${esc(o)}</span>${roSpan(o)}`, (i, o) => {
     picked = o; blankEl.textContent = o; blankEl.classList.add('filled'); playIf(o); ctx.onReady(true);
   }));
-  return { el, footer: 'check', check: () => ({ ok: picked === ex.answer, solution: `<span lang="si">${esc(s.si)}</span> <i>${esc(s.ro)}</i>`, meaning: s.en }) };
+  return { el, footer: 'check', check: () => ({ ok: picked === ex.answer, solution: `<span lang="${L()}">${esc(s.si)}</span> <i>${esc(s.ro)}</i>`, meaning: s.en }) };
 }
 
 function typeSi(ex, ctx) {
   const it = ex.item;
   let typed = '';
-  const el = h(`<div class="ex">${title('Write this in Sinhala')}
+  const el = h(`<div class="ex">${title(`Write this in ${courseName()}`)}
     ${bubble(`<div class="en-prompt">${esc(it.en)}</div>`, 'aliya')}
-    <input class="type-box one" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type it — English letters are fine">
-    <p class="type-tip">Tip: type how it sounds, e.g. <i>${esc(exampleRo(it))}</i></p>
+    <input class="type-box one" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${isSi() ? 'Type it — English letters are fine' : 'Type it — accents are optional'}">
+    ${isSi() ? `<p class="type-tip">Tip: type how it sounds, e.g. <i>${esc(exampleRo(it))}</i></p>` : ''}
   </div>`);
   const inp = el.querySelector('input');
   inp.addEventListener('input', () => { typed = inp.value; ctx.onReady(typed.trim().length > 0); });
@@ -291,9 +293,10 @@ function typeSi(ex, ctx) {
     el, footer: 'check', focus: () => inp.focus({ preventScroll: true }),
     check: () => {
       let ok;
-      if (isSinhala(typed)) ok = foldSinhala(typed) === foldSinhala(it.si) ? 'exact' : false;
+      if (!isSi()) ok = matchAnswer(typed, ex.accepted, 'en');
+      else if (isSinhala(typed)) ok = foldSinhala(typed) === foldSinhala(it.si) ? 'exact' : false;
       else ok = matchAnswer(typed, ex.accepted.filter(a => !isSinhala(a)), 'roman');
-      return { ok, solution: `<span lang="si">${esc(it.si)}</span> <i>${esc(it.ro)}</i>` };
+      return { ok, solution: `<span lang="${L()}">${esc(it.si)}</span> <i>${esc(it.ro)}</i>` };
     },
   };
 }
@@ -312,7 +315,7 @@ function speak(ex, ctx) {
       <button class="mic-btn">${ICONS.mic}<span>Tap to speak</span></button>
       <div class="speak-status" hidden><span class="spinner"></span><span>Listening to what you said…</span></div>
       <div class="speak-result" hidden>
-        <div class="sr-words si" lang="si"></div>
+        <div class="sr-words si" lang="${L()}"></div>
         <div class="sr-msg"></div>
         <div class="sr-heard"></div>
       </div>
@@ -368,12 +371,12 @@ function speak(ex, ctx) {
       } else if (r.score >= need) {
         passed = true; verified = true; sfx.correct();
         $('.sr-msg').textContent = r.score >= 0.9 ? 'Excellent — that came through clearly!' : 'Nice — Katha understood you!';
-        $('.sr-heard').innerHTML = `Heard: <span lang="si">${esc(heard)}</span>`;
+        $('.sr-heard').innerHTML = `Heard: <span lang="${L()}">${esc(heard)}</span>`;
         showButtons({ cont: true });
       } else {
         sfx.wrong();
         $('.sr-msg').textContent = r.score >= 0.35 ? 'Almost! Listen once more and try again.' : 'Not quite. Play the native audio, then try again.';
-        $('.sr-heard').innerHTML = heard ? `Heard: <span lang="si">${esc(heard)}</span>` : '';
+        $('.sr-heard').innerHTML = heard ? `Heard: <span lang="${L()}">${esc(heard)}</span>` : '';
         showButtons({ selfCheck: attempts >= 2 });
         if (attempts >= 2) $('.said').textContent = 'Continue anyway';
       }
@@ -428,11 +431,11 @@ function speak(ex, ctx) {
 function letterSound(ex, ctx) {
   const l = ex.letter;
   let picked = null;
-  const el = h(`<div class="ex">${title('What sound does this make?')}<div class="big-letter" lang="si">${esc(l.ch)}</div></div>`);
+  const el = h(`<div class="ex">${title('What sound does this make?')}<div class="big-letter" lang="${L()}">${esc(l.ch)}</div></div>`);
   el.appendChild(choiceList(ex.options, o => `<span class="ro-opt">${esc(o)}</span>`, (i, o) => { picked = o; ctx.onReady(true); }));
   return {
     el, footer: 'check',
-    check: () => { playIf(l.ch); return { ok: picked === ex.answer, solution: `<span lang="si">${esc(l.ch)}</span> = <i>${esc(l.ro)}</i>`, meaning: l.hint, letters: { [l.ch]: picked === ex.answer } }; },
+    check: () => { playIf(l.ch); return { ok: picked === ex.answer, solution: `<span lang="${L()}">${esc(l.ch)}</span> = <i>${esc(l.ro)}</i>`, meaning: l.hint, letters: { [l.ch]: picked === ex.answer } }; },
   };
 }
 function soundLetter(ex, ctx) {
@@ -443,17 +446,17 @@ function soundLetter(ex, ctx) {
     ${canAudio ? `<div class="listen-hero">${audioBtn(l.ch, { slow: false })}</div>` : ''}</div>`);
   const grid = h(`<div class="cards letters"></div>`);
   ex.options.forEach((o) => {
-    const b = h(`<button class="card-choice"><div class="si big-glyph" lang="si">${esc(o)}</div></button>`);
+    const b = h(`<button class="card-choice"><div class="si big-glyph" lang="${L()}">${esc(o)}</div></button>`);
     b.addEventListener('click', () => { grid.querySelectorAll('.card-choice').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); picked = o; sfx.tap(); ctx.onReady(true); });
     grid.appendChild(b);
   });
   el.appendChild(grid);
-  return { el, footer: 'check', autoplay: () => playIf(l.ch), check: () => ({ ok: picked === ex.answer, solution: `<span lang="si">${esc(l.ch)}</span> = <i>${esc(l.ro)}</i>`, letters: { [l.ch]: picked === ex.answer } }) };
+  return { el, footer: 'check', autoplay: () => playIf(l.ch), check: () => ({ ok: picked === ex.answer, solution: `<span lang="${L()}">${esc(l.ch)}</span> = <i>${esc(l.ro)}</i>`, letters: { [l.ch]: picked === ex.answer } }) };
 }
 function readWord(ex, ctx) {
   const it = ex.item;
   let picked = null;
-  const el = h(`<div class="ex">${title('How do you read this word?')}<div class="big-word" lang="si">${esc(it.si)}</div></div>`);
+  const el = h(`<div class="ex">${title('How do you read this word?')}<div class="big-word" lang="${L()}">${esc(it.si)}</div></div>`);
   el.appendChild(choiceList(ex.options, o => `<span class="ro-opt">${esc(o)}</span>`, (i, o) => { picked = o; ctx.onReady(true); }));
   return { el, footer: 'check', check: () => { playIf(it.si); return { ok: picked === ex.answer, solution: `<i>${esc(it.ro)}</i>`, meaning: `It means “${it.en}”` }; } };
 }

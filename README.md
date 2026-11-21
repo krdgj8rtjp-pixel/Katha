@@ -1,11 +1,14 @@
-# Katha (කතා) — learn spoken Sinhala
+# Katha (කතා) — learn spoken Sinhala and Spanish
 
-A Duolingo-style app for **everyday spoken Sinhala**, aiming at CEFR **A1**.
+A Duolingo-style app for **everyday spoken Sinhala** and **Latin American Spanish**, aiming at CEFR **A1**.
 It's an installable web app (PWA) that runs offline, is hosted free on GitHub Pages,
 and can sync your progress across devices through a free Supabase project.
 
 ## What's in it
 
+- **Two courses**: Sinhala and Spanish. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
+  are shared; each course keeps its own path, words and practice. Spanish has units 1–4 (Greetings, About me, Food & drink,
+  Numbers & market: 79 words and phrases, 60 sentences, 4 stories), with Mexican and US Spanish neural voices.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
   Units 1–8 are written (Greetings, About me, Food & drink, Numbers & money, Family, Getting around, Everyday verbs,
   Faith & church: 157 words and phrases, 122 sentences, 8 stories). Units 9–12 of the A1 map are shown as "coming soon".
@@ -34,7 +37,9 @@ js/                                       app code — no framework, no build st
   sync.js      Supabase sign-in + sync    audio.js     plays clips / device voice
   translit.js  romanization + answer matching
   config.js    ← your Supabase URL and key go here
-data/course.js                            ALL course content (words, sentences, stories, units)
+data/course.js                            the list of courses; the app reads the current one through it
+data/si.js, data/es.js                    each course's content (words, sentences, stories, units)
+js/lang.js                                small helpers for script/language differences between courses
 data/letters.js                           the letters trainer
 audio/                                    generated .mp3 clips + index.json
 supabase/schema.sql                       the one table sync needs
@@ -66,11 +71,12 @@ someone up by exact friend code without exposing anyone else.
 To recreate this in a fresh project: run `supabase/schema.sql` in the SQL editor and put the new URL and publishable key in `js/config.js`.
 Never put the secret / `service_role` key in the app.
 
-## 3. Sinhala voices (Azure) — already set up
+## 3. Voices (Azure) — already set up
 
 Phones rarely ship a Sinhala voice, so the app plays pre-generated clips made with Azure's two Sinhala neural
 voices (Thilini, female; Sameera, male). The whole course is ~400 short clips — a few thousand characters,
-well inside the free tier.
+well inside the free tier. Spanish uses `es-MX-DaliaNeural` (narrator, Sofía), `es-MX-JorgeNeural` (Mateo)
+and `es-US-AlonsoNeural` (John).
 
 What exists in Azure (subscription *Azure subscription 1*, resource group `katha-rg`, West US 2):
 - `katha-speech` — a Speech resource on the free **F0** tier.
@@ -102,14 +108,22 @@ Turn it off under Profile → Settings → *Check my speaking*. Without sign-in,
 
 ## Adding lessons
 
-All content lives in `data/course.js`:
+Each course's content lives in its own file (`data/si.js`, `data/es.js`). The field is called `si` in both — it simply
+means "the target-language text". Spanish ids start with `es` so they never clash with Sinhala ones in saved progress.
 
-- `LEX` — words/phrases: `{ si, en, alt?, emoji?, note?, roAlt? }` (`roAlt` = other romanized spellings to accept when typing).
+- `LEX` — words/phrases: `{ si, en, alt?, pic?, note?, roAlt? }` (`roAlt` = other romanized spellings to accept when typing;
+  `pic` = reuse another word's picture, e.g. Spanish `es_agua` uses the Sinhala `vathura` picture).
 - `SENT` — sentences: `{ si, g: [one gloss per Sinhala word], en, alt?, speaker? }`.
 - `STORIES` — dialogue lines `{ sp, si, g, en }` and questions `{ q, options, answer }`.
 - `UNITS[].path` — `lesson` (with `items` and `sentences`), `chest`, `story`, `review` nodes in order.
 
 Run `node tools/check-content.mjs` — it catches missing references and gloss/word-count mismatches. Romanization is generated automatically from the script.
+
+## Adding another language
+
+Copy `data/es.js` to a new file, translate it, add an entry to `COURSES` in `data/course.js` (name, language code,
+speech-recognition locale, script, badge letter, voices), and run the checker. Pictures are shared by meaning, and the
+audio generator picks the new voices up automatically.
 
 **Please have a native speaker review the Sinhala.** It aims to be natural colloquial Sinhala, but it was drafted with AI help.
 

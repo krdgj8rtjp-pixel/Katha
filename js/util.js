@@ -10,7 +10,7 @@ export const sample = (a, n) => shuffle(a).slice(0, n);
 export const uniq = (a) => [...new Set(a)];
 export const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-const PUNCT = /[.,!?;:“”"…]+/g;
+const PUNCT = /[.,!?;:“”"…¿¡]+/g;
 // Sinhala sentence → word tiles (no punctuation)
 export const siTokens = (si) => si.replace(PUNCT, ' ').trim().split(/\s+/).filter(Boolean);
 // English sentence → word tiles (no trailing punctuation, keeps apostrophes)

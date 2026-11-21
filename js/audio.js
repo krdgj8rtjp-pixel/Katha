@@ -1,7 +1,7 @@
 // Plays Sinhala audio. Prefers pre-generated clips (audio/<key>.mp3, listed in
 // audio/index.json); falls back to the device's own Sinhala voice if it has one.
 import { clipKey } from './util.js';
-import { DEFAULT_VOICE } from '../data/course.js';
+import { DEFAULT_VOICE, COURSE, onCourseChange } from '../data/course.js';
 import { setTalking } from './characters.js';
 
 let have = new Set();
@@ -13,8 +13,11 @@ let current = null;
 function pickVoice() {
   if (!('speechSynthesis' in window)) return;
   const vs = speechSynthesis.getVoices();
-  siVoice = vs.find(v => /^si([-_]|$)/i.test(v.lang)) || null;
+  const want = (COURSE?.speechLang || 'si-LK').toLowerCase(), pre = want.split('-')[0];
+  siVoice = vs.find(v => v.lang.toLowerCase().replace('_', '-') === want) || vs.find(v => new RegExp(`^${pre}([-_]|$)`, 'i').test(v.lang)) || null;
 }
+
+onCourseChange(() => { try { pickVoice(); } catch {} });
 
 export async function initAudio(dir = 'audio/') {
   base = dir;

@@ -1,3 +1,4 @@
+import { COURSE } from '../data/course.js';
 // Katha's cast as rigged, animatable SVGs.
 // States (CSS classes on the <svg>): talking, happy, sad, wave, dance.
 // Parts: .rig (breathes), .head, .eyes (blinks), .mouth-smile/.mouth-open/.mouth-sad,
@@ -124,6 +125,21 @@ const BUILD = {
     hairFront: `<path d="M32.5 54 C33 33 45 26 60 26 C75 26 87 33 87.5 54 C84 44 76 38 66 38 C58 40 50 38 46 34 C40 38 35 44 32.5 54Z" fill="#1d181c"/>`,
     extrasHead: `<path d="M73 27 l7 -5 l1 9z M73 27 l-1 -9 l8 4z" fill="#E5484D"/>`,
   }, pose),
+  sofia: (pose) => person({
+    skin: '#D7A07A', shade: '#BD8460', browColor: '#3b2418', lashes: true, lip: '#9b3b3b',
+    shirt: '#E8664A',
+    shirtExtras: `<path d="M44 94 Q60 112 76 94" stroke="#fff" stroke-width="3" fill="none" opacity=".85"/><circle cx="49" cy="112" r="2" fill="#fff" opacity=".8"/><circle cx="71" cy="112" r="2" fill="#fff" opacity=".8"/><circle cx="60" cy="120" r="2" fill="#fff" opacity=".8"/>`,
+    hairBack: `<path d="M29 58 C25 28 44 18 60 18 C78 18 96 28 91 58 C92 74 96 88 92 100 C86 96 84 90 84 84 L36 84 C36 90 34 96 28 100 C24 88 28 74 29 58Z" fill="#4a2c1c"/>`,
+    hairFront: `<path d="M32 54 C32 32 46 24 61 24 C76 24 88 32 88 54 C84 42 74 35 64 34 C56 40 44 44 36 46 C34 48 33 51 32 54Z" fill="#4a2c1c"/><path d="M64 34 C70 36 78 40 82 46" stroke="#6b4129" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+    extrasHead: `<circle cx="33.5" cy="67" r="3" fill="none" stroke="#E8B53A" stroke-width="1.6"/><circle cx="86.5" cy="67" r="3" fill="none" stroke="#E8B53A" stroke-width="1.6"/>`,
+  }, pose),
+  mateo: (pose) => person({
+    skin: '#C88B5E', shade: '#AA7148', browColor: '#1b1310', lip: '#6b2f28',
+    shirt: '#2E7D5B',
+    shirtExtras: `<path d="M49 92 L60 104 L71 92 L67 90 L60 98 L53 90Z" fill="#256A4C"/><circle cx="60" cy="112" r="1.8" fill="#1c5a3f"/><circle cx="60" cy="122" r="1.8" fill="#1c5a3f"/>`,
+    hairFront: `<path d="M32.5 52 C31 30 45 22 61 22 C77 22 90 30 87.5 52 C86 44 81 38 74 36 C66 39 54 39 46 35 C40 39 35 45 32.5 52Z" fill="#1b1310"/><path d="M33 52 l1 7 M87 52 l-1 7" stroke="#1b1310" stroke-width="4" stroke-linecap="round"/>`,
+    extrasFace: `<path d="M37 64 C38 80 48 88 60 88 C72 88 82 80 83 64 C80 72 74 78 69 78 C66 74 54 74 51 78 C46 78 40 72 37 64Z" fill="#1b1310" opacity=".28"/>`,
+  }, pose),
   aliya: () => `
   <ellipse cx="60" cy="129" rx="32" ry="3.5" fill="#000" opacity=".08"/>
   <g class="rig">
@@ -156,6 +172,9 @@ export const CAST = {
 
 let n = 0;
 // character('kumari', { size: 96, mood: 'happy', head: true, cls: 'speaker', say: 'text' })
+// Course-specific stand-ins: the Spanish course re-casts Kumari and Nimal as Sofía and Mateo in pictures and scenes.
+export function castId(id) { return (COURSE?.cast && COURSE.cast[id]) || id; }
+
 export function character(id, { size = 96, mood = '', head = false, cls = '', say = '', pose = '', x = null, y = null } = {}) {
   const build = BUILD[id] || BUILD.aliya;
   const vb = head ? '14 12 92 92' : '0 0 120 132';

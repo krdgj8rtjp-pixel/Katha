@@ -1,32 +1,40 @@
 // Builds the list of exercises for lessons, reviews, practice and letters.
 import { hasPic } from './pics.js';
-import { LEX, SENT, UNITS, SPEAKERS, DEFAULT_VOICE } from '../data/course.js';
+import { LEX, SENT, UNITS, SPEAKERS, DEFAULT_VOICE, COURSE } from '../data/course.js';
+import { ro, tkey } from './lang.js';
 import { ALL_LETTERS, LETTER_GROUPS } from '../data/letters.js';
-import { romanize } from './translit.js';
 import { shuffle, sample, pick, uniq, siTokens, enTokens } from './util.js';
 import * as audio from './audio.js';
 import { state, learnedItemIds, weakestItems, pathNodes, lessonDone } from './store.js';
 import { recall } from './srs.js';
 
 // ---------- data helpers
-export function item(id) { const x = LEX[id]; return { id, ...x, ro: x.ro || romanize(x.si), voice: DEFAULT_VOICE }; }
+export function item(id) { const x = LEX[id]; return { id, ...x, ro: x.ro || ro(x.si), voice: DEFAULT_VOICE }; }
 export function sent(id) {
   const x = SENT[id];
-  return { id, ...x, ro: x.ro || romanize(x.si), voice: x.speaker ? SPEAKERS[x.speaker].voice : DEFAULT_VOICE };
+  return { id, ...x, ro: x.ro || ro(x.si), voice: x.speaker ? SPEAKERS[x.speaker].voice : DEFAULT_VOICE };
 }
-const lexTokens = {};
-for (const [id, x] of Object.entries(LEX)) lexTokens[id] = siTokens(x.si).join(' ');
-const tokenGloss = {};
-for (const [id, x] of Object.entries(LEX)) { const t = siTokens(x.si); if (t.length === 1) tokenGloss[t[0]] = x.en; }
-for (const x of Object.values(SENT)) siTokens(x.si).forEach((t, i) => { if (!tokenGloss[t] && x.g[i]) tokenGloss[t] = x.g[i]; });
-export const glossOf = (tok) => tokenGloss[tok] || '';
+// Per-course indexes (rebuilt when the course changes).
+const IDX = {};
+function idx() {
+  const k = COURSE.id;
+  if (IDX[k]) return IDX[k];
+  const lexTokens = {}, tokenGloss = {};
+  const toks = (si) => siTokens(si).map(tkey);
+  for (const [id, x] of Object.entries(LEX)) lexTokens[id] = toks(x.si).join(' ');
+  for (const [id, x] of Object.entries(LEX)) { const t = toks(x.si); if (t.length === 1) tokenGloss[t[0]] = x.en; }
+  for (const x of Object.values(SENT)) toks(x.si).forEach((t, i) => { if (!tokenGloss[t] && x.g[i]) tokenGloss[t] = x.g[i]; });
+  return (IDX[k] = { lexTokens, tokenGloss, inSent: {} });
+}
+export const glossOf = (tok) => idx().tokenGloss[tkey(tok)] || '';
 
-const inSentCache = {};
 export function itemsInSentence(sid) {
-  if (inSentCache[sid]) return inSentCache[sid];
-  const joined = ' ' + siTokens(SENT[sid].si).join(' ') + ' ';
-  return (inSentCache[sid] = Object.keys(LEX).filter(id => joined.includes(' ' + lexTokens[id] + ' ')));
+  const I = idx();
+  if (I.inSent[sid]) return I.inSent[sid];
+  const joined = ' ' + siTokens(SENT[sid].si).map(tkey).join(' ') + ' ';
+  return (I.inSent[sid] = Object.keys(LEX).filter(id => joined.includes(' ' + I.lexTokens[id] + ' ')));
 }
+export const picOf = (it) => it?.pic || LEX[it?.id]?.pic || it?.id;
 
 export function caps() {
   const s = state.profile.settings;
@@ -49,7 +57,7 @@ export function unitOf(nodeId) { return UNITS.find(u => u.path.some(n => n.id ==
 export function nodeById(id) { return pathNodes().find(n => n.id === id); }
 
 // ---------- single exercise builders
-const PROPER = new Set(['I', "I'm", 'Kumari', 'Nimal', 'John', 'Sri', 'Lanka', 'America', 'Sinhala', 'English', 'US', 'USA']);
+const PROPER = new Set(['I', "I'm", "I'd", 'Kumari', 'Nimal', 'John', 'Sri', 'Lanka', 'America', 'Sinhala', 'English', 'US', 'USA', 'Sofía', 'Mateo', 'Spanish', 'Mexico', 'United', 'States']);
 const distinctEn = (ids, it) => ids.filter(x => x !== it.id && LEX[x].en !== it.en && LEX[x].si !== it.si);
 
 function selectSi(it, pool) {
@@ -65,7 +73,7 @@ function listenSelect(it, pool) {
   return { type: 'listen_select', item: it, options: shuffle([it, ...others]), tests: [it.id], listen: true };
 }
 function typeSi(it) {
-  const accepted = [it.si, it.ro, ...(it.roAlt || [])];
+  const accepted = [it.si, it.ro, ...(it.roAlt || [])].filter(Boolean);
   return { type: 'type_si', item: it, accepted, tests: [it.id] };
 }
 function match(ids) {
@@ -144,7 +152,7 @@ export function buildLesson(node) {
     for (let i = 0; i < items.length; i += 2) {
       const chunk = items.slice(i, i + 2);
       chunk.forEach(it => out.push({ type: 'teach', item: it, tests: [] }));
-      chunk.forEach((it, j) => out.push((j === 0 && hasPic(it.id)) ? selectSi(it, pool) : selectEn(it, pool)));
+      chunk.forEach((it, j) => out.push((j === 0 && hasPic(picOf(it))) ? selectSi(it, pool) : selectEn(it, pool)));
     }
   } else {
     items.forEach(it => out.push(pick([selectSi, selectEn])(it, pool)));

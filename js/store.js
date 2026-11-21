@@ -2,7 +2,7 @@
 // counters are kept per device, rewards are sets of claim ids, and cards keep
 // the newest review. See merge() below.
 import { review, strength, recall } from './srs.js';
-import { UNITS, LEX } from '../data/course.js';
+import { UNITS, LEX, COURSES } from '../data/course.js';
 import { ALL_LETTERS } from '../data/letters.js';
 
 const KEY = 'katha.v1';
@@ -28,7 +28,7 @@ export const DEVICE = ls.get(DEV_KEY) || (() => { const d = uid(); ls.set(DEV_KE
 export function blank() {
   return {
     v: 1,
-    profile: { name: '', goal: 20, created: Date.now(), onboarded: false, u: 0, avatar: 'aliya',
+    profile: { name: '', goal: 20, created: Date.now(), onboarded: false, u: 0, avatar: 'aliya', course: 'si',
       settings: { sound: true, roman: true, hearts: true, listening: true, speaking: true, speechCheck: true } },
     lessons: {}, srs: {}, letters: {},
     log: {}, claims: {}, purchases: {}, frozen: {}, boosts: {},
@@ -142,7 +142,7 @@ export const QUEST_POOL = [
   { id: 'lessons', text: 'Complete 2 lessons', target: 2, stat: 'lessons', reward: 10 },
   { id: 'perfect', text: 'Finish a lesson with no mistakes', target: 1, stat: 'perfect', reward: 15 },
   { id: 'combo', text: 'Get 10 in a row correct', target: 10, stat: 'combo', reward: 10 },
-  { id: 'letters', text: 'Do a letters session', target: 1, stat: 'letters', reward: 10 },
+  { id: 'letters', text: 'Do a letters session', target: 1, stat: 'letters', reward: 10, needs: 'letters' },
   { id: 'practice', text: 'Do a practice session', target: 1, stat: 'practice', reward: 10, needs: 'practice' },
   { id: 'listen', text: 'Complete 5 listening exercises', target: 5, stat: 'listen', reward: 10, needs: 'audio' },
   { id: 'story', text: 'Finish a story', target: 1, stat: 'stories', reward: 15, needs: 'story' },
@@ -261,7 +261,8 @@ export function gainHeart(k = 1) { setHearts(heartsNow() + k); save(); }
 
 // ---------- learning progress
 export function lessonDone(id) { return (state.lessons[id]?.done || 0) > 0; }
-export function wordsLearned() { return Object.keys(state.srs).filter(id => LEX[id]).length; }
+export function wordsLearned() { return Object.keys(state.srs).filter(id => Object.values(COURSES).some(c => c.LEX[id])).length; }
+export function courseStarted(c) { return c.UNITS.some(u => u.path.some(n => state.lessons[n.id]?.done)); }
 export function lettersMastered() { return Object.values(state.letters).filter(c => strength(c) >= 3).length; }
 export function storiesDone() { return Object.keys(state.lessons).filter(id => id.startsWith('st_') && state.lessons[id].done).length; }
 export function sumLog(f) { let n = 0; for (const dev of Object.values(state.log)) for (const d of Object.values(dev)) n += d[f] || 0; return n; }

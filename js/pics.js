@@ -1,7 +1,8 @@
 // Hand-drawn picture for every word, as inline SVG (viewBox 0 0 100 100).
 // Moving parts carry a-* classes (steam, twinkle, wave…) that only animate
 // inside a `.pic.live` svg, so a grid of cards stays calm until one is picked.
-import { character } from './characters.js';
+import { character, castId } from './characters.js';
+import { COURSE } from '../data/course.js';
 import { tuktuk } from './art.js';
 
 const P = {
@@ -24,7 +25,9 @@ const sparkle = (x, y, s = 1, c = P.gold, d = 0) => at(x, y, s, `<path class="a-
 const HEART = 'M0 5 C-8.5 -1 -8.5 -8 -4.2 -8 C-1.8 -8 0 -6.3 0 -4.8 C0 -6.3 1.8 -8 4.2 -8 C8.5 -8 8.5 -1 0 5Z';
 const heart = (x, y, s = 1, c = P.red, cls = '', d = 0) => at(x, y, s, `<path class="${cls}" style="animation-delay:${d}s" d="${HEART}" fill="${c}"/><path d="M-4.5 -5 q1.5-1.6 3 -.6" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".7"/>`);
 const floatHeart = (x, y, s, d) => at(x, y, s, `<g class="a-float" style="animation-delay:${d}s"><path d="${HEART}" fill="${P.red}"/></g>`);
-const chr = (id, x, y, size, o = {}) => character(id, { x, y, size, ...o });
+const chr = (id, x, y, size, o = {}) => character(castId(id), { x, y, size, ...o });
+const CUR = () => COURSE?.currency || 'රු';
+const curFont = () => (CUR() === 'රු' ? 'class="pic-si"' : 'class="pic-num"');
 const T = (x, y, txt, size, fill, extra = '') => `<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" fill="${fill}" ${extra}>${txt}</text>`;
 
 const badge = (x, y, r, fill, mark) => at(x, y, 1, `<g class="a-pop"><circle r="${r + 2.4}" fill="#fff"/><circle r="${r}" fill="${fill}"/>${mark}</g>`);
@@ -280,13 +283,13 @@ const ART = {
     <g class="a-bob"><path d="M22 52 L60 22" stroke="${P.ink}" stroke-width="3.4" stroke-linecap="round" opacity=".7"/><path d="M50 20 L62 20 L60 32" stroke="${P.ink}" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/></g>`,
   bila: () => `${shadow(26)}<g class="a-bob"><path d="M26 10 L74 10 L74 88 L68 83 L62 88 L56 83 L50 88 L44 83 L38 88 L32 83 L26 88Z" fill="#fff" stroke="${P.chinaD}" stroke-width="2" stroke-linejoin="round"/>
     ${[22, 32, 42, 52].map((y, i) => `<path d="M33 ${y} L${i % 2 ? 52 : 56} ${y} M60 ${y} L67 ${y}" stroke="${P.gray}" stroke-width="3" stroke-linecap="round"/>`).join('')}
-    <path d="M32 62 L68 62" stroke="${P.ink}" stroke-width="2" stroke-dasharray="3 3" opacity=".4"/>${T(42, 75, 'රු', 11, P.ink, 'class="pic-si"')}${T(60, 75, '450', 10, P.ink, 'class="pic-num"')}</g>
+    <path d="M32 62 L68 62" stroke="${P.ink}" stroke-width="2" stroke-dasharray="3 3" opacity=".4"/>${T(42, 75, CUR(), 11, P.ink, curFont())}${T(60, 75, '450', 10, P.ink, 'class="pic-num"')}</g>
     <g transform="rotate(35 80 60)"><rect x="76" y="34" width="7" height="40" rx="2" fill="${P.blue}"/><path d="M76 74 L79.5 84 L83 74Z" fill="#F2D6A6"/></g>`,
 
   // ---- Unit 4: numbers & money
   rupiyal: () => `${shadow(34)}<g transform="rotate(-10 50 54)"><rect x="12" y="30" width="72" height="40" rx="5" fill="#6FAE6A"/><rect x="16" y="34" width="64" height="32" rx="3" fill="none" stroke="#fff" stroke-width="1.6" opacity=".6"/></g>
     <g class="a-bob"><rect x="16" y="38" width="72" height="40" rx="5" fill="#8E5BB5"/><rect x="20" y="42" width="64" height="32" rx="3" fill="none" stroke="#fff" stroke-width="1.6" opacity=".6"/>
-    <ellipse cx="52" cy="58" rx="13" ry="11" fill="#fff" opacity=".9"/>${T(52, 63, 'රු', 13, '#8E5BB5', 'class="pic-si"')}${T(28, 50, '100', 7.5, '#fff', 'class="pic-num"')}${T(76, 74, '100', 7.5, '#fff', 'class="pic-num"')}</g>
+    <ellipse cx="52" cy="58" rx="13" ry="11" fill="#fff" opacity=".9"/>${T(52, 63, CUR(), 13, '#8E5BB5', curFont())}${T(28, 50, '100', 7.5, '#fff', 'class="pic-num"')}${T(76, 74, '100', 7.5, '#fff', 'class="pic-num"')}</g>
     <ellipse cx="80" cy="84" rx="12" ry="5" fill="${P.goldD}"/><ellipse cx="80" cy="80" rx="12" ry="5" fill="${P.gold}"/><ellipse cx="80" cy="76" rx="12" ry="5" fill="${P.goldD}"/><ellipse cx="80" cy="72.5" rx="12" ry="5" fill="${P.gold}"/><ellipse cx="80" cy="72.5" rx="7" ry="2.6" fill="none" stroke="${P.goldD}" stroke-width="1.4"/>`,
   kiyada: () => `${shadow(26, 46)}<g class="a-swing-tag">${tag(46, 58, -14, P.gold, `${T(-6, 2, '?', 26, '#fff')}`, 1.35)}</g>`,
   meka: () => `${shadow(26)}<rect x="32" y="64" width="36" height="26" rx="5" fill="${P.orange}"/><rect x="32" y="64" width="36" height="7" rx="3" fill="${P.orangeD}"/><rect x="47" y="64" width="6" height="26" fill="${P.gold}"/>
@@ -294,10 +297,10 @@ const ART = {
   eka_that: () => `${shadow(16, 82, 70)}<rect x="74" y="54" width="16" height="13" rx="3" fill="${P.orange}"/><rect x="74" y="54" width="16" height="4" rx="2" fill="${P.orangeD}"/>
     <path class="a-dash" d="M52 52 Q66 44 74 52" stroke="${P.gray}" stroke-width="2.6" fill="none" stroke-dasharray="4 5" stroke-linecap="round"/>
     ${hand('point', { x: 10, y: 74, r: 64, s: .78, sleeve: P.teal, cls: 'a-poke' })}`,
-  ganan_vadiyi: () => `${shadow(26, 44)}${tag(42, 60, -12, P.red, `${T(-6, 0, 'රු', 13, '#fff', 'class="pic-si"')}`, 1.2)}
+  ganan_vadiyi: () => `${shadow(26, 44)}${tag(42, 60, -12, P.red, `${T(-6, 0, CUR(), 13, '#fff', curFont())}`, 1.2)}
     <g class="a-up">${[[78, 36], [88, 52]].map(([x, y]) => `<path d="M${x} ${y} L${x} ${y - 18} M${x - 7} ${y - 11} L${x} ${y - 18} L${x + 7} ${y - 11}" stroke="${P.red}" stroke-width="4.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}</g>
     <path class="a-drip" d="M22 22 q-4 6 0 8 q4 -2 0 -8Z" fill="${P.water}"/>`,
-  adu_karanna: () => `${shadow(26, 44)}${tag(42, 54, -12, P.green, `${T(-6, 0, 'රු', 13, '#fff', 'class="pic-si"')}`, 1.2)}
+  adu_karanna: () => `${shadow(26, 44)}${tag(42, 54, -12, P.green, `${T(-6, 0, CUR(), 13, '#fff', curFont())}`, 1.2)}
     <g class="a-down"><path d="M82 44 L82 76 M72 66 L82 76 L92 66" stroke="${P.green}" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`,
   amba: () => `${shadow(30)}<g class="a-bob"><path d="M26 56 C22 34 44 18 64 24 C84 30 88 54 76 72 C66 86 44 90 34 80 C28 74 28 64 26 56Z" fill="#F5A623"/>
     <path d="M40 30 C52 22 74 26 80 44 C82 52 80 60 76 66 C76 50 64 34 40 30Z" fill="#F7C548"/><path d="M28 62 C30 74 38 82 50 84 C40 84 30 78 28 62Z" fill="#E27D12"/>
@@ -417,6 +420,22 @@ Object.assign(ART, {
   ashirvada: () => `<path class="a-glow" d="M50 30 L22 96 H78Z" fill="${P.gold}" opacity=".25"/>${chr('john', 18, 36, 64, { mood: 'happy' })}${hand('open', { x: 30, y: 6, r: 155, s: .58, sleeve: P.purple })}${hand('open', { x: 70, y: 6, r: -155, s: .58, sleeve: P.purple, flip: true })}${sparkle(84, 50, .6)}`,
   obata: () => `${ring(70, 48, 25)}${chr('thaththa', 46, 24, 48, { head: true, mood: 'happy' })}${hand('open', { x: 6, y: 72, r: 70, s: .62, sleeve: P.teal, cls: 'a-poke' })}${sparkle(88, 18, .7)}`,
   suba_iridavak: () => `${sunIcon(76, 22, 10)}${shadow(30, 44, 93)}${church(44, 92, .72)}${sparkle(86, 56, .8)}${sparkle(14, 36, .6, P.gold, .6)}`,
+});
+
+// ------------------------------------------------------------------ Spanish-course pictures
+Object.assign(ART, {
+  es_hola: () => `${chr('kumari', 4, 18, 70, { mood: 'wave' })}${bubble(54, 6, 42, 28, { stroke: P.orange, tail: 'bl' })}<g class="a-bob">${T(75, 26, '¡Hola!', 11, P.orange, 'class="pic-num"')}</g>`,
+  es_tarde: () => { const id = nid(); return `<defs><clipPath id="${id}"><circle cx="50" cy="50" r="40"/></clipPath></defs>
+    <g clip-path="url(#${id})"><rect width="100" height="100" fill="#BFE6FA"/><rect y="56" width="100" height="44" fill="#FFE0A8" opacity=".5"/>
+      <g class="a-bob">${sunIcon(62, 34, 12)}</g>${cloudShape(28, 44, .8)}
+      <path d="M0 74 Q30 64 56 72 Q78 78 100 68 L100 100 L0 100Z" fill="${P.leaf}"/><path d="M0 84 Q40 78 70 86 Q86 90 100 84 L100 100 L0 100Z" fill="${P.leafD}"/></g>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="#fff" stroke-width="3"/>`; },
+  es_yo: () => `${ring(50, 44, 30)}${chr('kumari', 14, 8, 72, { mood: 'happy' })}${arrowDown(50, 12)}`,
+  es_mexico: () => `${shadow(20, 30)}<rect x="17" y="8" width="5" height="86" rx="2.5" fill="${P.grayD}"/><circle cx="19.5" cy="8" r="4" fill="${P.gold}"/>
+    <g class="a-flag"><rect x="22" y="14" width="21" height="42" fill="#006847"/><rect x="43" y="14" width="21" height="42" fill="#fff"/><rect x="64" y="14" width="21" height="42" fill="#CE1126"/>
+      <circle cx="53.5" cy="35" r="6.5" fill="none" stroke="#8B5A2B" stroke-width="2"/><path d="M50 37 q3.5 -6 7 0" stroke="#3FA35F" stroke-width="1.6" fill="none"/><circle cx="53.5" cy="32" r="2" fill="#8B5A2B"/>
+      <rect x="22" y="14" width="63" height="42" fill="none" stroke="#000" stroke-opacity=".08"/></g>`,
+  es_espanol: () => `${bubble(12, 14, 76, 60, { fill: '#C0392B', stroke: '#C0392B', tail: 'bl' })}<g class="a-bob">${T(50, 58, 'Ñ', 38, '#fff', 'class="pic-num"')}</g><path d="M30 26 h40" stroke="${P.gold}" stroke-width="4" stroke-linecap="round" opacity=".7"/>${sparkle(84, 14, .8, P.gold)}`,
 });
 
 // Pictures for the app's own cards (not vocabulary).
