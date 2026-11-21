@@ -1,6 +1,6 @@
 // Cloud sync via Supabase (Auth + one `progress` row per user). No SDK needed.
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
-import { state, merge, replaceState, storage, save } from './store.js';
+import { state, merge, replaceState, storage, save, publicProfile } from './store.js';
 
 const SESSION_KEY = 'katha.session';
 const META_KEY = 'katha.syncmeta';
@@ -100,6 +100,7 @@ export function syncNow() {
         body: { user_id: uid, data: merged, updated_at: new Date().toISOString() },
       });
       setMeta({ at: Date.now(), error: '' });
+      try { await pushProfile(); } catch (e) { console.warn('profile push failed', e); }
       return true;
     } catch (e) {
       console.warn('sync failed', e);
@@ -111,6 +112,47 @@ export function syncNow() {
   })();
   emit();
   return syncing;
+}
+
+// ---------- Friends & weekly leaderboard
+export const friendCode = () => meta.code || '';
+async function pushProfile() {
+  const uid = session.user.id;
+  const rows = await api('/rest/v1/profiles?on_conflict=id&select=friend_code', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+    body: { id: uid, ...publicProfile(), updated_at: new Date().toISOString() },
+  });
+  const code = rows?.[0]?.friend_code;
+  if (code && code !== meta.code) setMeta({ code });
+}
+export async function loadFriends() {
+  await fresh();
+  const uid = session.user.id;
+  const [profiles, follows] = await Promise.all([
+    api('/rest/v1/profiles?select=id,name,avatar,xp_week,week,xp_total,streak,updated_at,friend_code'),
+    api('/rest/v1/follows?select=follower,followee'),
+  ]);
+  const me = profiles.find(p => p.id === uid);
+  if (me?.friend_code && me.friend_code !== meta.code) setMeta({ code: me.friend_code });
+  return {
+    uid, profiles,
+    following: new Set(follows.filter(f => f.follower === uid).map(f => f.followee)),
+    followers: new Set(follows.filter(f => f.followee === uid).map(f => f.follower)),
+  };
+}
+export async function findFriend(code) {
+  await fresh();
+  const r = await api('/rest/v1/rpc/find_friend', { method: 'POST', body: { code } });
+  return r?.[0] || null;
+}
+export async function follow(id) {
+  await fresh();
+  await api('/rest/v1/follows?on_conflict=follower,followee', { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' }, body: { follower: session.user.id, followee: id } });
+}
+export async function unfollow(id) {
+  await fresh();
+  await api(`/rest/v1/follows?follower=eq.${session.user.id}&followee=eq.${id}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
 }
 
 // Speech recognition through the Supabase "transcribe" helper (signed-in users only).

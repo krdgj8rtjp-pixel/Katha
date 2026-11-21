@@ -6,7 +6,7 @@ import { state } from './store.js';
 import * as audio from './audio.js';
 import * as sync from './sync.js';
 import { sfx, unlock } from './sfx.js';
-import { ICONS, mascot, toast, modal, confetti, showHint, hideHint, siLine, audioBtn, bigFlame } from './ui.js';
+import { ICONS, mascot, toast, modal, confetti, showHint, hideHint, siLine, audioBtn, bigFlame, chestArt, trophyArt } from './ui.js';
 import { badge } from './badges.js';
 import { pic } from './pics.js';
 import { esc, plural, fmtDuration } from './util.js';
@@ -49,7 +49,8 @@ function route() {
   if (state.profile.onboarded && name === 'onboarding') { go('learn'); return; }
   inSession = false;
   switch (name) {
-    case 'learn': case 'letters': case 'practice': case 'quests': case 'profile': return renderTab(name);
+    case 'learn': case 'letters': case 'practice': case 'quests': case 'friends': case 'profile': return renderTab(name);
+    case 'add': return addFriendLink(arg);
     case 'lesson': return startNode(arg);
     case 'letters-session': return startLetters(arg);
     case 'practice-session': return startPractice(arg || 'smart');
@@ -70,12 +71,13 @@ function topbar() {
     <a class="tb-item brand" href="#/learn" aria-label="Katha home"><span class="brand-mark" lang="si">ක</span></a>
     <button class="tb-item streak ${st.doneToday ? 'lit' : ''}" data-act="streak">${st.doneToday || st.streak ? ICONS.flame : ICONS.flameOff}<b>${st.streak}</b></button>
     <button class="tb-item gems" data-act="gems">${ICONS.gem}<b>${S.gems()}</b></button>
+    ${S.boostLeft() > 0 ? `<button class="tb-item boost" data-act="boost">${ICONS.bolt}<b>2×</b></button>` : ''}
     <button class="tb-item hearts" data-act="hearts">${hearts ? ICONS.heart + `<b>${h}</b>` : ICONS.infinity}</button>
   </header>`;
 }
 const TABS = [
   ['learn', 'Learn', ICONS.home], ['letters', 'Letters', ICONS.letters], ['practice', 'Practice', ICONS.dumbbell],
-  ['quests', 'Quests', ICONS.target], ['profile', 'Profile', ICONS.user],
+  ['quests', 'Quests', ICONS.target], ['friends', 'Friends', ICONS.trophy], ['profile', 'Profile', ICONS.user],
 ];
 function tabbar(active) {
   const claimable = S.questsFor(S.today(), questCaps()).some(q => q.done && !q.claimed);
@@ -92,6 +94,10 @@ async function topbarClick(e) {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const act = b.dataset.act;
   if (act === 'gems') return go('shop');
+  if (act === 'boost') {
+    const m = Math.max(1, Math.ceil(S.boostLeft() / 60000));
+    return modal({ art: `<div class="boost-art">${ICONS.bolt}<b>2×</b></div>`, title: 'XP Boost is on', body: `<p>Everything you do earns double XP for the next ${plural(m, 'minute')}.</p>`, buttons: [{ label: 'Keep going', value: 1, cls: 'primary' }] });
+  }
   if (act === 'streak') {
     const st = S.streakInfo();
     return modal({
@@ -142,9 +148,9 @@ const questCaps = () => ({ speech: caps().speak && sync.canTranscribe() && state
 // ------------------------------------------------------------ tabs
 function renderTab(name) {
   currentTab = name;
-  const body = { learn: learnTab, letters: lettersTab, practice: practiceTab, quests: questsTab, profile: profileTab }[name]();
+  const body = { learn: learnTab, letters: lettersTab, practice: practiceTab, quests: questsTab, friends: friendsTab, profile: profileTab }[name]();
   shell(name, body);
-  ({ learn: mountLearn, letters: mountLetters, practice: mountPractice, quests: mountQuests, profile: mountProfile })[name]?.();
+  ({ learn: mountLearn, letters: mountLetters, practice: mountPractice, quests: mountQuests, friends: mountFriends, profile: mountProfile })[name]?.();
 }
 
 // ----- Learn (the path)
@@ -326,7 +332,12 @@ function questsTab() {
       ${q.claimed ? `<div class="q-claimed">${ICONS.check}</div>` : q.done ? `<button class="btn primary small claim" data-cid="${q.cid}">Claim ${q.reward}${ICONS.gem}</button>` : `<div class="q-reward">${ICONS.chest}</div>`}
     </div>`;
   }
-  html += `</div><h3 class="sec-title">Achievements</h3><div class="ach-list">`;
+  const qc = S.questChest(questCaps());
+  const bl = S.boostLeft();
+  html += `</div><div class="quest-chest ${qc.opened ? 'opened' : qc.ready ? 'ready' : ''}"><div class="qc-art">${chestArt(qc.opened, 64)}</div>
+    <div class="q-main"><h3>Daily chest</h3><p>${qc.opened ? (bl ? `2× XP is on — ${plural(Math.ceil(bl / 60000), 'minute')} left` : 'Opened. A new chest comes tomorrow.') : qc.ready ? 'All quests done! Open it for 2× XP for 15 minutes and 15 gems.' : `Claim ${qc.left === 1 ? 'the last quest' : `all ${qc.left} quests`} to open: 2× XP for 15 minutes and 15 gems.`}</p></div>
+    ${qc.ready && !qc.opened ? '<button class="btn primary small open-qc">Open</button>' : ''}</div>`;
+  html += `<h3 class="sec-title">Achievements</h3><div class="ach-list">`;
   for (const a of S.ACHIEVEMENTS) {
     const lv = S.achievementLevel(a);
     const target = lv.max ? a.tiers[a.tiers.length - 1] : lv.next;
@@ -338,6 +349,13 @@ function questsTab() {
 }
 function mountQuests() {
   app.querySelector('.quests-tab').addEventListener('click', async (e) => {
+    if (e.target.closest('.open-qc')) {
+      const g = S.openQuestChest(questCaps());
+      if (!g) return;
+      sfx.chest(); confetti(80); sync.syncSoon();
+      await modal({ art: `<div class="chest-pop">${chestArt(true, 120)}</div>`, title: '2× XP for 15 minutes!', body: `<p>Plus ${g} gems. Do a lesson now to make the most of it.</p>`, buttons: [{ label: 'Let\'s go', value: 1, cls: 'primary' }] });
+      return renderTab('quests');
+    }
     const b = e.target.closest('.claim'); if (!b) return;
     const g = S.claim(b.dataset.cid);
     sfx.chest(); confetti(50);
@@ -345,6 +363,126 @@ function mountQuests() {
     sync.syncSoon();
     renderTab('quests');
   });
+}
+
+// ----- Friends & weekly leaderboard
+const AVATARS = ['aliya', 'kumari', 'nimal', 'john', 'amma', 'thaththa', 'putha', 'duva'];
+let friendsCache = null, friendsAt = 0;
+function weekEndsIn() {
+  const now = new Date(); const end = new Date(now);
+  end.setDate(end.getDate() + (7 - ((now.getDay() + 6) % 7))); end.setHours(0, 0, 0, 0);
+  const h = Math.round((end - now) / 3600000);
+  return h >= 48 ? plural(Math.round(h / 24), 'day') : plural(Math.max(1, h), 'hour');
+}
+function friendsTab() {
+  if (!sync.configured() || window.KATHA_PREVIEW || !sync.user()) {
+    return `<div class="friends-tab"><div class="tab-hero"><h1>Friends</h1></div>
+      <div class="friends-empty">${castLineup(['kumari', 'john', 'nimal'], 74, 'wave')}
+        <h2>Learn together</h2><p>Sign in to get your friend code, add friends and compete on a weekly XP leaderboard.</p>
+        <a class="btn primary wide" href="#/profile">Sign in or create an account</a></div></div>`;
+  }
+  return `<div class="friends-tab"><div class="tab-hero"><h1>Friends</h1><p>Weekly leaderboard · ends in ${weekEndsIn()}</p></div>
+    <div class="board">${friendsCache ? boardHTML(friendsCache) : '<div class="board-loading"><span class="spinner"></span> Loading your league…</div>'}</div>
+    <h3 class="sec-title">Your friend code</h3>
+    <div class="panel code-card"><div class="fc-code">${sync.friendCode() ? [...sync.friendCode()].map((c, i) => `<b style="--i:${i}">${c}</b>`).join('') : '<span class="muted">Syncing…</span>'}</div>
+      <p class="muted">Friends type this in, or tap your invite link.</p>
+      <div class="row-btns"><button class="btn small primary" data-act="share">${ICONS.share} Share invite</button><button class="btn small" data-act="copy">Copy code</button></div></div>
+    <h3 class="sec-title">Add a friend</h3>
+    <form class="panel add-form"><input name="code" placeholder="Friend code, e.g. 7F3A9C" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn small primary">Add</button><p class="add-msg muted"></p></form>
+    <div class="friend-list">${friendsCache ? friendListHTML(friendsCache) : ''}</div>
+  </div>`;
+}
+function rankRows(data) {
+  const wk = S.weekStartKey();
+  return data.profiles.map(p => {
+    const me = p.id === data.uid;
+    return { ...p, me, xp: me ? S.weekXP() : (p.week === wk ? p.xp_week : 0), name: me ? (state.profile.name || p.name || 'You') : (p.name || 'Friend'), avatar: me ? (state.profile.avatar || p.avatar) : p.avatar, streak: me ? S.streakInfo().streak : p.streak };
+  }).sort((a, b) => b.xp - a.xp || (a.me ? -1 : 1));
+}
+function avatarHead(a, size) { return character(AVATARS.includes(a) ? a : 'aliya', { head: true, size }); }
+function boardHTML(data) {
+  const rows = rankRows(data);
+  if (rows.length < 2) {
+    return `<div class="board-solo">${avatarHead(state.profile.avatar, 70)}<div><b>${S.weekXP()} XP this week</b><p>Add a friend below to start your league. Whoever earns the most XP by Sunday night wins the week.</p></div></div>`;
+  }
+  const podium = rows.slice(0, 3);
+  const order = podium.length === 3 ? [podium[1], podium[0], podium[2]] : [podium[1], podium[0]];
+  return `<div class="podium">${order.map(r => { const place = rows.indexOf(r) + 1; return `<div class="pod p${place} ${r.me ? 'me' : ''}" style="--d:${(3 - place) * .18}s">
+      <div class="pod-av">${avatarHead(r.avatar, 58)}${place === 1 ? `<span class="crown">${ICONS.crown}</span>` : ''}</div>
+      <b class="pod-name">${esc(r.me ? 'You' : r.name)}</b><span class="pod-xp">${r.xp} XP</span>
+      <div class="pod-step"><span>${place}</span></div></div>`; }).join('')}</div>
+    <div class="rank-list">${rows.map((r, i) => `<div class="rank ${r.me ? 'me' : ''}" style="--i:${i}"><span class="rk">${i + 1}</span>${avatarHead(r.avatar, 40)}
+      <div class="rk-main"><b>${esc(r.me ? `${r.name} (you)` : r.name)}</b><small>${r.streak ? `${ICONS.flame}${plural(r.streak, 'day')}` : 'No streak yet'}</small></div><span class="rk-xp">${r.xp} XP</span></div>`).join('')}</div>`;
+}
+function friendListHTML(data) {
+  const others = data.profiles.filter(p => p.id !== data.uid);
+  if (!others.length) return '';
+  return `<h3 class="sec-title">Your friends</h3><div class="panel">${others.map(p => {
+    const f = data.following.has(p.id), back = data.followers.has(p.id);
+    return `<div class="fr">${avatarHead(p.avatar, 40)}<div class="fr-main"><b>${esc(p.name || 'Friend')}</b><small>${back && f ? 'Friends' : back ? 'Follows you' : 'You follow them'} · ${p.xp_total} XP total</small></div>
+      ${f ? `<button class="btn small ghost" data-unfollow="${p.id}">Unfollow</button>` : `<button class="btn small primary" data-follow="${p.id}">Follow back</button>`}</div>`;
+  }).join('')}</div>`;
+}
+function inviteLink() { return `${location.origin}${location.pathname}#/add/${sync.friendCode()}`; }
+async function refreshFriends() {
+  try {
+    if (!sync.friendCode()) await sync.syncNow();
+    friendsCache = await sync.loadFriends();
+  } catch (e) {
+    console.warn('friends', e);
+    if (!friendsCache) friendsCache = { uid: sync.user()?.id, profiles: [], following: new Set(), followers: new Set() };
+  }
+  friendsAt = Date.now();
+  if (currentTab === 'friends') renderTab('friends');
+}
+function mountFriends() {
+  const root = app.querySelector('.friends-tab');
+  if (!root || !sync.user()) return;
+  if ((!friendsCache || Date.now() - friendsAt > 30000) && !mountFriends.busy) { mountFriends.busy = true; refreshFriends().finally(() => { mountFriends.busy = false; }); }
+  root.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-act], [data-follow], [data-unfollow]'); if (!b) return;
+    if (b.dataset.act === 'share') {
+      const url = inviteLink();
+      if (navigator.share) { try { await navigator.share({ title: 'Learn Sinhala with me on Katha', text: `Add me on Katha — my friend code is ${sync.friendCode()}`, url }); } catch {} }
+      else { await navigator.clipboard?.writeText(url).catch(() => {}); toast('Invite link copied', { icon: ICONS.check }); }
+    }
+    if (b.dataset.act === 'copy') { await navigator.clipboard?.writeText(sync.friendCode()).catch(() => {}); toast('Friend code copied', { icon: ICONS.check }); }
+    if (b.dataset.follow) { b.disabled = true; await sync.follow(b.dataset.follow).catch(err => toast(err.message)); refreshFriends(); }
+    if (b.dataset.unfollow) {
+      const ok = await modal({ title: 'Unfollow?', body: '<p>They\'ll leave your leaderboard unless they follow you.</p>', buttons: [{ label: 'Keep', value: false, cls: 'primary' }, { label: 'Unfollow', value: true, cls: 'ghost danger' }], dismiss: false });
+      if (ok) { await sync.unfollow(b.dataset.unfollow).catch(err => toast(err.message)); refreshFriends(); }
+    }
+  });
+  const form = root.querySelector('.add-form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = form.code.value.trim().toUpperCase();
+    const msg = form.querySelector('.add-msg');
+    if (!/^[0-9A-Z]{6,8}$/.test(code)) { msg.textContent = 'Friend codes are 6 letters and numbers.'; return; }
+    if (code === sync.friendCode()) { msg.textContent = 'That\'s your own code!'; return; }
+    msg.textContent = 'Looking…';
+    try {
+      const f = await sync.findFriend(code);
+      if (!f) { msg.textContent = 'No one has that code. Check it and try again.'; return; }
+      await sync.follow(f.id);
+      sfx.chest(); confetti(60);
+      toast(`You're now following ${f.name || 'your friend'}`, { icon: ICONS.check });
+      refreshFriends();
+    } catch (err) { msg.textContent = err.message || 'Something went wrong.'; }
+  });
+}
+async function addFriendLink(code) {
+  code = (code || '').toUpperCase();
+  if (!sync.user()) { sessionStorage.setItem('katha.addFriend', code); toast('Sign in first, then we\'ll add your friend', { icon: ICONS.user }); return go('profile'); }
+  history.replaceState(null, '', location.pathname + '#/friends');
+  renderTab('friends');
+  try {
+    const f = await sync.findFriend(code);
+    if (!f) { toast('That invite link didn\'t match anyone'); return; }
+    const ok = await modal({ art: `<div class="add-art">${avatarHead(f.avatar, 96)}</div>`, title: `Add ${esc(f.name || 'this friend')}?`, body: '<p>You\'ll see each other on the weekly leaderboard.</p>', buttons: [{ label: 'Add friend', value: true, cls: 'primary' }, { label: 'Not now', value: false, cls: 'ghost' }], dismiss: false });
+    if (ok) { await sync.follow(f.id); sfx.chest(); confetti(60); }
+  } catch (e) { toast(e.message || 'Couldn\'t add that friend'); }
+  refreshFriends();
 }
 
 // ----- Profile
@@ -393,7 +531,7 @@ function profileTab() {
       <p class="auth-msg muted"></p></form>`;
   }
   return `<div class="profile-tab">
-    <div class="prof-head"><div class="avatar-big">${esc((p.name || 'You').slice(0, 1).toUpperCase())}</div>
+    <div class="prof-head"><div class="avatar-big char-av">${character(p.avatar || 'aliya', { head: true, size: 72 })}</div>
       <div><h1 class="prof-name">${esc(p.name || 'Learner')}</h1><p class="muted">Learning spoken Sinhala since ${since}</p></div></div>
     <div class="stats">
       <div class="stat">${ICONS.flame}<b>${st.streak}</b><span>Day streak</span></div>
@@ -407,6 +545,8 @@ function profileTab() {
     <h3 class="sec-title">Settings</h3>
     <div class="panel settings">
       <label class="setting"><div><b>Name</b></div><input class="name-in" type="text" value="${esc(p.name)}" placeholder="Your name" maxlength="30"></label>
+      <div class="setting avatar-set"><div><b>Avatar</b><small>What friends see on the leaderboard</small></div>
+        <div class="av-pick">${AVATARS.map(a => `<button class="av-opt ${a === (p.avatar || 'aliya') ? 'on' : ''}" data-avatar="${a}" aria-label="${a}">${character(a, { head: true, size: 44 })}</button>`).join('')}</div></div>
       <label class="setting"><div><b>Daily goal</b></div><select data-goal>${[10, 20, 30, 50].map(g => `<option value="${g}" ${p.goal === g ? 'selected' : ''}>${g} XP · ${{ 10: 'Casual', 20: 'Regular', 30: 'Serious', 50: 'Intense' }[g]}</option>`).join('')}</select></label>
       ${tog('roman', 'Show romanization', 'English letters under Sinhala script')}
       ${tog('sound', 'Sound effects')}
@@ -437,6 +577,8 @@ function mountProfile() {
     if (t.matches('.name-in')) { S.setProfile({ name: t.value.trim() }); root.querySelector('.prof-name').textContent = t.value.trim() || 'Learner'; root.querySelector('.avatar-big').textContent = (t.value.trim() || 'You')[0].toUpperCase(); sync.syncSoon(); }
   });
   root.addEventListener('click', async (e) => {
+    const av = e.target.closest('[data-avatar]');
+    if (av) { S.setProfile({ avatar: av.dataset.avatar }); sfx.tap(); sync.syncSoon(); renderTab('profile'); return; }
     const b = e.target.closest('[data-act]');
     if (b?.dataset.act === 'sync') { b.disabled = true; await sync.syncNow(); renderTab('profile'); }
     if (b?.dataset.act === 'signout') { await sync.signOut(); renderTab('profile'); }
@@ -462,6 +604,8 @@ function mountProfile() {
         if (r === 'confirm-email') { msg.textContent = 'Check your email to confirm your account, then come back and sign in.'; form.querySelectorAll('button').forEach(x => x.disabled = false); return; }
       } else await sync.signIn(email, password);
       toast('Signed in — progress synced', { icon: ICONS.cloud });
+      const pending = sessionStorage.getItem('katha.addFriend');
+      if (pending) { sessionStorage.removeItem('katha.addFriend'); return go('add/' + pending); }
       renderTab('profile');
     } catch (err) {
       msg.textContent = err.message || 'Something went wrong.';
@@ -484,12 +628,15 @@ function renderShop() {
         <button class="btn small ${g >= S.PRICES.freeze && owned < S.MAX_FREEZES ? 'primary' : ''}" data-buy="freeze" ${g >= S.PRICES.freeze && owned < S.MAX_FREEZES ? '' : 'disabled'}>${owned >= S.MAX_FREEZES ? 'Full' : `${S.PRICES.freeze} ${ICONS.gem}`}</button></div>
       <div class="shop-item"><div class="si-ic">${ICONS.heart}</div><div class="si-txt"><h3>Refill hearts</h3><p>${n >= S.MAX_HEARTS ? 'Your hearts are already full.' : `Get all ${S.MAX_HEARTS} hearts back now.`}</p></div>
         <button class="btn small ${g >= S.PRICES.refill && n < S.MAX_HEARTS ? 'primary' : ''}" data-buy="refill" ${g >= S.PRICES.refill && n < S.MAX_HEARTS ? '' : 'disabled'}>${S.PRICES.refill} ${ICONS.gem}</button></div>
+      <div class="shop-item"><div class="si-ic boost-ic">${ICONS.bolt}</div><div class="si-txt"><h3>XP Boost</h3><p>Double XP for 15 minutes.${S.boostLeft() ? ` On now: ${plural(Math.ceil(S.boostLeft() / 60000), 'minute')} left. Buying adds 15 more.` : ''}</p></div>
+        <button class="btn small ${g >= S.PRICES.boost ? 'primary' : ''}" data-buy="boost" ${g >= S.PRICES.boost ? '' : 'disabled'}>${S.PRICES.boost} ${ICONS.gem}</button></div>
     </div>
-    <p class="muted center">Earn gems from treasure chests, daily quests and achievements.</p>
+    <p class="muted center">Earn gems from treasure chests, daily quests, streak milestones and achievements.</p>
   </div>`;
   app.querySelector('.shop-list').addEventListener('click', (e) => {
     const b = e.target.closest('[data-buy]'); if (!b) return;
-    if (S.buy(b.dataset.buy)) { sfx.chest(); toast(b.dataset.buy === 'freeze' ? 'Streak freeze equipped' : 'Hearts refilled!', { icon: b.dataset.buy === 'freeze' ? ICONS.freeze : ICONS.heart }); sync.syncSoon(); renderShop(); }
+    const it = b.dataset.buy;
+    if (S.buy(it)) { sfx.chest(); toast({ freeze: 'Streak freeze equipped', refill: 'Hearts refilled!', boost: '2× XP for 15 minutes!' }[it], { icon: { freeze: ICONS.freeze, refill: ICONS.heart, boost: ICONS.bolt }[it] }); sync.syncSoon(); renderShop(); }
   });
 }
 
@@ -569,10 +716,44 @@ async function startNode(id) {
   }
   if (n.type === 'chest') return go('learn');
   if (await needHeartsFirst()) return;
+  if (!(await lessonIntro(n))) return;
   const session = n.type === 'review' ? buildUnitReview(n) : buildLesson(n);
-  const host = stage();
+  const host = app.querySelector('.stage') || stage();
   runSession(session, { host, onQuit: () => go('learn'), onComplete: (r) => finishSession(r, 'learn'), onNeedHearts: (c) => go(c === 'practice' ? 'practice-session/smart' : 'learn') });
 }
+// Animated card before a lesson: the unit's scene, the lesson title and its new words.
+function lessonIntro(n) {
+  const u = UNITS.find(x => x.path.some(p => p.id === n.id));
+  if (!u) return Promise.resolve(true);
+  const ui = UNITS.indexOf(u);
+  const lessons = u.path.filter(x => x.type === 'lesson');
+  const li = lessons.findIndex(x => x.id === n.id);
+  const first = !S.lessonDone(n.id);
+  const host = stage();
+  sfx.whoosh();
+  const words = n.type === 'lesson' ? n.items : [];
+  host.innerHTML = `<div class="intro-card" style="--u:${u.color}">
+    <button class="icon-btn ic-close" aria-label="Close">${ICONS.close}</button>
+    <div class="ic-hero">${unitHero(u.id)}</div>
+    <div class="ic-body">
+      <div class="ic-meta">Unit ${ui + 1} · ${n.type === 'review' ? 'Unit review' : `Lesson ${li + 1} of ${lessons.length}`}</div>
+      <h1>${esc(n.type === 'review' ? `Review: ${u.title}` : n.title)}</h1>
+      ${words.length ? `<p class="ic-sub">${first ? 'New words' : 'Words in this lesson'}</p>
+        <div class="ic-words">${words.map((id, i) => `<div class="ic-w" style="--i:${i}">${pic(id, { size: 56, live: true })}<span lang="si">${esc(LEX[id].si)}</span></div>`).join('')}</div>`
+        : `<p class="ic-sub">Everything from Unit ${ui + 1}, mixed together. Finish it to complete the unit.</p><div class="ic-trophy">${trophyArt(90)}</div>`}
+      ${S.boostLeft() > 0 ? `<p class="ic-boost">${ICONS.bolt} 2× XP is on</p>` : ''}
+    </div>
+    <div class="ic-foot"><button class="btn primary wide ic-go">${n.type === 'review' ? 'Start review' : first ? 'Start lesson' : 'Practice again'}</button></div>
+  </div>`;
+  return new Promise(res => {
+    host.querySelector('.ic-go').addEventListener('click', () => {
+      host.querySelector('.intro-card').classList.add('leaving');
+      setTimeout(() => res(true), 260);
+    }, { once: true });
+    host.querySelector('.ic-close').addEventListener('click', () => { res(false); go('learn'); }, { once: true });
+  });
+}
+
 function startLetters(groupId) {
   const session = buildLetters(groupId || null);
   const host = stage();
@@ -590,38 +771,64 @@ async function finishSession(r, back) {
   justDone = r.nodeId || null;
   const before = S.streakInfo();
   const goalBefore = S.dayTotals().xp >= (state.profile.goal || 20);
+
+  // Bonuses, applied before the session is recorded so they count toward goals and quests.
+  const bonuses = [];
+  if (r.bonus) bonuses.push({ icon: ICONS.star || ICONS.check, cls: 'perfect', label: 'Flawless — no mistakes', val: `+${r.bonus} XP` });
+  const comboXP = r.kind === 'letters' ? 0 : r.maxCombo >= 10 ? 3 : r.maxCombo >= 5 ? 2 : 0;
+  if (comboXP) { r.xp += comboXP; bonuses.push({ icon: ICONS.flame, cls: 'combo', label: `${r.maxCombo} in a row`, val: `+${comboXP} XP` }); }
+  if (S.boostLeft() > 0) { const extra = r.xp; r.xp += extra; bonuses.push({ icon: ICONS.bolt, cls: 'boost', label: 'XP Boost', val: `×2 · +${extra} XP` }); }
+  const hr = new Date().getHours();
+  if (hr >= 5 && hr < 9) { const g = S.claim(`early:${S.today()}`); if (g) bonuses.push({ icon: ICONS.sun || ICONS.gem, cls: 'early', label: 'Early bird', val: `+${g} gems` }); }
+  if (hr >= 21 || hr < 2) { const g = S.claim(`night:${S.today()}`); if (g) bonuses.push({ icon: ICONS.moon || ICONS.gem, cls: 'night', label: 'Night owl', val: `+${g} gems` }); }
+
+  const unitDone = r.kind === 'review' && r.nodeId && !state.claims['unit:' + r.nodeId];
   S.recordSession(r);
-  if (r.kind === 'practice') S.gainHeart(1);
+  if (r.kind === 'practice') { S.gainHeart(1); bonuses.push({ icon: ICONS.heart, cls: 'heart', label: 'Practice reward', val: '+1 heart' }); }
+  if (unitDone) bonuses.push({ icon: ICONS.gem, cls: 'unit', label: 'Unit complete', val: `+${S.claimReward('unit:x')} gems` });
   const achs = S.checkAchievements();
   const after = S.streakInfo();
   const goalNow = S.dayTotals().xp >= (state.profile.goal || 20);
   sync.syncSoon(500);
-  sfx.complete();
+  const unit = r.nodeId ? UNITS.find(u => u.path.some(x => x.id === r.nodeId)) : null;
   const titles = { lesson: 'Lesson complete!', review: 'Unit review complete!', story: 'Story complete!', practice: 'Practice complete!', letters: 'Letters practiced!' };
+  const title = unitDone && unit ? `Unit ${UNITS.indexOf(unit) + 1} complete!` : (titles[r.kind] || 'Complete!');
+  const cast = unit ? [...new Set(['aliya', ...Object.values(STORIES[`st_${unit.id}`]?.lines || []).map(l => l.sp).filter(Boolean)])].slice(0, 3) : [];
+  const art = unitDone
+    ? `<div class="res-art unit-done"><div class="res-rays"></div><div class="res-trophy">${trophyArt(104)}</div>${castLineup(cast, 74, 'happy')}</div>`
+    : `<div class="res-art"><div class="res-rays"></div>${character('aliya', { size: 170, mood: 'dance' })}</div>`;
+  (unitDone ? sfx.fanfare : sfx.complete)();
   const host = app.querySelector('.stage') || stage();
-  host.innerHTML = `<div class="results">
-    <div class="res-art">${character('aliya', { size: 170, mood: 'dance' })}</div>
-    <h1>${titles[r.kind] || 'Complete!'}</h1>
-    ${r.perfect && r.kind !== 'story' && r.kind !== 'letters' ? '<p class="res-sub">No mistakes — flawless! +5 bonus XP</p>' : r.kind === 'practice' ? '<p class="res-sub">You earned a heart back ' + ICONS.heart + '</p>' : ''}
+  host.innerHTML = `<div class="results ${unitDone ? 'unit-complete' : ''}" style="--u:${unit?.color || 'var(--brand)'}">
+    ${art}
+    <h1 class="res-title">${esc(title)}</h1>
+    ${unitDone ? `<p class="res-sub">You finished ${esc(unit.title)}. ${UNITS.indexOf(unit) + 1 < UNITS.length ? 'The next unit is open!' : 'That\'s every unit so far!'}</p>` : ''}
     <div class="res-stats">
-      <div class="rs gold"><span>Total XP</span><b>${ICONS.bolt}${r.xp}</b></div>
-      <div class="rs green"><span>${r.accuracy >= 90 ? 'Amazing' : r.accuracy >= 70 ? 'Good' : 'Accuracy'}</span><b>${ICONS.target}${r.accuracy}%</b></div>
-      <div class="rs blue"><span>${r.ms < 120000 ? 'Speedy' : 'Time'}</span><b>${ICONS.clock}${fmtDuration(r.ms)}</b></div>
+      <div class="rs gold" style="--i:0"><span>Total XP</span><b>${ICONS.bolt}0</b></div>
+      <div class="rs green" style="--i:1"><span>${r.accuracy >= 90 ? 'Amazing' : r.accuracy >= 70 ? 'Good' : 'Accuracy'}</span><b>${ICONS.target}0%</b></div>
+      <div class="rs blue" style="--i:2"><span>${r.ms < 120000 ? 'Speedy' : 'Time'}</span><b>${ICONS.clock}${fmtDuration(r.ms)}</b></div>
     </div>
+    ${bonuses.length ? `<div class="res-bonus">${bonuses.map((b, i) => `<div class="rb ${b.cls}" style="--i:${i}"><span class="rb-ic">${b.icon}</span><span class="rb-l">${esc(b.label)}</span><b>${b.val}</b></div>`).join('')}</div>` : ''}
     <div class="res-foot"><button class="btn primary wide go-on">Continue</button></div>
   </div>`;
-  confetti(90);
-  countUp(host.querySelector('.rs.gold b'), r.xp, ICONS.bolt);
-  countUp(host.querySelector('.rs.green b'), r.accuracy, ICONS.target, '%');
+  confetti(unitDone ? 180 : 90);
+  if (unitDone) setTimeout(() => confetti(120), 900);
+  setTimeout(() => countUp(host.querySelector('.rs.gold b'), r.xp, ICONS.bolt), 350);
+  setTimeout(() => countUp(host.querySelector('.rs.green b'), r.accuracy, ICONS.target, '%'), 500);
+  bonuses.forEach((_, i) => setTimeout(() => sfx.tick(), 1100 + i * 280));
   await new Promise(res => host.querySelector('.go-on').addEventListener('click', res, { once: true }));
+
   if (!before.doneToday && after.doneToday) {
     sfx.streak();
+    const gift = S.STREAK_GIFTS[after.streak] ? S.claim(`streak:${after.streak}`) : 0;
     host.innerHTML = `<div class="results streak-screen">
       <div class="flame-wrap">${bigFlame(170)}</div><div class="streak-num"><span class="sn-old">${Math.max(0, after.streak - 1)}</span><span class="sn-new">${after.streak}</span></div>
       <h1>${plural(after.streak, 'day')} streak!</h1>
       ${weekStrip()}
-      <p class="res-sub">${after.streak === 1 ? 'Every streak starts with day one. See you tomorrow!' : 'Practice each day to keep it growing.'}</p>
+      ${gift ? `<div class="milestone"><div class="ms-chest">${chestArt(true, 72)}</div><div><b>${after.streak}-day milestone!</b><span>+${gift} gems</span></div></div>` : ''}
+      <p class="res-sub">${after.streak === 1 ? 'Every streak starts with day one. See you tomorrow!' : gift ? 'Keep going — the next milestone has a bigger chest.' : 'Practice each day to keep it growing.'}</p>
       <div class="res-foot"><button class="btn primary wide go-on">Continue</button></div></div>`;
+    if (gift) setTimeout(() => { sfx.chest(); confetti(80); }, 1300);
     await new Promise(res => host.querySelector('.go-on').addEventListener('click', res, { once: true }));
   }
   if (!goalBefore && goalNow) toast(`Daily goal reached! +${S.claimReward('goal:x')} gems`, { icon: ICONS.bolt });

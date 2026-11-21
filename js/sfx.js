@@ -31,5 +31,8 @@ export const sfx = {
   match() { if (!on()) return; tone(880, 0, 0.1, { type: 'triangle', gain: 0.12 }); },
   complete() { if (!on()) return; [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.11, 0.3, { type: 'triangle', gain: 0.15 })); },
   chest() { if (!on()) return; [784, 988, 1175, 1568].forEach((f, i) => tone(f, i * 0.07, 0.25, { type: 'sine', gain: 0.12 })); },
+  tick() { if (!on()) return; tone(1046, 0, 0.08, { type: 'triangle', gain: 0.1 }); tone(1568, 0.05, 0.12, { type: 'sine', gain: 0.07 }); },
+  whoosh() { if (!on()) return; tone(260, 0, 0.22, { type: 'sine', gain: 0.06, slideTo: 620 }); },
+  fanfare() { if (!on()) return; [523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.12, i === 5 ? 0.6 : 0.2, { type: 'triangle', gain: 0.15 })); },
   streak() { if (!on()) return; tone(300, 0, 0.5, { type: 'sawtooth', gain: 0.05, slideTo: 900 }); tone(1200, 0.45, 0.3, { type: 'triangle', gain: 0.12 }); },
 };

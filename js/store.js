@@ -9,7 +9,9 @@ const KEY = 'katha.v1';
 const DEV_KEY = 'katha.device';
 export const MAX_HEARTS = 5;
 export const HEART_REGEN = 60 * 60 * 1000; // one heart per hour
-export const PRICES = { freeze: 150, refill: 100 };
+export const PRICES = { freeze: 150, refill: 100, boost: 100 };
+export const BOOST_MS = 15 * 60 * 1000; // a 2× XP boost lasts 15 minutes
+export const STREAK_GIFTS = { 3: 20, 7: 50, 14: 75, 30: 150, 50: 200, 100: 500, 365: 1000 };
 export const MAX_FREEZES = 2;
 
 let memory = {};
@@ -26,10 +28,10 @@ export const DEVICE = ls.get(DEV_KEY) || (() => { const d = uid(); ls.set(DEV_KE
 export function blank() {
   return {
     v: 1,
-    profile: { name: '', goal: 20, created: Date.now(), onboarded: false, u: 0,
+    profile: { name: '', goal: 20, created: Date.now(), onboarded: false, u: 0, avatar: 'aliya',
       settings: { sound: true, roman: true, hearts: true, listening: true, speaking: true, speechCheck: true } },
     lessons: {}, srs: {}, letters: {},
-    log: {}, claims: {}, purchases: {}, frozen: {},
+    log: {}, claims: {}, purchases: {}, frozen: {}, boosts: {},
     hearts: { n: MAX_HEARTS, ts: Date.now(), u: 0 },
     speakOff: 0, listenOff: 0,
   };
@@ -40,7 +42,7 @@ function fill(s) {
   const out = { ...b, ...s };
   out.profile = { ...b.profile, ...(s.profile || {}) };
   out.profile.settings = { ...b.profile.settings, ...((s.profile || {}).settings || {}) };
-  for (const k of ['lessons', 'srs', 'letters', 'log', 'claims', 'purchases', 'frozen']) out[k] = out[k] || {};
+  for (const k of ['lessons', 'srs', 'letters', 'log', 'claims', 'purchases', 'frozen', 'boosts']) out[k] = out[k] || {};
   out.hearts = out.hearts || b.hearts;
   return out;
 }
@@ -170,6 +172,9 @@ export function claimReward(cid) {
   if (kind === 'goal') return 5;
   if (kind === 'ach') return ACH_REWARD[Number(b)] || 10;
   if (kind === 'quest') { const q = QUEST_POOL.find(x => x.id === cid.split(':')[2]); return q ? q.reward : 10; }
+  if (kind === 'qchest') return 15;
+  if (kind === 'streak') return STREAK_GIFTS[Number(a)] || 0;
+  if (kind === 'early' || kind === 'night') return 10;
   return 0;
 }
 export function claim(cid) {
@@ -192,10 +197,44 @@ export function buy(item) {
   const cost = PRICES[item];
   if (gems() < cost) return false;
   if (item === 'freeze' && freezesOwned() >= MAX_FREEZES) return false;
-  state.purchases[uid()] = { item, cost, ts: Date.now() };
+  const pid = uid();
+  state.purchases[pid] = { item, cost, ts: Date.now() };
   if (item === 'refill') setHearts(MAX_HEARTS);
+  if (item === 'boost') grantBoost('buy:' + pid);
   save();
   return true;
+}
+
+// ---------- XP boosts: each grant is a window; a new grant starts when the current one ends
+export function boostLeft(now = Date.now()) {
+  const gs = Object.values(state.boosts || {});
+  let end = 0;
+  for (const g of gs) if (g.start <= now && now < g.start + g.ms) end = Math.max(end, g.start + g.ms);
+  if (!end) return 0;
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const g of gs) if (g.start <= end && g.start + g.ms > end) { end = g.start + g.ms; grew = true; }
+  }
+  return end - now;
+}
+export function grantBoost(id, ms = BOOST_MS) {
+  if (state.boosts[id]) return false;
+  const now = Date.now();
+  state.boosts[id] = { start: now + boostLeft(now), ms };
+  save();
+  return true;
+}
+// The daily chest opens once all of today's quests are claimed.
+export function questChest(caps) {
+  const qs = questsFor(today(), caps);
+  const cid = `qchest:${today()}`;
+  return { cid, ready: qs.every(q => q.claimed), opened: !!state.claims[cid], left: qs.filter(q => !q.claimed).length };
+}
+export function openQuestChest(caps) {
+  const c = questChest(caps);
+  if (!c.ready || c.opened) return 0;
+  grantBoost(c.cid);
+  return claim(c.cid);
 }
 
 // ---------- hearts (last-writer-wins between devices)
@@ -344,10 +383,23 @@ export function merge(a, b) {
   out.claims = { ...b.claims, ...a.claims };
   out.purchases = { ...b.purchases, ...a.purchases };
   out.frozen = { ...b.frozen, ...a.frozen };
+  out.boosts = { ...b.boosts, ...a.boosts };
   out.hearts = (b.hearts.u || 0) > (a.hearts.u || 0) ? b.hearts : a.hearts;
   out.speakOff = Math.max(a.speakOff || 0, b.speakOff || 0);
   out.listenOff = Math.max(a.listenOff || 0, b.listenOff || 0);
   return out;
+}
+
+// ---------- what friends see (synced to the public `profiles` table)
+export function weekStartKey(d = new Date()) { const x = new Date(d); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return dateKey(x); }
+export function weekXP() {
+  const start = weekStartKey();
+  let n = 0;
+  for (const dev of Object.values(state.log)) for (const [day, d] of Object.entries(dev)) if (day >= start) n += d.xp || 0;
+  return n;
+}
+export function publicProfile() {
+  return { name: (state.profile.name || '').slice(0, 40), avatar: state.profile.avatar || 'aliya', xp_total: totalXP(), xp_week: weekXP(), week: weekStartKey(), streak: streakInfo().streak };
 }
 
 export function ensureWelcome() { if (!state.claims.welcome) { state.claims.welcome = Date.now(); save({ quiet: true }); } }

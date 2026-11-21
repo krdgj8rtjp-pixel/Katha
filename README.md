@@ -7,14 +7,18 @@ and can sync your progress across devices through a free Supabase project.
 ## What's in it
 
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
-  Units 1–4 are written (Greetings, About me, Food & drink, Numbers & money: 79 words and phrases, 57 sentences, 4 stories).
-  Units 5–12 of the A1 map are shown as "coming soon".
+  Units 1–8 are written (Greetings, About me, Food & drink, Numbers & money, Family, Getting around, Everyday verbs,
+  Faith & church: 157 words and phrases, 122 sentences, 8 stories). Units 9–12 of the A1 map are shown as "coming soon".
+  Every word has a hand-drawn picture (`js/pics.js`); every story opens with an animated scene (`js/art.js`).
 - **Exercises**: new-word cards, picture choice, meaning choice, match pairs, translate with word tiles (or type),
   build Sinhala sentences from tiles, listen-and-tap, fill in the blank, write it (romanized typing is fine), and speak (record and compare).
   Tap any Sinhala word for its meaning.
 - **Letters**: a script trainer covering vowels, consonants and vowel signs, with strength bars per letter.
 - **Practice**: spaced-repetition review of your weakest words, a mistakes review, listening practice, and a word list with strength meters.
-- **Motivation**: XP, daily goal, streaks (with streak freezes), hearts, gems, daily quests, achievements, a shop.
+- **Motivation**: XP, daily goal, streaks (with streak freezes and milestone gifts), hearts, gems, daily quests and a daily chest,
+  achievements, a shop. Bonuses: +XP for a flawless lesson and for answers in a row, a 15-minute 2× XP boost (daily chest or shop),
+  early-bird and night-owl gems.
+- **Friends**: a friend code and invite link per account, follow/unfollow, and a weekly XP leaderboard (Monday–Sunday).
 - **Sync**: email + password accounts. Progress merges safely between devices (each device's counters are kept separately, so nothing double-counts).
 - **Offline**: a service worker caches the app and audio once you've opened it.
 
@@ -54,6 +58,10 @@ In the app: **Profile → Account & sync → Create account**. On your other dev
 Two optional settings in the Supabase dashboard (**Authentication**):
 - **URL Configuration → Site URL**: set it to your GitHub Pages URL so the confirmation email links back to the app.
 - **Sign In / Providers → Email → Confirm email**: turn it off if you'd rather skip the confirmation email entirely.
+
+Friends use two more tables, also in `supabase/schema.sql`: `profiles` (name, avatar, weekly XP and streak; you can only
+read your own row and rows of people you follow or who follow you) and `follows`. The `find_friend(code)` function looks
+someone up by exact friend code without exposing anyone else.
 
 To recreate this in a fresh project: run `supabase/schema.sql` in the SQL editor and put the new URL and publishable key in `js/config.js`.
 Never put the secret / `service_role` key in the app.

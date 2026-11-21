@@ -13,10 +13,14 @@ export const ICONS = {
   speaker: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9v6h4l5.5 4.5v-15L7.5 9z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.6 6a8.6 8.6 0 0 1 0 12" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>',
   turtle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15.5c0-4 3.6-7 8-7s8 3 8 7z" fill="currentColor"/><circle cx="20.3" cy="13" r="2.4" fill="currentColor"/><rect x="5.5" y="15" width="3" height="3.5" rx="1.2" fill="currentColor"/><rect x="13" y="15" width="3" height="3.5" rx="1.2" fill="currentColor"/></svg>',
   close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="#F5B731"/><g stroke="#F5B731" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></g></svg>',
+  moon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 3a8.5 8.5 0 1 0 6.5 13.9A7 7 0 0 1 14.5 3z" fill="#7B8AD6"/><circle cx="18" cy="5" r="1" fill="#F5B731"/></svg>',
   star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg>',
   check: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" stroke-width="2.4" fill="none"/></svg>',
   book: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z" fill="currentColor"/><path d="M12 6v13.5" stroke="#fff" stroke-width="1.5" opacity=".55"/></svg>',
+  crown: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z" fill="#F5B731"/><circle cx="12" cy="5" r="1.6" fill="#FFD54A"/><circle cx="3" cy="8" r="1.4" fill="#FFD54A"/><circle cx="21" cy="8" r="1.4" fill="#FFD54A"/></svg>',
+  share: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>',
   trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5.5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 5H4.2a3 3 0 0 0 3 4.2M17 5h2.8a3 3 0 0 1-3 4.2" stroke="currentColor" stroke-width="2" fill="none"/><rect x="10.5" y="12.5" width="3" height="3.6" fill="currentColor"/><rect x="7.5" y="16" width="9" height="4" rx="1.5" fill="currentColor"/></svg>',
   chest: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10a5 5 0 0 1 5-5h8a5 5 0 0 1 5 5v1H3z" fill="#C97B2A"/><rect x="3" y="11" width="18" height="9" rx="2" fill="#E59A3E"/><rect x="3" y="10" width="18" height="2.6" fill="#8A4F14"/><rect x="10.3" y="10" width="3.4" height="5" rx="1" fill="#FFD54A"/></svg>',
   chestOpen: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 6 3.5h12l2 6z" fill="#8A4F14"/><rect x="3" y="11" width="18" height="9" rx="2" fill="#E59A3E"/><rect x="3" y="10" width="18" height="2.6" fill="#8A4F14"/><circle cx="9" cy="8" r="1.6" fill="#26A8F0"/><circle cx="14" cy="7" r="1.8" fill="#FFD54A"/></svg>',
@@ -168,4 +172,28 @@ export function bigFlame(size = 170) {
 // Animated Sinhala letter: the outline is traced, then filled in.
 export function letterDraw(ch) {
   return `<svg class="letter-draw" viewBox="0 0 200 170" width="190" height="162" aria-hidden="true"><text x="100" y="128" text-anchor="middle" font-size="128">${esc(ch)}</text></svg>`;
+}
+
+// A treasure chest that can sit closed (wobbling) or burst open.
+export function chestArt(open = false, size = 76) {
+  return `<svg class="chest-art ${open ? 'open' : ''}" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true">
+    <ellipse cx="50" cy="90" rx="34" ry="5" fill="#000" opacity=".1"/>
+    ${open ? `<g class="ca-glow">${Array.from({ length: 8 }, (_, i) => `<path d="M50 46 l0 -40" stroke="#FFD54A" stroke-width="7" stroke-linecap="round" opacity=".5" transform="rotate(${-70 + i * 20} 50 46)"/>`).join('')}</g>` : ''}
+    <rect x="16" y="46" width="68" height="40" rx="6" fill="#E59A3E"/><rect x="16" y="46" width="68" height="8" fill="#8A4F14"/>
+    <rect x="22" y="50" width="6" height="36" fill="#C97B2A"/><rect x="72" y="50" width="6" height="36" fill="#C97B2A"/>
+    <g class="ca-lid"${open ? ' transform="rotate(-24 16 46)"' : ''}><path d="M16 46 V36 a14 14 0 0 1 14 -14 h40 a14 14 0 0 1 14 14 V46Z" fill="#C97B2A"/><rect x="22" y="22" width="6" height="24" fill="#A8611D"/><rect x="72" y="22" width="6" height="24" fill="#A8611D"/></g>
+    <rect x="44" y="42" width="12" height="16" rx="3" fill="#FFD54A"/><circle cx="50" cy="49" r="2.4" fill="#8A4F14"/>
+  </svg>`;
+}
+
+// Gold trophy for finishing a unit.
+export function trophyArt(size = 110) {
+  return `<svg class="trophy-art" viewBox="0 0 100 110" width="${size}" height="${Math.round(size * 1.1)}" aria-hidden="true">
+    <ellipse cx="50" cy="104" rx="30" ry="4" fill="#000" opacity=".1"/>
+    <path d="M28 18 H72 V40 A22 22 0 0 1 28 40Z" fill="#F5B731"/><path d="M28 18 H72 V24 H28Z" fill="#FFD54A"/>
+    <path d="M28 26 H16 Q12 26 12 32 Q14 48 30 50" stroke="#F5B731" stroke-width="6" fill="none"/><path d="M72 26 H84 Q88 26 88 32 Q86 48 70 50" stroke="#F5B731" stroke-width="6" fill="none"/>
+    <rect x="44" y="60" width="12" height="18" fill="#D99A16"/><rect x="32" y="78" width="36" height="10" rx="3" fill="#C98A0C"/><rect x="26" y="88" width="48" height="12" rx="4" fill="#8B5A2B"/>
+    <path d="M50 26 l3.5 7 7.7 1.1 -5.6 5.4 1.3 7.6 -6.9 -3.6 -6.9 3.6 1.3 -7.6 -5.6 -5.4 7.7 -1.1Z" fill="#fff" opacity=".9"/>
+    <path d="M34 26 V40 Q34 48 40 52" stroke="#fff" stroke-width="3" fill="none" opacity=".45" stroke-linecap="round"/>
+  </svg>`;
 }
