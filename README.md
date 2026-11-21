@@ -66,8 +66,9 @@ well inside the free tier.
 
 What exists in Azure (subscription *Azure subscription 1*, resource group `katha-rg`, West US 2):
 - `katha-speech` — a Speech resource on the free **F0** tier.
-- `katha-github` — a managed identity with a federated credential that trusts only
-  `repo:krdgj8rtjp-pixel/Katha:ref:refs/heads/main`, and the *Cognitive Services User* role on `katha-speech` only.
+- `katha-github` — a managed identity whose federated credentials trust only this repo's `main` branch
+  (GitHub sends the subject as `repo:krdgj8rtjp-pixel@357149014/Katha@1466179636:ref:refs/heads/main`;
+  the plain-name form is registered too), with the *Cognitive Services User* role on `katha-speech` only.
 
 On every push, the workflow signs in to Azure as that identity (no stored password or key), reads the speech key,
 generates any clips that are missing, commits them to `audio/`, and deploys. Re-running is cheap: existing clips are skipped.
