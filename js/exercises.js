@@ -2,7 +2,8 @@
 //   { el, footer: 'check'|'continue'|'none', check(): {ok, solution, meaning, items?}, autoplay?(), ungraded? }
 import { esc, shuffle, siTokens, enTokens } from './util.js';
 import { romanize, matchAnswer, foldSinhala, isSinhala } from './translit.js';
-import { ICONS, siLine, audioBtn, mascot } from './ui.js';
+import { ICONS, siLine, audioBtn } from './ui.js';
+import { character } from './characters.js';
 import * as audio from './audio.js';
 import { sfx, unlock as unlockSfx } from './sfx.js';
 import { speechCheckOn, checkRecording } from './speech.js';
@@ -148,6 +149,15 @@ function matchPairs(ex, ctx, { letters = false } = {}) {
 }
 
 // ---------------------------------------------------------------- word tiles
+// Animate an element from its previous position to where it is now (FLIP).
+function flyFrom(el, from) {
+  const to = el.getBoundingClientRect();
+  const dx = from.left - to.left, dy = from.top - to.top;
+  if (!dx && !dy) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0,0)' }], { duration: 230, easing: 'cubic-bezier(.2,.9,.3,1.1)' });
+}
+
 function tilesWidget(tiles, { si = false, onChange }) {
   const wrap = h(`<div class="tiles-wrap"><div class="answer-area"><div class="answer-lines"></div></div><div class="bank"></div></div>`);
   const area = wrap.querySelector('.answer-lines');
@@ -158,12 +168,14 @@ function tilesWidget(tiles, { si = false, onChange }) {
     const slot = h(`<span class="tile-slot"></span>`);
     slot.appendChild(b); bank.appendChild(slot);
     b.addEventListener('click', () => {
+      const from = b.getBoundingClientRect();
       if (b.parentElement === area) { // send back
         placed.splice(placed.indexOf(i), 1); slot.appendChild(b);
       } else {
         placed.push(i); area.appendChild(b);
         if (si) playIf(t); else sfx.tap();
       }
+      flyFrom(b, from);
       onChange(placed.map(j => tiles[j]));
     });
     return b;
@@ -171,8 +183,15 @@ function tilesWidget(tiles, { si = false, onChange }) {
   return { el: wrap, value: () => placed.map(j => tiles[j]), disable: () => btns.forEach(b => b.disabled = true) };
 }
 
-function bubble(inner, mood = 'idle') {
-  return `<div class="speaker-row"><div class="speaker-mascot">${mascot(mood, 84)}</div><div class="bubble">${inner}</div></div>`;
+// Who says a line: the sentence's speaker, else a stable pick that matches the default (female) voice.
+function speakerOf(x) {
+  if (x?.speaker) return x.speaker;
+  const key = String(x?.id || x?.si || '');
+  let h = 0; for (const c of key) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return h % 2 ? 'kumari' : 'aliya';
+}
+function bubble(inner, who = 'aliya', say = '') {
+  return `<div class="speaker-row"><div class="speaker-mascot">${character(who, { size: 92, cls: 'speaker', say })}</div><div class="bubble">${inner}</div></div>`;
 }
 
 function tilesEn(ex, ctx) {
@@ -180,7 +199,7 @@ function tilesEn(ex, ctx) {
   const canAudio = audio.canPlay(s.si, s.voice);
   let mode = 'tiles', typed = '';
   const el = h(`<div class="ex">${title('Translate this sentence')}
-    ${bubble(`${canAudio ? audioBtn(s.si, { voice: s.voice, slow: false }) : ''}${siLine(s.si, s.g, { voice: s.voice })}`)}
+    ${bubble(`${canAudio ? audioBtn(s.si, { voice: s.voice, slow: false }) : ''}${siLine(s.si, s.g, { voice: s.voice })}`, speakerOf(s), s.si)}
     <div class="tiles-host"></div>
     <button class="link-btn kb-toggle">${ICONS.keyboard}<span>Use keyboard</span></button>
   </div>`);
@@ -219,7 +238,7 @@ function tilesSi(ex, ctx) {
   const s = ex.sent;
   const listen = ex.type === 'listen_tiles';
   const el = h(`<div class="ex">${title(listen ? 'Tap what you hear' : 'Write this in Sinhala')}
-    ${listen ? `<div class="listen-hero">${audioBtn(s.si, { voice: s.voice, big: true })}</div>` : bubble(`<div class="en-prompt">${esc(s.en)}</div>`)}
+    ${listen ? `<div class="listen-hero">${audioBtn(s.si, { voice: s.voice, big: true })}</div>` : bubble(`<div class="en-prompt">${esc(s.en)}</div>`, speakerOf(s))}
     <div class="tiles-host"></div>
   </div>`);
   const w = tilesWidget(ex.tiles, { si: true, onChange: v => ctx.onReady(v.length > 0) });
@@ -260,7 +279,7 @@ function typeSi(ex, ctx) {
   const it = ex.item;
   let typed = '';
   const el = h(`<div class="ex">${title('Write this in Sinhala')}
-    ${bubble(`<div class="en-prompt">${esc(it.en)}</div>`)}
+    ${bubble(`<div class="en-prompt">${esc(it.en)}</div>`, 'aliya')}
     <input class="type-box one" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type it — English letters are fine">
     <p class="type-tip">Tip: type how it sounds, e.g. <i>${esc(exampleRo(it))}</i></p>
   </div>`);
@@ -287,7 +306,7 @@ function speak(ex, ctx) {
   const canAudio = audio.canPlay(t.si, voice);
   const checking = speechCheckOn();
   const el = h(`<div class="ex">${title('Say this out loud')}
-    ${bubble(`${canAudio ? audioBtn(t.si, { voice, slow: true }) : ''}${siLine(t.si, t.g || [t.en], { voice })}`)}
+    ${bubble(`${canAudio ? audioBtn(t.si, { voice, slow: true }) : ''}${siLine(t.si, t.g || [t.en], { voice })}`, speakerOf(t), t.si)}
     <div class="speak-zone">
       <button class="mic-btn">${ICONS.mic}<span>Tap to speak</span></button>
       <div class="speak-status" hidden><span class="spinner"></span><span>Listening to what you said…</span></div>

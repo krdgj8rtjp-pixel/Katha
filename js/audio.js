@@ -2,6 +2,7 @@
 // audio/index.json); falls back to the device's own Sinhala voice if it has one.
 import { clipKey } from './util.js';
 import { DEFAULT_VOICE } from '../data/course.js';
+import { setTalking } from './characters.js';
 
 let have = new Set();
 let base = 'audio/';
@@ -35,6 +36,7 @@ export function canPlay(text, voice = DEFAULT_VOICE) {
 }
 
 export function stop() {
+  setTalking('', false);
   try { if (el) { el.pause(); } } catch {}
   try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch {}
   if (current) { current(); current = null; }
@@ -52,18 +54,20 @@ export function play(text, { voice = DEFAULT_VOICE, slow = false } = {}) {
       el.src = base + file + '.mp3';
       el.playbackRate = (slow && file === kn) ? 0.7 : 1;
       try { el.preservesPitch = true; } catch {}
-      const done = () => { el.onended = el.onerror = null; current = null; resolve(true); };
+      const done = () => { el.onended = el.onerror = null; current = null; setTalking(text, false); resolve(true); };
       current = () => resolve(true);
-      el.onended = done; el.onerror = () => { current = null; resolve(false); };
-      el.play().catch(() => { current = null; resolve(false); });
+      el.onended = done; el.onerror = () => { current = null; setTalking(text, false); resolve(false); };
+      el.onplaying = () => setTalking(text, true);
+      el.play().catch(() => { current = null; setTalking(text, false); resolve(false); });
       return;
     }
     if (siVoice && 'speechSynthesis' in window) {
       const u = new SpeechSynthesisUtterance(text);
       u.voice = siVoice; u.lang = siVoice.lang; u.rate = slow ? 0.6 : 0.9;
       current = () => resolve(true);
-      u.onend = () => { current = null; resolve(true); };
-      u.onerror = () => { current = null; resolve(false); };
+      u.onstart = () => setTalking(text, true);
+      u.onend = () => { current = null; setTalking(text, false); resolve(true); };
+      u.onerror = () => { current = null; setTalking(text, false); resolve(false); };
       speechSynthesis.speak(u);
       return;
     }

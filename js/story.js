@@ -5,10 +5,12 @@ import { esc } from './util.js';
 import * as audio from './audio.js';
 import { sfx } from './sfx.js';
 import { lessonDone } from './store.js';
+import { character, react } from './characters.js';
 
 export function runStory(id, { host, onQuit, onComplete }) {
   const st = STORIES[id];
   const lines = st.lines;
+  const cast = [...new Set(lines.filter(l => l.sp).map(l => l.sp))];
   let i = -1, mistakes = 0, waiting = false;
   const start = Date.now();
   host.innerHTML = `<div class="lesson story">
@@ -18,7 +20,8 @@ export function runStory(id, { host, onQuit, onComplete }) {
       <div class="hearts-pill"></div>
     </div>
     <div class="lesson-body story-body">
-      <div class="story-head"><div class="story-emoji">${st.emoji}</div><h2>${esc(st.title)}</h2><p>${esc(st.blurb)}</p></div>
+      <div class="story-head"><h2>${esc(st.title)}</h2><p>${esc(st.blurb)}</p></div>
+      <div class="story-stage">${cast.map(id => `<div class="stage-slot">${character(id, { size: 104 })}<span>${esc(SPEAKERS[id].name)}</span></div>`).join('')}</div>
       <div class="story-lines"></div>
     </div>
     <div class="lesson-foot"><div class="foot-inner"><button class="btn primary go">Start story</button></div></div>
@@ -31,7 +34,7 @@ export function runStory(id, { host, onQuit, onComplete }) {
     const canAudio = audio.canPlay(l.si, sp.voice);
     const el = document.createElement('div');
     el.className = 'story-line';
-    el.innerHTML = `<div class="avatar" style="--c:${sp.color}">${sp.emoji}</div>
+    el.innerHTML = `<div class="avatar" style="--c:${sp.color}">${character(l.sp, { size: 46, head: true, say: l.si })}</div>
       <div class="story-bubble">
         <div class="who" style="color:${sp.color}">${esc(sp.name)} ${canAudio ? `<button class="mini-play" data-play="${esc(l.si)}" data-v="${sp.voice}" aria-label="Play">${ICONS.speaker}</button>` : ''}</div>
         ${siLine(l.si, l.g, { voice: sp.voice })}
@@ -39,7 +42,11 @@ export function runStory(id, { host, onQuit, onComplete }) {
         <div class="tr" hidden>${esc(l.en)}</div>
       </div>`;
     el.querySelector('.reveal').addEventListener('click', (e) => { e.currentTarget.hidden = true; el.querySelector('.tr').hidden = false; });
+    const actor = host.querySelector(`.story-stage .char[data-char="${l.sp}"]`);
+    if (actor) actor.dataset.say = l.si;
+    host.querySelectorAll('.stage-slot').forEach(x => x.classList.toggle('on', x.contains(actor)));
     if (canAudio) setTimeout(() => audio.play(l.si, { voice: sp.voice }), 150);
+    else if (actor) { actor.classList.add('talking'); setTimeout(() => actor.classList.remove('talking'), 1400); }
     return el;
   }
 
@@ -57,8 +64,10 @@ export function runStory(id, { host, onQuit, onComplete }) {
         if (k === q.answer) {
           b.classList.add('right'); wrap.querySelectorAll('button').forEach(x => x.disabled = true);
           sfx.correct(); waiting = false; go.disabled = false; go.textContent = 'Continue';
+          react(host.querySelector('.story-stage'), 'happy', 1200);
         } else {
           b.classList.add('bad-shake', 'wrong'); b.disabled = true; mistakes++; sfx.wrong();
+          react(host.querySelector('.story-stage'), 'sad', 1400);
           setTimeout(() => b.classList.remove('bad-shake'), 500);
         }
       });

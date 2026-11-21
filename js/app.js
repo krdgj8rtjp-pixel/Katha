@@ -13,6 +13,8 @@ import { strength } from './srs.js';
 import { buildLesson, buildUnitReview, buildPractice, buildLetters, caps, item, sent, nodeById } from './session.js';
 import { runSession } from './player.js';
 import { runStory } from './story.js';
+import { character } from './characters.js';
+import { pathScene, castLineup } from './art.js';
 
 const app = document.getElementById('app');
 const go = (h) => { if (location.hash === '#/' + h) route(); else location.hash = '#/' + h; };
@@ -173,7 +175,7 @@ function learnTab() {
         ${status === 'current' ? `<div class="start-bubble">${n.type === 'chest' ? 'OPEN' : 'START'}</div>` : ''}
         <button class="node n-${n.type} ${status}" data-node="${n.id}" aria-label="${esc(nodeTitle(n))}">${nodeIcon(n, done)}</button>
       </div>`;
-      if (i === 2) html += `<div class="path-mascot" style="--x:${x > 0 ? -90 : 90}px">${mascot(status === 'locked' ? 'idle' : 'happy', 92)}</div>`;
+      if (i === 2) html += pathScene(u.id, x > 0 ? 'left' : 'right');
     });
     html += `</div></section>`;
   });
@@ -198,6 +200,12 @@ function mountLearn() {
   if (curNode) {
     const el = app.querySelector(`.node-wrap[data-node="${curNode.id}"]`);
     el?.scrollIntoView({ block: 'center' });
+    if (justDone) el?.querySelector('.node')?.classList.add('arrive');
+  }
+  if (justDone) {
+    const done = app.querySelector(`.node-wrap[data-node="${justDone}"] .node`);
+    done?.classList.add('just-done');
+    justDone = null;
   }
   app.querySelector('.path').addEventListener('click', async (e) => {
     const b = e.target.closest('button.node'); if (!b) return;
@@ -232,7 +240,8 @@ async function openChest(n) {
   sfx.chest();
   const g = S.claim('chest:' + n.id);
   confetti(60);
-  await modal({ art: `<div class="chest-art">${ICONS.chestOpen}</div>`, title: `+${g} gems!`, body: '<p>Treasure! Spend gems on streak freezes and heart refills in the shop.</p>', buttons: [{ label: 'Nice', value: 1, cls: 'primary' }], dismiss: 1 });
+  const burst = Array.from({ length: 9 }, (_, i) => `<i style="--a:${i * 40}deg;--d:${(i % 3) * 60}ms">${ICONS.gem}</i>`).join('');
+  await modal({ art: `<div class="chest-art"><div class="chest-burst">${burst}</div>${ICONS.chestOpen}</div>`, title: `+${g} gems!`, body: '<p>Treasure! Spend gems on streak freezes and heart refills in the shop.</p>', buttons: [{ label: 'Nice', value: 1, cls: 'primary' }], dismiss: 1 });
   sync.syncSoon();
   renderTab('learn');
 }
@@ -502,7 +511,7 @@ function renderOnboarding(step) {
   currentTab = null;
   const p = state.profile;
   const steps = [
-    () => `<div class="onb center">${mascot('happy', 170)}
+    () => `<div class="onb center">${castLineup(['kumari', 'aliya', 'nimal', 'john'], 82, 'wave')}
       <h1>Learn to <span class="accent">speak</span> Sinhala</h1>
       <p>Short, game-like lessons in everyday spoken Sinhala — the way people really talk in Sri Lanka.</p>
       <div class="onb-btns"><button class="btn primary wide" data-next>Get started</button>
@@ -574,7 +583,9 @@ function startPractice(mode) {
   runSession(session, { host, onQuit: () => go('practice'), onComplete: (r) => finishSession(r, 'practice') });
 }
 
+let justDone = null;
 async function finishSession(r, back) {
+  justDone = r.nodeId || null;
   const before = S.streakInfo();
   const goalBefore = S.dayTotals().xp >= (state.profile.goal || 20);
   S.recordSession(r);
@@ -587,7 +598,7 @@ async function finishSession(r, back) {
   const titles = { lesson: 'Lesson complete!', review: 'Unit review complete!', story: 'Story complete!', practice: 'Practice complete!', letters: 'Letters practiced!' };
   const host = app.querySelector('.stage') || stage();
   host.innerHTML = `<div class="results">
-    <div class="res-art">${mascot('happy', 170)}</div>
+    <div class="res-art">${character('aliya', { size: 170, mood: 'dance' })}</div>
     <h1>${titles[r.kind] || 'Complete!'}</h1>
     ${r.perfect && r.kind !== 'story' && r.kind !== 'letters' ? '<p class="res-sub">No mistakes — flawless! +5 bonus XP</p>' : r.kind === 'practice' ? '<p class="res-sub">You earned a heart back ' + ICONS.heart + '</p>' : ''}
     <div class="res-stats">
@@ -598,6 +609,8 @@ async function finishSession(r, back) {
     <div class="res-foot"><button class="btn primary wide go-on">Continue</button></div>
   </div>`;
   confetti(90);
+  countUp(host.querySelector('.rs.gold b'), r.xp, ICONS.bolt);
+  countUp(host.querySelector('.rs.green b'), r.accuracy, ICONS.target, '%');
   await new Promise(res => host.querySelector('.go-on').addEventListener('click', res, { once: true }));
   if (!before.doneToday && after.doneToday) {
     sfx.streak();
@@ -612,6 +625,18 @@ async function finishSession(r, back) {
   if (!goalBefore && goalNow) toast(`Daily goal reached! +${S.claimReward('goal:x')} gems`, { icon: ICONS.bolt });
   achs.forEach((x, i) => setTimeout(() => toast(`Achievement: ${x.a.name} (level ${x.tier + 1}) +${S.claimReward(`ach:${x.a.id}:${x.tier}`)} gems`, { icon: x.a.icon, ms: 3200 }), 400 + i * 900));
   go(back);
+}
+
+function countUp(el, to, icon = '', suffix = '', ms = 800) {
+  if (!el) return;
+  const t0 = performance.now();
+  const step = (t) => {
+    const k = Math.min(1, (t - t0) / ms);
+    const v = Math.round(to * (1 - Math.pow(1 - k, 3)));
+    el.innerHTML = `${icon}${v}${suffix}`;
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 
 // ------------------------------------------------------------ boot

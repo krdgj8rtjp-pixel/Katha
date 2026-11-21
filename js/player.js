@@ -5,6 +5,7 @@ import { sfx } from './sfx.js';
 import * as audio from './audio.js';
 import { state, heartsNow, loseHeart, gems, buy, PRICES, save, MAX_HEARTS } from './store.js';
 import { pick, esc } from './util.js';
+import { react } from './characters.js';
 
 const PRAISE = ['Nice!', 'Great job!', 'Correct!', 'Excellent!', 'Well done!', 'නියමයි! (Great!)', 'හරි! (Right!)'];
 
@@ -102,6 +103,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
       if (res.verified) spoke++;
       if (combo > 0 && combo % 5 === 0 && isGraded) comboMsg = `${combo} in a row!`;
       sfx.correct();
+      react(exHost, 'happy', 1100);
       const title = comboMsg || res.praise || (res.ok === 'typo' ? 'You have a typo' : pick(PRAISE));
       fb.innerHTML = `<div class="fb-head">${ICONS.check}<span>${esc(title)}</span></div>
         ${res.ok === 'typo' ? `<div class="fb-sol">${res.solution}</div>` : ''}
@@ -111,6 +113,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
     } else {
       if (isGraded) { combo = 0; mistakes++; if (firstAttempt) graded++; }
       sfx.wrong();
+      react(exHost, 'sad', 1800);
       fb.innerHTML = `<div class="fb-head">${ICONS.close}<span>Correct answer:</span></div>
         <div class="fb-sol">${res.solution || ''}</div>
         ${res.meaning ? `<div class="fb-mean">Meaning: ${esc(res.meaning)}</div>` : ''}`;
@@ -121,6 +124,8 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
         const n = loseHeart();
         $('.hearts-pill b').textContent = n;
         $('.hearts-pill').classList.add('lost'); setTimeout(() => $('.hearts-pill')?.classList.remove('lost'), 600);
+        const minus = document.createElement('span'); minus.className = 'minus-one'; minus.textContent = '−1';
+        $('.hearts-pill').appendChild(minus); setTimeout(() => minus.remove(), 900);
       }
     }
     const tag = $('.combo-tag');

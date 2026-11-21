@@ -1,6 +1,7 @@
 import { esc, rawTokens } from './util.js';
 import { romanize } from './translit.js';
 import { state } from './store.js';
+import { character } from './characters.js';
 
 export const ICONS = {
   flame: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 3.5 5.2 5.6 5.2 10.2a5.2 5.2 0 0 1-10.4 0c0-2.1 1-3.6 2.1-4.6.2 1.5 1 2.6 2 2.6-1-3.1 0-6.2 1.1-8.2z" fill="#FF9600"/><path d="M12 13c.6 1.4 2 2 2 3.6a2 2 0 0 1-4 0c0-1 .6-1.6 1-2 .1.6.4 1 1 1-.3-1 0-2 0-2.6z" fill="#FFD43B"/></svg>',
@@ -32,14 +33,14 @@ export const ICONS = {
   freeze: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7" stroke="#4FC3F7" stroke-width="2.4" stroke-linecap="round"/><path d="m9 3.5 3 2.2 3-2.2M9 20.5l3-2.2 3 2.2" stroke="#4FC3F7" stroke-width="2" fill="none" stroke-linecap="round"/></svg>',
 };
 
-// Our mascot: Aliya the elephant (අලියා).
+// Our mascot: Aliya the elephant (අලියා), now an animated character.
 export function mascot(mood = 'happy', size = 120) {
-  const eyes = mood === 'happy'
-    ? '<path d="M41 53q7-8 14 0M65 53q7-8 14 0" stroke="#1d2433" stroke-width="4" fill="none" stroke-linecap="round"/>'
-    : mood === 'sad'
-      ? '<circle cx="48" cy="55" r="7" fill="#fff"/><circle cx="72" cy="55" r="7" fill="#fff"/><circle cx="48" cy="57" r="4" fill="#1d2433"/><circle cx="72" cy="57" r="4" fill="#1d2433"/><path d="M40 44l12 4M80 44l-12 4" stroke="#55698a" stroke-width="3.5" stroke-linecap="round"/>'
-      : '<circle cx="48" cy="52" r="7.5" fill="#fff"/><circle cx="72" cy="52" r="7.5" fill="#fff"/><circle cx="49.5" cy="53" r="4.3" fill="#1d2433"/><circle cx="73.5" cy="53" r="4.3" fill="#1d2433"/><circle cx="51" cy="51.3" r="1.5" fill="#fff"/><circle cx="75" cy="51.3" r="1.5" fill="#fff"/>';
-  const mouth = mood === 'sad' ? '<path d="M53 80q7-5 14 0" stroke="#1d2433" stroke-width="3" fill="none" stroke-linecap="round"/>' : '';
+  const m = mood === 'happy' ? 'happy' : mood === 'sad' ? 'sad' : mood === 'dance' ? 'dance' : mood === 'wave' ? 'wave' : '';
+  return character('aliya', { size, mood: m });
+}
+
+// The original static elephant, kept for generating the app icon.
+export function mascotStatic(size = 120) {
   return `<svg class="mascot" width="${size}" height="${size}" viewBox="0 0 120 120" aria-hidden="true">
     <ellipse cx="60" cy="112" rx="30" ry="5" fill="#000" opacity=".08"/>
     <ellipse cx="23" cy="58" rx="22" ry="28" fill="#7F93B4"/><ellipse cx="97" cy="58" rx="22" ry="28" fill="#7F93B4"/>
@@ -47,9 +48,8 @@ export function mascot(mood = 'happy', size = 120) {
     <path d="M30 86q30 22 60 0v14q-30 16-60 0z" fill="#E8891C"/><path d="M30 92q30 18 60 0" stroke="#8D153A" stroke-width="3" fill="none"/>
     <ellipse cx="60" cy="56" rx="34" ry="33" fill="#9BAECB"/>
     <path d="M51 68q-3 28 9 36 10 5 15-4-6 2-10-4-4-8 0-28z" fill="#9BAECB"/>
-    <path d="M57 74v4M57 84v4" stroke="#7F93B4" stroke-width="2" stroke-linecap="round"/>
     <path d="M54 25q6-10 12 0" stroke="#6E82A4" stroke-width="3" fill="none" stroke-linecap="round"/>
-    ${eyes}${mouth}
+    <path d="M41 53q7-8 14 0M65 53q7-8 14 0" stroke="#1d2433" stroke-width="4" fill="none" stroke-linecap="round"/>
     <ellipse cx="38" cy="66" rx="5.5" ry="3.4" fill="#F49AB0" opacity=".85"/><ellipse cx="82" cy="66" rx="5.5" ry="3.4" fill="#F49AB0" opacity=".85"/>
     <path d="M44 74q-4 8 2 12M76 74q4 8-2 12" stroke="#fffaf0" stroke-width="4" fill="none" stroke-linecap="round"/>
   </svg>`;
