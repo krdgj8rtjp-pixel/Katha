@@ -94,6 +94,36 @@ const BUILD = {
     extrasFace: `<path d="M35.5 62 C37 82 49 89.5 60 89.5 C71 89.5 83 82 84.5 62 C81 71 74 75 69 75 C67 71.5 53 71.5 51 75 C46 75 39 71 35.5 62Z" fill="#b07a3c"/>`,
     extrasHead: `<ellipse cx="60" cy="35" rx="41" ry="8" fill="#C8A464"/><path d="M37 35 C37 14 83 14 83 35Z" fill="#d6b675"/><path d="M37.5 31 h45 v4.5 h-45z" fill="#8a6a35"/>`,
   }, pose),
+  amma: (pose) => person({
+    skin: '#B5764C', shade: '#96603D', browColor: '#3a3236', lashes: true, lip: '#7b3a33',
+    shirt: '#8D153A',
+    shirtExtras: `<path d="M38 100 Q60 118 82 100 L86 108 Q60 128 34 108Z" fill="#E8B53A"/><path d="M70 94 L98 132 L84 132 L64 96Z" fill="#A61E48"/><path d="M70 94 L98 132" stroke="#E8B53A" stroke-width="2.4"/>`,
+    hairBack: `<circle cx="60" cy="23" r="12" fill="#3b3438"/><path d="M31 56 C29 32 44 24 60 24 C76 24 91 32 89 56 C88 64 86 70 84 74 L36 74 C34 70 32 64 31 56Z" fill="#3b3438"/>`,
+    hairFront: `<path d="M33 52 C34 34 46 28 60 28 C74 28 86 34 87 52 C82 42 71 36 61.5 37 L60 30 L58.5 37 C49 36 38 42 33 52Z" fill="#3b3438"/><path d="M45 31 C52 29 56 30 58.5 32 M66 30 C71 31 76 33 79 37" stroke="#9a9396" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+    extrasFace: `<g fill="none" stroke="#6b4a2e" stroke-width="1.8"><circle cx="47" cy="54" r="7.5"/><circle cx="73" cy="54" r="7.5"/><path d="M54.5 53.5 q5.5 -3 11 0"/></g>`,
+    extrasHead: `<circle cx="33.5" cy="66" r="2.1" fill="#E8B53A"/><circle cx="86.5" cy="66" r="2.1" fill="#E8B53A"/>`,
+  }, pose),
+  thaththa: (pose) => person({
+    skin: '#9C6139', shade: '#7F4D2B', browColor: '#d9d4cf', lip: '#5b2a24',
+    shirt: '#F3F1EA',
+    shirtExtras: `<path d="M48 92 L60 104 L72 92 L68 89 L60 98 L52 89Z" fill="#DCD8CC"/><path d="M60 104 V132" stroke="#DCD8CC" stroke-width="1.6"/><circle cx="60" cy="112" r="1.6" fill="#bdb8ab"/><circle cx="60" cy="122" r="1.6" fill="#bdb8ab"/><path d="M76 106 h10 v8 h-10z" fill="#E6E2D6"/>`,
+    hairFront: `<path d="M32.5 54 C31 40 36 32 42 30 C40 36 40 42 41 46 C38 47 35 50 32.5 54Z M87.5 54 C89 40 84 32 78 30 C80 36 80 42 79 46 C82 47 85 50 87.5 54Z" fill="#c9c4bf"/><path d="M45 29 C52 26 68 26 75 29" stroke="#c9c4bf" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    extrasFace: `<path d="M48.5 67 q5.5 -5.5 11.5 -1.5 q6 -4 11.5 1.5 q-5.5 3.5 -11.5 0.8 q-6 2.7 -11.5 -0.8z" fill="#e3dfda"/><g fill="none" stroke="#2b2230" stroke-width="2"><rect x="39.5" y="47.5" width="15" height="12" rx="4"/><rect x="65.5" y="47.5" width="15" height="12" rx="4"/><path d="M54.5 52 h11"/></g>`,
+  }, pose),
+  putha: (pose) => person({
+    skin: '#AE6F45', shade: '#915837', browColor: '#141114', lip: '#6b2f28',
+    shirt: '#F5B731',
+    shirtExtras: `<path d="M18 116 h84 v6 h-84z" fill="#E5484D" opacity=".85"/><path d="M50 92 Q60 99 70 92" stroke="#d69a12" stroke-width="3" fill="none"/>`,
+    hairFront: `<path d="M32.5 52 C31 30 45 22 61 22 C77 22 90 30 87.5 52 C84 42 78 37 70 36 L66 41 L62 35 L56 41 L52 35 L47 40 C40 41 35 46 32.5 52Z" fill="#17131a"/>`,
+  }, pose),
+  duva: (pose) => person({
+    skin: '#B77A50', shade: '#99613F', browColor: '#1c1719', lashes: true, lip: '#8a3a3a',
+    shirt: '#F27D9A',
+    shirtExtras: `<path d="M40 96 Q60 110 80 96" stroke="#fff" stroke-width="3" fill="none" stroke-dasharray="2 3"/><circle cx="60" cy="112" r="3" fill="#fff"/>`,
+    hairBack: `<path d="M30 56 C27 30 44 21 60 21 C76 21 93 30 90 56 C89 62 87 66 85 68 L35 68 C33 66 31 62 30 56Z" fill="#1d181c"/><path d="M28 60 C22 76 24 96 30 104 C34 96 34 80 33 66Z M92 60 C98 76 96 96 90 104 C86 96 86 80 87 66Z" fill="#1d181c"/><circle cx="30" cy="104" r="4" fill="#E5484D"/><circle cx="90" cy="104" r="4" fill="#E5484D"/>`,
+    hairFront: `<path d="M32.5 54 C33 33 45 26 60 26 C75 26 87 33 87.5 54 C84 44 76 38 66 38 C58 40 50 38 46 34 C40 38 35 44 32.5 54Z" fill="#1d181c"/>`,
+    extrasHead: `<path d="M73 27 l7 -5 l1 9z M73 27 l-1 -9 l8 4z" fill="#E5484D"/>`,
+  }, pose),
   aliya: () => `
   <ellipse cx="60" cy="129" rx="32" ry="3.5" fill="#000" opacity=".08"/>
   <g class="rig">

@@ -26,7 +26,7 @@ const teaBushes = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) s
   <path d="M-58 4 h116" stroke="#8a5a2b" stroke-width="3" opacity=".3"/>
 </g>`;
 
-const tuktuk = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+export const tuktuk = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
   <ellipse cx="0" cy="2" rx="40" ry="4" fill="#000" opacity=".1"/>
   <path d="M-34 -8 L-34 -38 C-34 -50 -24 -56 -10 -56 L18 -56 C30 -56 36 -46 36 -36 L36 -8Z" fill="#C0392B"/>
   <path d="M-30 -14 L-30 -36 C-30 -44 -22 -50 -10 -50 L-2 -50 L-2 -14Z" fill="#AEDCF0"/>
@@ -54,7 +54,15 @@ const SCENES = {
   u2: { who: 'kumari', art: () => `${sigiriya(96, 150, .9)}${palm(18, 150, .8)}${cloud(150, 30)}` },
   u3: { who: 'nimal', art: () => `${teaBushes(96, 150, 1)}${sun(32, 30, 12)}${cloud(150, 40, .8)}` },
   u4: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${tuktuk(150, 150, .7)}${cloud(40, 28, .8)}` },
+  u5: { who: 'amma', art: () => `${smallHouse(70, 150, 1)}${palm(160, 150, .8, true)}${sun(30, 30, 12)}${cloud(140, 28, .8)}` },
+  u6: { who: 'john', art: () => `<path d="M0 150 H190" stroke="#9AA0AE" stroke-width="10"/>${roadSign(30, 150)}${tuktuk(130, 146, .72)}${cloud(60, 30, .9)}` },
+  u7: { who: 'duva', art: () => `${palm(28, 150, .85)}${kite(140, 40)}${sun(60, 28, 11)}${cloud(150, 70, .7)}` },
+  u8: { who: 'nimal', art: () => `${smallChurch(120, 150, .9)}${palm(24, 150, .8)}${sun(40, 28, 11)}${cloud(150, 26, .7)}` },
 };
+const smallHouse = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-34" y="-40" width="68" height="40" fill="#FFF3DC"/><path d="M-42 -38 L0 -70 L42 -38Z" fill="#C0533A"/><rect x="-9" y="-24" width="18" height="24" rx="2" fill="#7A4A2A"/><rect x="-27" y="-30" width="13" height="12" rx="1.5" fill="#FFD36E"/><rect x="14" y="-30" width="13" height="12" rx="1.5" fill="#FFD36E"/></g>`;
+const smallChurch = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-30" y="-40" width="60" height="40" fill="#FBF7EE"/><path d="M-36 -38 L0 -64 L36 -38Z" fill="#C0533A"/><rect x="-9" y="-92" width="18" height="36" fill="#FBF7EE"/><path d="M-12 -92 L0 -104 L12 -92Z" fill="#C0533A"/><path d="M0 -118 V-104 M-5 -112 H5" stroke="#E8B53A" stroke-width="3" stroke-linecap="round"/><path d="M-8 0 V-16 a8 8 0 0 1 16 0 V0Z" fill="#7A4A2A"/><circle cx="0" cy="-48" r="5" fill="#7FB6D9"/></g>`;
+const roadSign = (x, y) => `<g transform="translate(${x} ${y})"><rect x="-2.5" y="-44" width="5" height="44" fill="#7D8496"/><circle cx="0" cy="-52" r="15" fill="#1E9FE3" stroke="#fff" stroke-width="2.4"/><path d="M-5 -44 V-52 Q-5 -57 0 -57 H5" stroke="#fff" stroke-width="3.6" fill="none"/><path d="M4 -62 L10 -57 L4 -52Z" fill="#fff"/></g>`;
+const kite = (x, y) => `<g transform="translate(${x} ${y})"><g class="s-kite"><path d="M0 -14 L11 0 L0 16 L-11 0Z" fill="#E5484D"/><path d="M0 -14 V16 M-11 0 H11" stroke="#fff" stroke-width="1.4" opacity=".8"/><path d="M0 16 q-4 8 0 14 q4 6 0 12" stroke="#E5484D" stroke-width="1.6" fill="none"/><path d="M0 16 L-40 110" stroke="#fff" stroke-width=".9" opacity=".8"/></g></g>`;
 
 // A scene beside the path: scenery plus a waving character.
 export function pathScene(unitId, side = 'left') {
@@ -150,6 +158,50 @@ const SCENE_ART = {
     </g>
     <path d="M0 172 L360 172 L360 200 L0 200Z" fill="#D9C9A8"/><path d="M0 172 h360" stroke="#C4B08A" stroke-width="2"/>`,
 };
+
+Object.assign(SCENE_ART, {
+  // Kumari's living room: family photos, a ceiling fan, palms outside the window.
+  st_u5: (id) => `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FCE9C8"/><stop offset="1" stop-color="#F6D9A8"/></linearGradient></defs><rect width="360" height="200" fill="url(#${id})"/>
+    <rect x="0" y="0" width="360" height="12" fill="#E9C48A"/><path d="M180 12 V30" stroke="#6A421E" stroke-width="3"/>
+    <g transform="translate(180 32)"><g class="s-fan">${[0, 120, 240].map(a => `<ellipse cx="0" cy="-26" rx="7" ry="26" fill="#8B5A2B" transform="rotate(${a})"/>`).join('')}</g><circle r="6" fill="#6A421E"/></g>
+    <rect x="22" y="40" width="96" height="78" rx="4" fill="#8B5A2B"/><rect x="28" y="46" width="84" height="66" fill="#BFE6FA"/><path d="M28 96 Q70 80 112 96 V112 H28Z" fill="#86C46A"/>
+    ${palm(58, 112, .5)}${palm(96, 112, .4, true)}<path d="M70 46 V112 M28 79 H112" stroke="#8B5A2B" stroke-width="3"/>
+    <g transform="translate(262 52)"><g class="s-swing" style="animation-duration:5s"><path d="M0 -14 L-10 0 M0 -14 L10 0" stroke="#6A421E" stroke-width="1.4"/><rect x="-26" y="0" width="52" height="40" rx="3" fill="#C98A4B"/><rect x="-22" y="4" width="44" height="32" fill="#E9F4FB"/>${[-12, -2, 8].map((dx, i) => `<circle cx="${dx}" cy="16" r="4" fill="${['#9C6139', '#B5764C', '#AE6F45'][i]}"/><rect x="${dx - 5}" y="21" width="10" height="13" rx="4" fill="${['#F3F1EA', '#8D153A', '#F5B731'][i]}"/>`).join('')}</g></g>
+    <path d="M215 58 V96 M204 70 H226" stroke="#8B5A2B" stroke-width="6" stroke-linecap="round"/>
+    <rect x="316" y="70" width="6" height="94" fill="#6A421E"/><path d="M302 70 L336 70 L328 52 L310 52Z" fill="#F5B731"/><ellipse class="s-glow" cx="319" cy="76" rx="22" ry="10" fill="#FFE08A" opacity=".5"/>
+    <rect x="0" y="164" width="360" height="36" fill="#C98A4B"/><path d="M0 164 H360" stroke="#A86F3A" stroke-width="3"/>${[40, 120, 200, 280].map(x => `<path d="M${x} 164 L${x - 14} 200" stroke="#B57A42" stroke-width="2"/>`).join('')}
+    <path d="M8 172 Q60 150 112 172 L112 186 L8 186Z" fill="#7B61C9"/><rect x="4" y="160" width="14" height="30" rx="6" fill="#6A50B5"/>`,
+
+  // A city street: buses, a road sign, the church spire in the distance.
+  st_u6: (id) => `${sky(id, '#9ED8F5', '#FFF2DA')}${spinSun(300, 36, 13)}${drift(80, 34, 1, 50, 6)}${drift(230, 22, .8, 44, 30)}
+    <g transform="translate(248 128)"><rect x="-10" y="-64" width="20" height="64" fill="#FBF7EE"/><path d="M-13 -64 L0 -80 L13 -64Z" fill="#C0533A"/><path d="M0 -94 V-80 M-5 -88 H5" stroke="#E8B53A" stroke-width="3" stroke-linecap="round"/></g>
+    ${[[0, 80, '#F2C46D'], [56, 64, '#8EC5E0'], [112, 86, '#E58C7A'], [170, 72, '#B7D98A'], [292, 78, '#E58C7A']].map(([x, y, c]) => `<rect x="${x}" y="${y}" width="${x === 292 ? 68 : 54}" height="${128 - y}" fill="${c}"/>${[0, 1].map(r => `<rect x="${x + 8}" y="${y + 10 + r * 20}" width="12" height="12" rx="2" fill="#fff" opacity=".55"/><rect x="${x + 30}" y="${y + 10 + r * 20}" width="12" height="12" rx="2" fill="#fff" opacity=".55"/>`).join('')}`).join('')}
+    <rect x="0" y="128" width="360" height="44" fill="#8E95A4"/><path d="M0 150 H360" stroke="#fff" stroke-width="3" stroke-dasharray="18 14" opacity=".8"/>
+    <g transform="translate(0 150)"><g class="s-drive">${tuktuk(0, 0, .62)}</g></g>
+    <g transform="translate(0 132)"><g class="s-drive" style="animation-duration:19s;animation-delay:-8s"><rect x="-60" y="-34" width="60" height="32" rx="6" fill="#C0392B"/><rect x="-56" y="-30" width="44" height="12" rx="2" fill="#AEDCF0"/><rect x="-60" y="-14" width="60" height="4" fill="#F5B731"/><circle cx="-46" cy="-2" r="5" fill="#222"/><circle cx="-14" cy="-2" r="5" fill="#222"/></g></g>
+    <g transform="translate(330 172)"><rect x="-2.5" y="-46" width="5" height="46" fill="#7D8496"/><circle cx="0" cy="-54" r="14" fill="#1E9FE3" stroke="#fff" stroke-width="2.4"/><path d="M-5 -46 V-54 Q-5 -59 0 -59 H5" stroke="#fff" stroke-width="3.4" fill="none"/><path d="M4 -63 L10 -59 L4 -54Z" fill="#fff"/></g>
+    <rect x="0" y="172" width="360" height="28" fill="#D9C9A8"/><path d="M0 172 H360" stroke="#C4B08A" stroke-width="2"/>`,
+
+  // Nimal's veranda in the morning, tea on the table, washing on the line.
+  st_u7: (id) => `${sky(id, '#FFD9A0', '#FFF4E0')}${spinSun(70, 70, 16, '#FFB84D')}${drift(200, 30, .9, 50, 12)}${bird(250, 50, .9, 1)}${bird(272, 42, .7, 2.2)}
+    <path d="M0 120 Q90 100 180 114 Q270 128 360 108 L360 200 L0 200Z" fill="#9CCF7A"/>${palm(30, 160, .7)}
+    <path d="M120 60 L360 44 L360 60 L120 74Z" fill="#C0533A"/><rect x="132" y="70" width="6" height="100" fill="#8B5A2B"/><rect x="340" y="58" width="6" height="112" fill="#8B5A2B"/>
+    <rect x="200" y="78" width="140" height="92" fill="#FFF3DC"/><rect x="232" y="104" width="26" height="66" rx="2" fill="#7A4A2A"/><rect x="282" y="100" width="34" height="28" rx="2" fill="#7FB6D9"/><path d="M299 100 V128 M282 114 H316" stroke="#FFF3DC" stroke-width="2.4"/>
+    <path d="M140 84 Q170 92 200 84" stroke="#6A421E" stroke-width="1.4" fill="none"/>${[[150, '#E5484D'], [166, '#1E9FE3'], [182, '#F5B731']].map(([x, c]) => `<g transform="translate(${x} 88)"><g class="s-swing" style="animation-duration:${2.4 + x % 7 / 5}s"><rect x="-6" y="0" width="12" height="16" rx="2" fill="${c}"/></g></g>`).join('')}
+    <rect x="150" y="140" width="40" height="6" rx="2" fill="#8B5A2B"/><rect x="154" y="146" width="4" height="24" fill="#6A421E"/><rect x="182" y="146" width="4" height="24" fill="#6A421E"/>
+    <g transform="translate(170 132)"><path d="M-7 -6 L7 -6 L5 8 L-5 8Z" fill="#fff"/><rect x="-5" y="-3" width="10" height="9" fill="#C87A2E"/>${[0, 1].map(i => `<path class="s-steam" style="animation-delay:${i * .8}s" d="M${-2 + i * 4} -9 q-3 -5 0 -10 q3 -5 0 -10" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>`).join('')}</g>
+    <rect x="118" y="170" width="242" height="30" fill="#C9A877"/><path d="M0 182 Q60 176 118 182 L118 200 L0 200Z" fill="#B8955F"/>
+    ${[[214, 164], [330, 164]].map(([x, y]) => `<g transform="translate(${x} ${y})"><path d="M-8 0 L8 0 L6 10 L-6 10Z" fill="#C0533A"/><path d="M0 0 C-10 -12 -4 -20 0 -24 C4 -20 10 -12 0 0Z" fill="#3FA35F"/></g>`).join('')}`,
+
+  // Inside the church: pews, a cross, light through stained glass.
+  st_u8: (id) => `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6E6"/><stop offset="1" stop-color="#F3E3C6"/></linearGradient></defs><rect width="360" height="200" fill="url(#${id})"/>
+    ${[40, 290].map(x => `<g transform="translate(${x} 30)"><path d="M0 70 V24 A15 15 0 0 1 30 24 V70Z" fill="#7B61C9"/><path d="M15 9 V70 M0 36 H30 M0 54 H30" stroke="#FFF6E6" stroke-width="2.4"/><path d="M3 34 V24 A12 12 0 0 1 13 12 V34Z" fill="#F5B731" opacity=".8"/><path d="M17 12 A12 12 0 0 1 27 24 V34 H17Z" fill="#E5484D" opacity=".8"/><path d="M3 38 H13 V52 H3Z" fill="#1E9FE3" opacity=".8"/><path d="M17 38 H27 V52 H17Z" fill="#3FA35F" opacity=".8"/></g>`).join('')}
+    <path class="s-glow" d="M48 100 L10 190 H110 L76 100Z" fill="#FFE08A" opacity=".35"/><path class="s-glow" style="animation-delay:-1s" d="M298 100 L250 190 H350 L326 100Z" fill="#FFE08A" opacity=".35"/>
+    <path d="M140 0 V36 Q180 10 220 36 V0" fill="#EAD7B4"/><rect x="152" y="40" width="56" height="100" rx="4" fill="#EAD7B4"/><path d="M180 52 V112 M162 70 H198" stroke="#8B5A2B" stroke-width="7" stroke-linecap="round"/>
+    ${[120, 240].map(x => `<g transform="translate(${x} 0)"><g class="s-swing" style="animation-duration:4s"><path d="M0 0 V34" stroke="#6A421E" stroke-width="1.4"/><path d="M-9 34 L9 34 L6 44 L-6 44Z" fill="#F5B731"/><ellipse class="s-glow" cx="0" cy="48" rx="12" ry="6" fill="#FFE08A" opacity=".6"/></g></g>`).join('')}
+    <rect x="0" y="138" width="360" height="62" fill="#D9BE90"/>${[148, 166, 184].map((y, i) => `<rect x="${10 + i * 6}" y="${y}" width="${130 - i * 12}" height="10" rx="3" fill="#8B5A2B"/><rect x="${220 + i * 6}" y="${y}" width="${130 - i * 12}" height="10" rx="3" fill="#8B5A2B"/>`).join('')}
+    <rect x="160" y="128" width="40" height="12" rx="2" fill="#7A4A2A"/><rect x="164" y="122" width="14" height="6" rx="1" fill="#2B2F3A"/>`,
+});
 
 export function storyScene(id) {
   const art = SCENE_ART[id] || SCENE_ART.st_u1;

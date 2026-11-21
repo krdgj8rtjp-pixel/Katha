@@ -738,3 +738,27 @@ svg { display: block; }
 .unit-hero { position: relative; flex: none; width: 150px; height: 128px; margin: -10px -10px -14px 0; }
 .unit-hero .scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .unit-hero .scene-char { position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%); }
+.pic .a-step { animation: p-step 2s ease-in-out infinite; }
+.pic .a-steer { transform-origin: 50% 50%; animation: p-steer 2.2s ease-in-out infinite; }
+.pic .a-feed { animation: p-feed 1.8s ease-in-out infinite; }
+.pic .a-sip { transform-origin: 30% 30%; animation: p-sip 2.2s ease-in-out infinite; }
+.pic .a-look { transform-origin: center; animation: p-look 3s ease-in-out infinite; }
+.pic .a-write { animation: p-write 2.4s ease-in-out infinite; }
+.pic .a-pencil { animation: p-pencil 2.4s ease-in-out infinite; }
+.pic .a-press { transform-origin: 50% 100%; animation: p-press 1.1s ease-in-out infinite; }
+.pic .a-wave { transform-origin: 50% 100%; animation: p-wave 1.6s ease-in-out infinite; }
+.pic .a-train { animation: p-train 3s ease-in-out infinite; }
+@keyframes p-step { 0%, 100% { opacity: .25; } 20%, 50% { opacity: 1; } }
+@keyframes p-steer { 0%, 100% { transform: rotate(-28deg); } 50% { transform: rotate(28deg); } }
+@keyframes p-feed { 0%, 100% { transform: translate(0, 0); } 45%, 55% { transform: translate(-8px, -6px); } }
+@keyframes p-sip { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-12deg); } }
+@keyframes p-look { 0%, 100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+@keyframes p-write { 0% { stroke-dashoffset: 70; } 70%, 100% { stroke-dashoffset: 0; } }
+@keyframes p-pencil { 0% { transform: translate(-34px, -2px); } 70% { transform: translate(0, 0); } 100% { transform: translate(0, 0); } }
+@keyframes p-press { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.55); } }
+@keyframes p-wave { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes p-train { 0%, 100% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+.scene-bg [class*="s-"] { transform-box: fill-box; }
+.s-fan { transform-origin: center; animation: p-spin 2.4s linear infinite; }
+.s-glow { animation: s-glow 3s ease-in-out infinite; }
+@keyframes s-glow { 0%, 100% { opacity: .25; } 50% { opacity: .55; } }

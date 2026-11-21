@@ -33,7 +33,7 @@ async function shortAudio(audio: Uint8Array, rate: number, lang: string): Promis
   const res = await fetch(url, {
     method: "POST",
     headers: {
-      "Ocp-Apim-Subscription-Key": KEY,
+      "Ocp-Apim-Subscription-Key": KEY.trim(),
       "Content-Type": `audio/wav; codecs=audio/pcm; samplerate=${rate}`,
       Accept: "application/json",
     },
@@ -62,7 +62,7 @@ async function fastTranscription(audio: Uint8Array, lang: string): Promise<Resul
   fd.append("definition", JSON.stringify({ locales: [lang] }));
   const res = await fetch(
     `https://${REGION}.api.cognitive.microsoft.com/speechtotext/transcriptions:transcribe?api-version=2024-11-15`,
-    { method: "POST", headers: { "Ocp-Apim-Subscription-Key": KEY }, body: fd },
+    { method: "POST", headers: { "Ocp-Apim-Subscription-Key": KEY.trim() }, body: fd },
   );
   if (!res.ok) return { ok: false, error: `Azure fast ${res.status}: ${(await res.text()).slice(0, 200)}` };
   const d = await res.json();
@@ -109,7 +109,13 @@ Deno.serve(async (req) => {
 
   let out = await shortAudio(audio, sampleRate, lang);
   if (!out.ok && out.retry) out = await fastTranscription(audio, lang);
-  if (!out.ok) return json(502, { error: "The speech service didn't answer. Try again in a moment.", detail: out.error });
+  if (!out.ok) {
+    console.error("azure failed:", out.error);
+    if (/Azure (fast )?40[13]/.test(out.error ?? "")) {
+      return json(503, { error: "Speech checking is switched off: Azure rejected the key saved in Supabase.", detail: out.error });
+    }
+    return json(502, { error: "The speech service didn't answer. Try again in a moment.", detail: out.error });
+  }
 
   return json(200, {
     text: out.text ?? "", alternatives: out.alternatives ?? [], status: out.status ?? "Success",
