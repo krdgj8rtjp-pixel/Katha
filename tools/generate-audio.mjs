@@ -1,12 +1,11 @@
 // Generates every audio clip the app can play, for every course, using Azure
-// neural voices (Sinhala: si-LK-*, Spanish: es-MX-*, es-US-*). Only missing clips
+// neural voices (Sinhala: si-LK-*, Spanish: es-MX-*, es-US-*, Uzbek: uz-UZ-*). Only missing clips
 // are generated, so it's cheap to re-run after adding lessons.
 //
 //   AZURE_SPEECH_KEY=... AZURE_SPEECH_REGION=eastus node tools/generate-audio.mjs
 //   node tools/generate-audio.mjs --list     (just count what's needed)
 import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'node:fs';
 import { COURSES } from '../data/course.js';
-import { ALL_LETTERS } from '../data/letters.js';
 import { clipKey, siTokens } from '../js/util.js';
 
 const OUT = new URL('../audio/', import.meta.url).pathname;
@@ -14,8 +13,12 @@ mkdirSync(OUT, { recursive: true });
 
 // ---- everything the app may ask for (keep in sync with js/session.js, exercises.js, story.js)
 const want = new Map();
-const add = (text, voice, slow = false) => { if (text?.trim()) want.set(clipKey(text, voice, slow), { text: text.trim(), voice, slow }); };
-for (const { LEX, SENT, STORIES, SPEAKERS, DEFAULT_VOICE, script } of Object.values(COURSES)) {
+// A course can say how its text should be read aloud (Uzbek clips are keyed by Cyrillic but voiced from Latin).
+let say = (t) => t;
+const add = (text, voice, slow = false) => { if (text?.trim()) want.set(clipKey(text, voice, slow), { text: say(text.trim()), voice, slow }); };
+for (const C of Object.values(COURSES)) {
+  const { LEX, SENT, STORIES, SPEAKERS, DEFAULT_VOICE, ALL_LETTERS = [] } = C;
+  say = C.say || ((t) => t);
   for (const x of Object.values(LEX)) { add(x.si, DEFAULT_VOICE); add(x.si, DEFAULT_VOICE, true); siTokens(x.si).forEach(t => add(t, DEFAULT_VOICE)); }
   for (const x of Object.values(SENT)) {
     const v = x.speaker ? SPEAKERS[x.speaker].voice : DEFAULT_VOICE;
@@ -27,7 +30,7 @@ for (const { LEX, SENT, STORIES, SPEAKERS, DEFAULT_VOICE, script } of Object.val
     add(l.si, SPEAKERS[l.sp].voice);
     siTokens(l.si).forEach(t => add(t, DEFAULT_VOICE));
   }
-  if (script === 'sinhala') for (const l of ALL_LETTERS) add(l.ch, DEFAULT_VOICE);
+  for (const l of ALL_LETTERS) add(l.ch, DEFAULT_VOICE);
 }
 
 const missing = [...want.entries()].filter(([k]) => !existsSync(OUT + k + '.mp3'));

@@ -1,14 +1,18 @@
-# Katha (කතා) — learn spoken Sinhala and Spanish
+# Katha (කතා) — learn spoken Sinhala, Spanish and Uzbek
 
-A Duolingo-style app for **everyday spoken Sinhala** and **Latin American Spanish**, aiming at CEFR **A1**.
+A Duolingo-style app for **everyday spoken Sinhala**, **Latin American Spanish** and **Uzbek** (in Cyrillic), aiming at CEFR **A1**.
 It's an installable web app (PWA) that runs offline, is hosted free on GitHub Pages,
 and can sync your progress across devices through a free Supabase project.
 
 ## What's in it
 
-- **Two courses**: Sinhala and Spanish. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
-  are shared; each course keeps its own path, words and practice. Spanish has units 1–4 (Greetings, About me, Food & drink,
-  Numbers & market: 79 words and phrases, 60 sentences, 4 stories), with Mexican and US Spanish neural voices.
+- **Three courses**: Sinhala, Spanish and Uzbek. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
+  are shared; each course keeps its own path, words and practice.
+  - Spanish: units 1–4 (Greetings, About me, Food & drink, Numbers & market: 79 words and phrases, 60 sentences, 4 stories),
+    with Mexican and US Spanish neural voices.
+  - Uzbek, written in Cyrillic: units 1–4 (Greetings, About me, Food & tea, Numbers & money: 78 words and phrases,
+    65 sentences, 4 stories), a 35-letter Cyrillic trainer, and the official Latin spelling shown under the Cyrillic
+    (toggle in settings). Typed answers are accepted in either alphabet.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
   Units 1–8 are written (Greetings, About me, Food & drink, Numbers & money, Family, Getting around, Everyday verbs,
   Faith & church: 157 words and phrases, 122 sentences, 8 stories). Units 9–12 of the A1 map are shown as "coming soon".
@@ -38,7 +42,8 @@ js/                                       app code — no framework, no build st
   translit.js  romanization + answer matching
   config.js    ← your Supabase URL and key go here
 data/course.js                            the list of courses; the app reads the current one through it
-data/si.js, data/es.js                    each course's content (words, sentences, stories, units)
+data/si.js, data/es.js, data/uz.js        each course's content (words, sentences, stories, units)
+data/letters.js, data/uz-letters.js       letters trainers (Sinhala script, Uzbek Cyrillic)
 js/lang.js                                small helpers for script/language differences between courses
 data/letters.js                           the letters trainer
 audio/                                    generated .mp3 clips + index.json
@@ -76,7 +81,10 @@ Never put the secret / `service_role` key in the app.
 Phones rarely ship a Sinhala voice, so the app plays pre-generated clips made with Azure's two Sinhala neural
 voices (Thilini, female; Sameera, male). The whole course is ~400 short clips — a few thousand characters,
 well inside the free tier. Spanish uses `es-MX-DaliaNeural` (narrator, Sofía), `es-MX-JorgeNeural` (Mateo)
-and `es-US-AlonsoNeural` (John).
+and `es-US-AlonsoNeural` (John). Uzbek uses `uz-UZ-MadinaNeural` (narrator, Dilnoza) and `uz-UZ-SardorNeural`
+(Aziz and John; Azure has only these two). Azure's Uzbek voices and speech recognition work in the Latin alphabet,
+so the app converts Cyrillic to official Latin spelling (`uzLatin` in `js/translit.js`) before generating audio,
+and compares what you said in Latin too. Clips are still named by the Cyrillic text.
 
 What exists in Azure (subscription *Azure subscription 1*, resource group `katha-rg`, West US 2):
 - `katha-speech` — a Speech resource on the free **F0** tier.
@@ -121,11 +129,12 @@ Run `node tools/check-content.mjs` — it catches missing references and gloss/w
 
 ## Adding another language
 
-Copy `data/es.js` to a new file, translate it, add an entry to `COURSES` in `data/course.js` (name, language code,
-speech-recognition locale, script, badge letter, voices), and run the checker. Pictures are shared by meaning, and the
+Copy `data/es.js` (Latin alphabet) or `data/uz.js` (another script) to a new file, translate it, add an entry to
+`COURSES` in `data/course.js` (name, language code, speech-recognition locale, script, badge letter, voices, and a
+letters trainer if it has its own script), and run the checker. Pictures are shared by meaning, and the
 audio generator picks the new voices up automatically.
 
-**Please have a native speaker review the Sinhala.** It aims to be natural colloquial Sinhala, but it was drafted with AI help.
+**Please have native speakers review the Sinhala and the Uzbek.** It aims to be natural colloquial Sinhala, but it was drafted with AI help.
 
 ## Local development
 

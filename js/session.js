@@ -1,8 +1,7 @@
 // Builds the list of exercises for lessons, reviews, practice and letters.
 import { hasPic } from './pics.js';
-import { LEX, SENT, UNITS, SPEAKERS, DEFAULT_VOICE, COURSE } from '../data/course.js';
-import { ro, tkey } from './lang.js';
-import { ALL_LETTERS, LETTER_GROUPS } from '../data/letters.js';
+import { LEX, SENT, UNITS, SPEAKERS, DEFAULT_VOICE, COURSE, ALL_LETTERS, LETTER_GROUPS } from '../data/course.js';
+import { ro, tkey, isSi } from './lang.js';
 import { shuffle, sample, pick, uniq, siTokens, enTokens } from './util.js';
 import * as audio from './audio.js';
 import { state, learnedItemIds, weakestItems, pathNodes, lessonDone } from './store.js';
@@ -243,7 +242,7 @@ export function buildPractice(mode = 'smart') {
 }
 
 // ---------- letters
-const letterByCh = Object.fromEntries(ALL_LETTERS.map(l => [l.ch, l]));
+const letterByCh = (ch) => ALL_LETTERS.find(l => l.ch === ch);
 function letterSound(l, pool) {
   const others = sample(pool.filter(x => x.ro !== l.ro), 3).map(x => x.ro);
   return { type: 'letter_sound', letter: l, options: shuffle([l.ro, ...others]), answer: l.ro, testsLetters: [l.ch], tests: [] };
@@ -263,8 +262,8 @@ export function readableWords(known) {
   const knownSet = new Set(known);
   const signOk = (c) => ALL_LETTERS.some(l => l.ch.length > 1 && l.ch.includes(c) && knownSet.has(l.ch));
   return Object.keys(LEX).filter(id => {
-    for (const c of Array.from(LEX[id].si)) {
-      if (c === ' ' || c === '‍') continue;
+    for (const c of Array.from(isSi() ? LEX[id].si : LEX[id].si.toLowerCase())) {
+      if (c === ' ' || c === '‍' || /[?!.,…\-]/.test(c)) continue;
       if (knownSet.has(c)) continue;
       if (/[්-ෟංඃ]/.test(c) && signOk(c)) continue;
       return false;
@@ -274,12 +273,12 @@ export function readableWords(known) {
 }
 function readWord(id, pool) {
   const it = item(id);
-  const others = sample(pool.filter(x => x !== id && romanize(LEX[x].si) !== it.ro), 3).map(x => romanize(LEX[x].si));
+  const others = sample(pool.filter(x => x !== id && ro(LEX[x].si) !== it.ro), 3).map(x => ro(LEX[x].si));
   return { type: 'read_word', item: it, options: shuffle([it.ro, ...others]), answer: it.ro, testsLetters: [], tests: [] };
 }
 
 export function buildLetters(groupId = null) {
-  const learnedCh = Object.keys(state.letters);
+  const learnedCh = ALL_LETTERS.map(l => l.ch).filter(ch => state.letters[ch]);
   let group = groupId ? LETTER_GROUPS.find(g => g.id === groupId) : LETTER_GROUPS.find(g => g.letters.some(l => !state.letters[l.ch]));
   const out = [];
   const known = ALL_LETTERS.filter(l => state.letters[l.ch]);
@@ -297,7 +296,7 @@ export function buildLetters(groupId = null) {
     sample(ls, 3).forEach(l => mixed.push(soundLetter(l, pool)));
     const m = letterMatch(ls); if (m) mixed.push(m);
     sample(ls, 2).forEach(l => mixed.push(letterSound(l, pool)));
-    const words = readableWords([...learnedCh, ...teach]).filter(id => Array.from(LEX[id].si).some(c => teach.includes(c) || teach.some(t => t.length > 1 && t.includes(c))));
+    const words = readableWords([...learnedCh, ...teach]).filter(id => Array.from(LEX[id].si.toLowerCase()).some(c => teach.includes(c) || teach.some(t => t.length > 1 && t.includes(c))));
     sample(words, 2).forEach(id => mixed.push(readWord(id, Object.keys(LEX))));
     out.push(...spread(shuffle(mixed)));
     return { kind: 'letters', nodeId: null, title: group.title, exercises: out, teach: [], teachLetters: teach, xp: 7 };

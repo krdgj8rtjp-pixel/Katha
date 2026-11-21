@@ -1,6 +1,5 @@
 import { esc, rawTokens } from './util.js';
-import { isSi, L } from './lang.js';
-import { romanize } from './translit.js';
+import { hasRo, L, ro } from './lang.js';
 import { state } from './store.js';
 import { character } from './characters.js';
 
@@ -69,8 +68,8 @@ export function siLine(si, glosses = [], { cls = '', roman = null, voice = '' } 
     const clean = t.replace(/[.,!?;:¿¡…]+/g, '');
     return `<span class="w" tabindex="0" data-t="${esc(clean)}" data-g="${esc(glosses[i] || '')}" data-v="${esc(voice)}">${esc(t)}</span>`;
   }).join(' ');
-  const showRoman = (roman ?? state.profile.settings.roman) && isSi();
-  return `<div class="si-line ${cls}"><div class="si" lang="${L()}">${words}</div>${showRoman ? `<div class="ro">${esc(romanize(si))}</div>` : ''}</div>`;
+  const showRoman = (roman ?? state.profile.settings.roman) && hasRo();
+  return `<div class="si-line ${cls}"><div class="si" lang="${L()}">${words}</div>${showRoman ? `<div class="ro">${esc(ro(si))}</div>` : ''}</div>`;
 }
 
 export function audioBtn(text, { voice = '', big = false, slow = true, label = 'Play audio' } = {}) {
@@ -172,7 +171,8 @@ export function bigFlame(size = 170) {
 
 // Animated Sinhala letter: the outline is traced, then filled in.
 export function letterDraw(ch) {
-  return `<svg class="letter-draw" viewBox="0 0 200 170" width="190" height="162" aria-hidden="true"><text x="100" y="128" text-anchor="middle" font-size="128">${esc(ch)}</text></svg>`;
+  const pair = /^[\u0400-\u04FF]{2}$/.test(ch); // Cyrillic capital + small letter
+  return `<svg class="letter-draw" viewBox="0 0 200 170" width="190" height="162" aria-hidden="true"><text x="100" y="${pair ? 122 : 128}" text-anchor="middle" font-size="${pair ? 104 : 128}">${esc(ch)}</text></svg>`;
 }
 
 // A treasure chest that can sit closed (wobbling) or burst open.

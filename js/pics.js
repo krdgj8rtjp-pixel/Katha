@@ -438,6 +438,45 @@ Object.assign(ART, {
   es_espanol: () => `${bubble(12, 14, 76, 60, { fill: '#C0392B', stroke: '#C0392B', tail: 'bl' })}<g class="a-bob">${T(50, 58, 'Ñ', 38, '#fff', 'class="pic-num"')}</g><path d="M30 26 h40" stroke="${P.gold}" stroke-width="4" stroke-linecap="round" opacity=".7"/>${sparkle(84, 14, .8, P.gold)}`,
 });
 
+// ------------------------------------------------------------------ Uzbek-course pictures
+Object.assign(ART, {
+  uz_salom: () => `${chr('kumari', 4, 18, 70, { mood: 'wave' })}${bubble(52, 6, 44, 28, { stroke: P.teal, tail: 'bl' })}<g class="a-bob">${T(74, 25, 'Салом!', 10, P.teal, 'class="pic-num"')}</g>`,
+  uz_assalom: () => `${chr('nimal', 2, 18, 70, { pose: 'heart' })}${bubble(50, 4, 47, 27, { stroke: P.blueD, tail: 'bl' })}<g class="a-bob">${T(73.5, 22.5, 'Ассалом!', 8.6, P.blueD, 'class="pic-num"')}</g>${sparkle(90, 60, .7, P.gold, .4)}`,
+  uz_vaalaykum: () => `${chr('kumari', 2, 18, 70, { pose: 'heart' })}${bubble(48, 4, 50, 27, { stroke: '#8E3FA8', tail: 'bl' })}<g class="a-bob">${T(73, 22.5, 'Ваалайкум', 8.2, '#8E3FA8', 'class="pic-num"')}</g>${sparkle(90, 60, .7, P.gold, .4)}`,
+  uz_qol_yurak: () => `${sparkle(14, 28, 1)}${sparkle(87, 24, .8, P.gold, .6)}${chr('kumari', 12, 8, 76, { pose: 'heart' })}${floatHeart(80, 44, .9, .2)}`,
+  uz_ozbekiston: () => `${shadow(20, 30)}<rect x="17" y="8" width="5" height="86" rx="2.5" fill="${P.grayD}"/><circle cx="19.5" cy="8" r="4" fill="${P.gold}"/>
+    <g class="a-flag"><rect x="22" y="14" width="63" height="14" fill="#0099B5"/><rect x="22" y="28" width="63" height="14" fill="#fff"/><rect x="22" y="42" width="63" height="14" fill="#1EB53A"/>
+      <rect x="22" y="27.6" width="63" height="1.6" fill="#CE1126"/><rect x="22" y="40.8" width="63" height="1.6" fill="#CE1126"/>
+      <circle cx="30" cy="21" r="4.6" fill="#fff"/><circle cx="32" cy="20.4" r="4" fill="#0099B5"/>
+      ${[[45, 17], [49, 17], [53, 17], [41, 21], [45, 21], [49, 21], [53, 21], [37, 25], [41, 25], [45, 25], [49, 25], [53, 25]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1" fill="#fff"/>`).join('')}
+      <rect x="22" y="14" width="63" height="42" fill="none" stroke="#000" stroke-opacity=".08"/></g>`,
+  uz_ozbekcha: () => `${bubble(12, 14, 76, 60, { fill: '#0E8FB0', stroke: '#0E8FB0', tail: 'bl' })}<g class="a-bob">${T(50, 57, 'Ўз', 34, '#fff', 'class="pic-num"')}</g><path d="M30 26 h40" stroke="#1EB53A" stroke-width="4" stroke-linecap="round" opacity=".8"/>${sparkle(84, 14, .8, P.gold)}`,
+  uz_osh: () => `${shadow(38)}<ellipse cx="50" cy="72" rx="42" ry="15" fill="#fff" stroke="#1E6FB8" stroke-width="3"/>
+    ${[18, 30, 44, 58, 72, 84].map((x, i) => `<circle cx="${x}" cy="${i % 2 ? 83 : 81}" r="1.8" fill="#1E6FB8"/>`).join('')}
+    <g class="a-bob"><path d="M16 70 C18 52 32 38 50 38 C68 38 82 52 84 70 Q50 80 16 70Z" fill="#F2C14E"/>
+      ${Array.from({ length: 26 }, (_, i) => { const x = 22 + (i * 37) % 56, y = 46 + (i * 13) % 22; return `<path d="M${x} ${y} l2.6 -1" stroke="${i % 3 ? '#FFF3C4' : '#D9A23A'}" stroke-width="1.6" stroke-linecap="round"/>`; }).join('')}
+      ${[[28, 58], [38, 50], [62, 52], [70, 62], [46, 64], [56, 44]].map(([x, y]) => `<path d="M${x} ${y} l7 -3" stroke="#E8761C" stroke-width="2.6" stroke-linecap="round"/>`).join('')}
+      ${[[34, 62], [60, 60], [48, 52], [66, 50]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="4.6" ry="3.4" fill="#8A4A24"/><ellipse cx="${x - 1}" cy="${y - 1}" rx="2" ry="1.2" fill="#B06A3C"/>`).join('')}
+      <path d="M44 40 C42 30 47 26 50 26 C53 26 58 30 56 40 Q50 43 44 40Z" fill="#F7F1E3" stroke="#D9CDB2" stroke-width="1.2"/><path d="M50 26 V40 M46.5 29 Q47 35 47.5 40 M53.5 29 Q53 35 52.5 40" stroke="#D9CDB2" stroke-width="1"/></g>
+    ${[0, 1].map(i => `<path class="a-steam" style="animation-delay:${i * .8}s" d="M${36 + i * 26} 30 q-4 -6 0 -12 q4 -6 0 -12" stroke="#CFD6E2" stroke-width="2.6" fill="none" stroke-linecap="round"/>`).join('')}`,
+  uz_non: () => `${shadow(38)}<g class="a-bob"><ellipse cx="50" cy="58" rx="42" ry="30" fill="#B8692A"/><ellipse cx="50" cy="55" rx="42" ry="30" fill="#D98C3E"/>
+      <ellipse cx="50" cy="55" rx="40" ry="28" fill="none" stroke="#E9A65A" stroke-width="2.4" opacity=".7"/>
+      <ellipse cx="50" cy="56" rx="24" ry="16.5" fill="#EDBB76"/><ellipse cx="50" cy="56" rx="24" ry="16.5" fill="none" stroke="#C47A33" stroke-width="1.6"/>
+      ${[[0, 0], ...Array.from({ length: 6 }, (_, i) => [Math.cos(i * Math.PI / 3) * 8, Math.sin(i * Math.PI / 3) * 5.5]), ...Array.from({ length: 12 }, (_, i) => [Math.cos(i * Math.PI / 6) * 16, Math.sin(i * Math.PI / 6) * 11])].map(([x, y]) => `<circle cx="${(50 + x).toFixed(1)}" cy="${(56 + y).toFixed(1)}" r="1.5" fill="#B06A2A"/>`).join('')}
+      ${Array.from({ length: 22 }, (_, i) => { const a = i * 2 * Math.PI / 22, r = i % 2 ? 33 : 30; return `<ellipse cx="${(50 + Math.cos(a) * r).toFixed(1)}" cy="${(55 + Math.sin(a) * r * .7).toFixed(1)}" rx="1.4" ry=".8" fill="${i % 3 ? '#FFF1D0' : '#2b2230'}"/>`; }).join('')}
+      <path d="M22 38 Q34 30 48 29" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".35"/></g>`,
+  uz_qovun: () => `${shadow(38)}<g class="a-bob"><g transform="rotate(-14 50 54)"><ellipse cx="50" cy="54" rx="40" ry="24" fill="#E8B830"/><ellipse cx="50" cy="51" rx="38" ry="21" fill="#F5CF4E"/>
+      ${[-24, -12, 0, 12, 24].map(dx => `<path d="M${50 + dx - 10} 33 Q${50 + dx} 54 ${50 + dx - 10} 75 M${50 + dx + 10} 33 Q${50 + dx} 54 ${50 + dx + 10} 75" stroke="#D9A428" stroke-width="1" fill="none" opacity=".45"/>`).join('')}
+      <path d="M88 52 l7 -2" stroke="#7A5A2A" stroke-width="3" stroke-linecap="round"/><path d="M24 38 Q40 30 60 31" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".45"/></g></g>
+    <g transform="translate(62 72)"><path d="M-16 6 Q0 -10 16 6Z" fill="#E8B830"/><path d="M-13 5 Q0 -6 13 5Z" fill="#F7EDC0"/><path d="M-7 3 q2 -2 4 0 M1 2 q2 -2 4 0" stroke="#E2C56A" stroke-width="1.4" fill="none"/></g>`,
+  uz_anor: () => `${shadow(36)}<g class="a-bob"><circle cx="42" cy="54" r="29" fill="#A82C24"/><circle cx="40" cy="51" r="27" fill="#C9392F"/>
+      <path d="M35 26 L37 18 L40 24 L42 16 L45 24 L48 18 L49 27Z" fill="#8E2A20"/><path d="M24 40 Q30 32 40 30" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".35"/></g>
+    <g transform="translate(73 70)"><circle r="17" fill="#C9392F"/><circle r="14.4" fill="#F6D9C8"/>
+      ${[[0, 0], [5, 0], [-5, 0], [2.5, 4.4], [-2.5, 4.4], [2.5, -4.4], [-2.5, -4.4], [7.5, 4.4], [-7.5, 4.4], [7.5, -4.4], [-7.5, -4.4], [0, 8.8], [5, 8.8], [-5, 8.8], [0, -8.8], [5, -8.8], [-5, -8.8], [10, 0], [-10, 0]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="2.3" fill="${i % 3 ? '#E0314B' : '#C4203A'}"/>`).join('')}
+      <circle cx="-4" cy="-5" r="1" fill="#fff" opacity=".8"/></g>`,
+  uz_ming: () => numberTile(1000, 12).replace('font-size="34"', 'font-size="25"'),
+});
+
 // Pictures for the app's own cards (not vocabulary).
 Object.assign(ART, {
   ui_practice: () => `${shadow(30)}<g class="a-bob"><g transform="rotate(-20 50 54)"><rect x="24" y="50" width="52" height="8" rx="4" fill="${P.grayD}"/>

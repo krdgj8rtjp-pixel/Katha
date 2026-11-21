@@ -2,7 +2,7 @@
 //   { el, footer: 'check'|'continue'|'none', check(): {ok, solution, meaning, items?}, autoplay?(), ungraded? }
 import { esc, shuffle, siTokens, enTokens } from './util.js';
 import { matchAnswer, foldSinhala, isSinhala } from './translit.js';
-import { ro, foldT, isSi, L, courseName } from './lang.js';
+import { ro, foldT, isSi, isUz, hasRo, L, courseName } from './lang.js';
 import { ICONS, siLine, audioBtn, letterDraw } from './ui.js';
 import { character, castId } from './characters.js';
 import { pic, hasPic } from './pics.js';
@@ -11,12 +11,14 @@ import * as audio from './audio.js';
 import { sfx, unlock as unlockSfx } from './sfx.js';
 import { speechCheckOn, checkRecording } from './speech.js';
 import { state } from './store.js';
-import { DEFAULT_VOICE, LEX } from '../data/course.js';
+import { DEFAULT_VOICE, LEX, ALL_LETTERS } from '../data/course.js';
 
 const roOn = () => state.profile.settings.roman;
 function h(html) { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; }
 const title = (t) => `<h2 class="ex-title">${t}</h2>`;
-const roSpan = (si) => roOn() && isSi() ? `<span class="ro">${esc(ro(si))}</span>` : '';
+const roSpan = (si) => roOn() && hasRo() ? `<span class="ro">${esc(ro(si))}</span>` : '';
+// A letter as shown to the learner: capital and small form for Cyrillic (Аа), the letter alone for Sinhala.
+const glyph = (ch) => { const l = ALL_LETTERS.find(x => x.ch === ch); return l?.up ? l.up + l.ch : ch; };
 const playIf = (text, voice) => { if (audio.canPlay(text, voice)) audio.play(text, { voice }); };
 
 // ---------------------------------------------------------------- teach
@@ -41,7 +43,7 @@ function teachLetter(ex) {
   const el = h(`<div class="ex teach">
     <div class="ex-kicker">${ICONS.star} New letter</div>
     <div class="teach-card">
-      <div class="teach-letter draw" lang="${L()}">${letterDraw(l.ch)}</div>
+      <div class="teach-letter draw" lang="${L()}">${letterDraw(glyph(l.ch))}</div>
       <div class="teach-ro big">${esc(l.ro)}</div>
       ${audio.canPlay(l.ch) ? audioBtn(l.ch, { big: true, slow: false }) : ''}
       <p class="teach-note">${esc(l.hint)}</p>
@@ -113,7 +115,7 @@ function listenSelect(ex, ctx) {
 // ---------------------------------------------------------------- matching
 function matchPairs(ex, ctx, { letters = false } = {}) {
   const pairs = ex.pairs;
-  const left = shuffle(pairs.map((p, i) => ({ i, label: letters ? p.ch : p.si, si: true })));
+  const left = shuffle(pairs.map((p, i) => ({ i, label: letters ? glyph(p.ch) : p.si, si: true })));
   const right = shuffle(pairs.map((p, i) => ({ i, label: letters ? p.ro : p.en })));
   const wrong = new Set();
   let sel = null, done = 0;
@@ -167,7 +169,7 @@ function tilesWidget(tiles, { si = false, onChange }) {
   const bank = wrap.querySelector('.bank');
   const placed = [];
   const btns = tiles.map((t, i) => {
-    const b = h(`<button class="tile ${si ? 'si-tile' : ''}" data-i="${i}">${si ? `<span lang="${L()}">${esc(t)}</span>${roOn() && isSi() ? `<small>${esc(ro(t))}</small>` : ''}` : esc(t)}</button>`);
+    const b = h(`<button class="tile ${si ? 'si-tile' : ''}" data-i="${i}">${si ? `<span lang="${L()}">${esc(t)}</span>${roOn() && hasRo() ? `<small>${esc(ro(t))}</small>` : ''}` : esc(t)}</button>`);
     const slot = h(`<span class="tile-slot"></span>`);
     slot.appendChild(b); bank.appendChild(slot);
     b.addEventListener('click', () => {
@@ -283,7 +285,7 @@ function typeSi(ex, ctx) {
   let typed = '';
   const el = h(`<div class="ex">${title(`Write this in ${courseName()}`)}
     ${bubble(`<div class="en-prompt">${esc(it.en)}</div>`, 'aliya')}
-    <input class="type-box one" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${isSi() ? 'Type it — English letters are fine' : 'Type it — accents are optional'}">
+    <input class="type-box one" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${isSi() ? 'Type it — English letters are fine' : isUz() ? 'Type it — Cyrillic or Latin letters' : 'Type it — accents are optional'}">
     ${isSi() ? `<p class="type-tip">Tip: type how it sounds, e.g. <i>${esc(exampleRo(it))}</i></p>` : ''}
   </div>`);
   const inp = el.querySelector('input');
@@ -293,7 +295,8 @@ function typeSi(ex, ctx) {
     el, footer: 'check', focus: () => inp.focus({ preventScroll: true }),
     check: () => {
       let ok;
-      if (!isSi()) ok = matchAnswer(typed, ex.accepted, 'en');
+      if (isUz()) ok = matchAnswer(typed, ex.accepted, 'uz');
+      else if (!isSi()) ok = matchAnswer(typed, ex.accepted, 'en');
       else if (isSinhala(typed)) ok = foldSinhala(typed) === foldSinhala(it.si) ? 'exact' : false;
       else ok = matchAnswer(typed, ex.accepted.filter(a => !isSinhala(a)), 'roman');
       return { ok, solution: `<span lang="${L()}">${esc(it.si)}</span> <i>${esc(it.ro)}</i>` };
@@ -431,11 +434,11 @@ function speak(ex, ctx) {
 function letterSound(ex, ctx) {
   const l = ex.letter;
   let picked = null;
-  const el = h(`<div class="ex">${title('What sound does this make?')}<div class="big-letter" lang="${L()}">${esc(l.ch)}</div></div>`);
+  const el = h(`<div class="ex">${title('What sound does this make?')}<div class="big-letter" lang="${L()}">${esc(glyph(l.ch))}</div></div>`);
   el.appendChild(choiceList(ex.options, o => `<span class="ro-opt">${esc(o)}</span>`, (i, o) => { picked = o; ctx.onReady(true); }));
   return {
     el, footer: 'check',
-    check: () => { playIf(l.ch); return { ok: picked === ex.answer, solution: `<span lang="${L()}">${esc(l.ch)}</span> = <i>${esc(l.ro)}</i>`, meaning: l.hint, letters: { [l.ch]: picked === ex.answer } }; },
+    check: () => { playIf(l.ch); return { ok: picked === ex.answer, solution: `<span lang="${L()}">${esc(glyph(l.ch))}</span> = <i>${esc(l.ro)}</i>`, meaning: l.hint, letters: { [l.ch]: picked === ex.answer } }; },
   };
 }
 function soundLetter(ex, ctx) {
@@ -446,12 +449,12 @@ function soundLetter(ex, ctx) {
     ${canAudio ? `<div class="listen-hero">${audioBtn(l.ch, { slow: false })}</div>` : ''}</div>`);
   const grid = h(`<div class="cards letters"></div>`);
   ex.options.forEach((o) => {
-    const b = h(`<button class="card-choice"><div class="si big-glyph" lang="${L()}">${esc(o)}</div></button>`);
+    const b = h(`<button class="card-choice"><div class="si big-glyph" lang="${L()}">${esc(glyph(o))}</div></button>`);
     b.addEventListener('click', () => { grid.querySelectorAll('.card-choice').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); picked = o; sfx.tap(); ctx.onReady(true); });
     grid.appendChild(b);
   });
   el.appendChild(grid);
-  return { el, footer: 'check', autoplay: () => playIf(l.ch), check: () => ({ ok: picked === ex.answer, solution: `<span lang="${L()}">${esc(l.ch)}</span> = <i>${esc(l.ro)}</i>`, letters: { [l.ch]: picked === ex.answer } }) };
+  return { el, footer: 'check', autoplay: () => playIf(l.ch), check: () => ({ ok: picked === ex.answer, solution: `<span lang="${L()}">${esc(glyph(l.ch))}</span> = <i>${esc(l.ro)}</i>`, letters: { [l.ch]: picked === ex.answer } }) };
 }
 function readWord(ex, ctx) {
   const it = ex.item;

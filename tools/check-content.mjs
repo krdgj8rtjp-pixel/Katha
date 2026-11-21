@@ -2,7 +2,7 @@
 import { COURSES } from '../data/course.js';
 import { hasPic } from '../js/pics.js';
 import { ALL_LETTERS } from '../data/letters.js';
-import { romanize } from '../js/translit.js';
+import { romanize, uzLatin } from '../js/translit.js';
 
 let errors = 0;
 const err = (m) => { errors++; console.error('✗ ' + m); };
@@ -42,8 +42,19 @@ for (const C of Object.values(COURSES)) {
   }
   for (const id of Object.keys(LEX)) if (!seenItems.has(id)) err(tag + `LEX ${id} is never taught`);
 
+  // Cyrillic courses: every letter must be one the converter knows, so the Latin line and the voices are right.
+  if (C.script === 'cyrillic') {
+    const texts = [...Object.entries(LEX).map(([id, x]) => [id, x.si]), ...Object.entries(SENT).map(([id, x]) => [id, x.si]),
+      ...Object.entries(STORIES).flatMap(([id, st]) => st.lines.filter(l => !l.q).map((l, i) => [`${id}#${i}`, l.si]))];
+    for (const [id, t] of texts) {
+      if (/[A-Za-z]/.test(t)) err(tag + `${id}: Latin letters mixed into Cyrillic text "${t}"`);
+      const left = uzLatin(t).match(/[\u0400-\u04FF]/g);
+      if (left) err(tag + `${id}: no Latin spelling for ${[...new Set(left)].join(' ')} in "${t}"`);
+    }
+    for (const l of C.ALL_LETTERS || []) if (l.ro.length < 4 && uzLatin(l.ch) !== l.ro && !'ец'.includes(l.ch)) err(tag + `letter ${l.ch}: converter gives "${uzLatin(l.ch)}", data says "${l.ro}"`);
+  }
   const words = Object.keys(LEX).length, sents = Object.keys(SENT).length;
-  console.log(`${C.name}: ${words} words/chunks, ${sents} sentences, ${Object.keys(STORIES).length} stories`);
+  console.log(`${C.name}: ${words} words/chunks, ${sents} sentences, ${Object.keys(STORIES).length} stories${C.ALL_LETTERS ? `, ${C.ALL_LETTERS.length} letters` : ''}`);
 }
 for (const l of ALL_LETTERS) {
   const r = romanize(l.ch);
@@ -52,9 +63,9 @@ for (const l of ALL_LETTERS) {
 
 if (process.argv.includes('-v')) {
   for (const C of Object.values(COURSES)) {
-    for (const [id, x] of Object.entries(C.LEX)) console.log(id.padEnd(18), x.si.padEnd(20), (C.script === 'sinhala' ? romanize(x.si) : '').padEnd(20), x.en);
-    for (const [id, x] of Object.entries(C.SENT)) console.log(id.padEnd(22), (C.script === 'sinhala' ? romanize(x.si) : x.si).padEnd(36), x.en);
+    const lat = (t) => (C.script === 'sinhala' ? romanize(t) : C.script === 'cyrillic' ? uzLatin(t) : '');
+    for (const [id, x] of Object.entries(C.LEX)) console.log(id.padEnd(18), x.si.padEnd(20), lat(x.si).padEnd(20), x.en);
+    for (const [id, x] of Object.entries(C.SENT)) console.log(id.padEnd(22), (lat(x.si) || x.si).padEnd(36), x.en);
   }
 }
-console.log(`${ALL_LETTERS.length} Sinhala letters`);
 if (errors) { console.error(`${errors} problem(s)`); process.exit(1); } else console.log('✓ content OK');

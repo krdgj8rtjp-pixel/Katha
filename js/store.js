@@ -3,7 +3,6 @@
 // the newest review. See merge() below.
 import { review, strength, recall } from './srs.js';
 import { UNITS, LEX, COURSES } from '../data/course.js';
-import { ALL_LETTERS } from '../data/letters.js';
 
 const KEY = 'katha.v1';
 const DEV_KEY = 'katha.device';
@@ -337,7 +336,6 @@ export function letterStrength(ch) { return strength(state.letters[ch]); }
 export function nextLetterGroup(groups) {
   return groups.find(g => g.letters.some(l => !state.letters[l.ch])) || null;
 }
-export const ALL_LETTER_CHARS = ALL_LETTERS.map(l => l.ch);
 
 // ---------- settings/profile (last-writer-wins)
 export function setProfile(patch) {

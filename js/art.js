@@ -27,11 +27,11 @@ const teaBushes = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) s
   <path d="M-58 4 h116" stroke="#8a5a2b" stroke-width="3" opacity=".3"/>
 </g>`;
 
-export const taxi = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+export const taxi = (x = 0, y = 0, s = 1, body = '#F5C518') => `<g transform="translate(${x} ${y}) scale(${s})">
   <ellipse cx="0" cy="2" rx="42" ry="4" fill="#000" opacity=".1"/>
-  <path d="M-40 -8 L-40 -22 Q-40 -28 -32 -30 L-20 -32 L-10 -46 Q-7 -50 0 -50 L20 -50 Q26 -50 30 -44 L38 -32 Q44 -30 44 -24 L44 -8Z" fill="#F5C518"/>
+  <path d="M-40 -8 L-40 -22 Q-40 -28 -32 -30 L-20 -32 L-10 -46 Q-7 -50 0 -50 L20 -50 Q26 -50 30 -44 L38 -32 Q44 -30 44 -24 L44 -8Z" fill="${body}"/>
   <path d="M-16 -32 L-6 -45 L6 -45 L6 -32Z M10 -32 L10 -45 L20 -45 Q24 -45 27 -41 L33 -32Z" fill="#AEDCF0"/>
-  <rect x="-6" y="-58" width="20" height="8" rx="2" fill="#1B1B1F"/><path d="M-3 -54 h14" stroke="#F5C518" stroke-width="2" stroke-dasharray="3 2"/>
+  <rect x="-6" y="-58" width="20" height="8" rx="2" fill="#1B1B1F"/><path d="M-3 -54 h14" stroke="#F5C518" stroke-width="2" stroke-dasharray="3 2"/>${body !== '#F5C518' ? '<path d="M-40 -14 H44" stroke="#F5C518" stroke-width="3"/>' : ''}
   <path d="M-40 -18 H44" stroke="#1B1B1F" stroke-width="3" stroke-dasharray="5 5"/>
   <circle cx="-24" cy="-6" r="8" fill="#222"/><circle cx="-24" cy="-6" r="3" fill="#bbb"/><circle cx="28" cy="-6" r="8" fill="#222"/><circle cx="28" cy="-6" r="3" fill="#bbb"/>
 </g>`;
@@ -62,6 +62,38 @@ const fruitStall = (x = 0, y = 0, s = 1) => `<g transform="translate(${x} ${y}) 
   <path d="M-40 -50 v44 M40 -50 v44" stroke="#8a5424" stroke-width="3"/>
 </g>`;
 
+// ---- Uzbekistan
+const poplar = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-2.2" y="-22" width="4.4" height="22" fill="#7A4A2A"/>
+  <ellipse cx="0" cy="-64" rx="11" ry="46" fill="#4E9A4A"/><ellipse cx="-3.5" cy="-68" rx="5" ry="34" fill="#6DBB5C" opacity=".8"/></g>`;
+const roundTree = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-3 0 L-2 -34 L2 -34 L3 0Z" fill="#7A4A2A"/>
+  <circle cx="-14" cy="-44" r="18" fill="#4E9A4A"/><circle cx="12" cy="-46" r="19" fill="#4E9A4A"/><circle cx="0" cy="-62" r="20" fill="#5BAA52"/><circle cx="-6" cy="-66" r="9" fill="#7CC46A" opacity=".7"/></g>`;
+const uzHouse = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-38" y="-40" width="76" height="40" fill="#F3E6CF"/><rect x="-42" y="-45" width="84" height="6" rx="1.5" fill="#C9B48F"/>
+  <rect x="-13" y="-32" width="26" height="32" rx="2" fill="#2F6DB5"/><path d="M0 -32 V0" stroke="#1F4F8A" stroke-width="1.6"/>
+  ${[-6.5, 6.5].map(cx => `<rect x="${cx - 4.5}" y="-27" width="9" height="10" rx="1.5" fill="none" stroke="#8FC3EC" stroke-width="1.4"/><circle cx="${cx}" cy="-9" r="2" fill="none" stroke="#8FC3EC" stroke-width="1.4"/>`).join('')}
+  <rect x="-33" y="-31" width="12" height="12" fill="#7FB6D9" stroke="#A8703F" stroke-width="2"/><rect x="21" y="-31" width="12" height="12" fill="#7FB6D9" stroke="#A8703F" stroke-width="2"/></g>`;
+const madrasa = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M10 -58 C8 -86 48 -86 46 -58Z" fill="#2A8BD0"/>${[15, 21.5, 28, 34.5, 41].map(dx => `<path d="M${dx} -58 Q${28 + (dx - 28) * 1.1} -76 28 -79" stroke="#6FC0F0" stroke-width="1.5" fill="none"/>`).join('')}<path d="M28 -79 V-88" stroke="#F5C23A" stroke-width="2"/><circle cx="28" cy="-89" r="2" fill="#F5C23A"/><rect x="12" y="-62" width="32" height="6" fill="#1E6FB8"/>
+  <path d="M-58 0 L-44 0 L-46 -94 L-56 -94Z" fill="#E1BE84"/><rect x="-57" y="-52" width="12" height="4" fill="#1E6FB8"/><rect x="-56" y="-80" width="10" height="4" fill="#1E6FB8"/><rect x="-58" y="-100" width="14" height="6" fill="#D9B27A"/><path d="M-57 -100 Q-51 -110 -45 -100Z" fill="#2A8BD0"/>
+  <rect x="-40" y="-50" width="84" height="50" fill="#E8C98E"/>
+  ${[-30, 30].map(cx => `<path d="M${cx - 6} -16 V-30 Q${cx} -38 ${cx + 6} -30 V-16Z" fill="#B8894E"/><path d="M${cx - 6} -40 V-46 h12 V-40Z" fill="#1E6FB8" opacity=".85"/>`).join('')}
+  <rect x="-18" y="-74" width="36" height="74" fill="#E3BE7E"/><rect x="-15" y="-71" width="30" height="68" fill="#1E6FB8"/>
+  ${[-63, -56, -49, -42, -35, -28, -21, -14, -7].map(yy => `<circle cx="-12.5" cy="${yy}" r="1.3" fill="#F5C23A"/><circle cx="12.5" cy="${yy}" r="1.3" fill="#F5C23A"/>`).join('')}
+  <path d="M-10 0 V-36 Q0 -58 10 -36 V0Z" fill="#6E4524"/><path d="M-6 0 V-30 Q0 -42 6 -30 V0Z" fill="#4E2F18"/></g>`;
+const choynak = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M8 -10 Q16 -12 18 -20" stroke="#1E6FB8" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M-10 -8 Q-17 -14 -10 -18" stroke="#1E6FB8" stroke-width="2.4" fill="none"/><ellipse cx="0" cy="-9" rx="10" ry="9" fill="#1E6FB8"/>${[[-4, -11], [3, -6], [4, -13], [-3, -4]].map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="1.6" fill="#fff"/>`).join('')}
+  <rect x="-5" y="-20" width="10" height="3" rx="1.5" fill="#1E6FB8"/><circle cx="0" cy="-21.5" r="1.8" fill="#F5C23A"/></g>`;
+const piyola = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-6 -6 Q-5 0 0 0 Q5 0 6 -6Z" fill="#fff" stroke="#1E6FB8" stroke-width="1.2"/><path d="M-5 -4.6 h10" stroke="#1E6FB8" stroke-width="1"/></g>`;
+const nonBread = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><ellipse cx="0" cy="-3" rx="11" ry="4.5" fill="#C47A33"/><ellipse cx="0" cy="-4" rx="11" ry="4.5" fill="#D98C3E"/><ellipse cx="0" cy="-4" rx="6" ry="2.4" fill="#EDBB76"/></g>`;
+const tapchan = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+  ${[-38, -12, 12, 36].map(lx => `<rect x="${lx - 2}" y="-14" width="4" height="14" fill="#6E4524"/>`).join('')}<rect x="-44" y="-20" width="88" height="7" fill="#8A5A2E"/>
+  ${[-40, -26, -12, 2, 16, 30].map(px => `<rect x="${px}" y="-34" width="8" height="14" fill="none" stroke="#8A5A2E" stroke-width="2"/>`).join('')}
+  <rect x="-42" y="-24" width="84" height="5" fill="#B0302A"/><path d="M-40 -21.5 h80" stroke="#F5C23A" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <rect x="-18" y="-30" width="36" height="6" rx="1.5" fill="#A0662F"/>${choynak(-6, -30, .9)}${piyola(8, -30, .9)}${piyola(-26, -24, .8)}${nonBread(26, -24, .8)}</g>`;
+const melonPile = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">${[[-24, -8], [0, -8], [24, -8], [-12, -22], [12, -22], [0, -36]].map(([mx, my], i) => `<ellipse cx="${mx}" cy="${my}" rx="13" ry="8" fill="${i % 2 ? '#F5CF4E' : '#E8B830'}"/><path d="M${mx - 8} ${my - 3} q8 -4 16 0" stroke="#fff" stroke-width="1.6" fill="none" opacity=".5"/>`).join('')}</g>`;
+const blueDome = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-44" y="-22" width="88" height="22" fill="#E8C98E"/>${[-30, -10, 10, 30].map(ax => `<path d="M${ax - 5} 0 V-10 Q${ax} -17 ${ax + 5} -10 V0Z" fill="#8B6239"/>`).join('')}
+  <path d="M-46 -22 Q0 -86 46 -22Z" fill="#2A8BD0"/>${[-30, -15, 0, 15, 30].map(dx => `<path d="M${dx} -24 Q${dx * .7} -46 0 -54" stroke="#6FC0F0" stroke-width="1.8" fill="none"/>`).join('')}<rect x="-46" y="-26" width="92" height="5" fill="#1E6FB8"/></g>`;
+const mountains = (y = 112) => `<path d="M0 ${y} L40 ${y - 30} L70 ${y - 14} L110 ${y - 44} L150 ${y - 18} L196 ${y - 50} L240 ${y - 20} L280 ${y - 40} L320 ${y - 16} L360 ${y - 34} L360 ${y + 20} L0 ${y + 20}Z" fill="#A9B8CE"/>
+  <path d="M100 ${y - 38} L110 ${y - 44} L122 ${y - 36} L114 ${y - 34}Z M186 ${y - 43} L196 ${y - 50} L208 ${y - 41} L198 ${y - 39}Z M272 ${y - 35} L280 ${y - 40} L290 ${y - 33} L282 ${y - 31}Z" fill="#fff"/>`;
 const sun = (x, y, r = 14) => `<g transform="translate(${x} ${y})"><circle r="${r}" fill="#FFC94D"/>${Array.from({ length: 8 }, (_, i) => `<path d="M0 -${r + 4} v-6" stroke="#FFC94D" stroke-width="3" stroke-linecap="round" transform="rotate(${i * 45})"/>`).join('')}</g>`;
 const cloud = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})" opacity=".9"><ellipse cx="0" cy="0" rx="18" ry="10" fill="#fff"/><ellipse cx="14" cy="-6" rx="12" ry="10" fill="#fff"/><ellipse cx="-12" cy="-4" rx="10" ry="8" fill="#fff"/></g>`;
 
@@ -74,6 +106,10 @@ const SCENES = {
   u6: { who: 'john', art: () => `<path d="M0 150 H190" stroke="#9AA0AE" stroke-width="10"/>${roadSign(30, 150)}${tuktuk(130, 146, .72)}${cloud(60, 30, .9)}` },
   u7: { who: 'duva', art: () => `${palm(28, 150, .85)}${kite(140, 40)}${sun(60, 28, 11)}${cloud(150, 70, .7)}` },
   u8: { who: 'nimal', art: () => `${smallChurch(120, 150, .9)}${palm(24, 150, .8)}${sun(40, 28, 11)}${cloud(150, 26, .7)}` },
+  uzmahalla: { who: 'aliya', art: () => `${poplar(14, 150, .85)}${poplar(30, 150, .7)}${uzHouse(166, 150, .66)}${sun(160, 26, 12)}${cloud(64, 30, .8)}` },
+  uzregistan: { who: 'kumari', art: () => `${madrasa(160, 150, .6)}${poplar(22, 150, .85)}${sun(40, 28, 11)}${cloud(96, 22, .7)}` },
+  uzchoyxona: { who: 'nimal', art: () => `${tapchan(160, 150, .62)}${roundTree(28, 150, .9)}${sun(166, 26, 11)}${cloud(84, 26, .7)}` },
+  uzbazaar: { who: 'john', art: () => `${melonPile(36, 150, .95)}${blueDome(162, 150, .5)}${cloud(80, 24, .8)}` },
   esplaza: { who: 'kumari', art: () => `${colonial(146, 150, .72)}${fountain(30, 150, .72)}${sun(36, 30, 11)}${cloud(96, 24, .7)}` },
   esmarket: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${taxi(150, 150, .62)}${cloud(40, 28, .8)}` },
 };
@@ -222,6 +258,40 @@ Object.assign(SCENE_ART, {
     <rect x="160" y="128" width="40" height="12" rx="2" fill="#7A4A2A"/><rect x="164" y="122" width="14" height="6" rx="1" fill="#2B2F3A"/>`,
 });
 
+Object.assign(SCENE_ART, {
+  // A mahalla street in the morning: mountains, poplars, blue gates.
+  st_uzu1: (id) => `${sky(id, '#9ED8F5', '#FFF2DA')}${spinSun(300, 40)}${drift(80, 34, 1.1, 46, 10)}${drift(230, 24, .8, 58, 30)}
+    ${mountains(112)}${bird(140, 50, .9, 0)}${bird(158, 42, .7, 1.4)}
+    <path d="M0 128 Q90 116 180 124 Q270 132 360 120 L360 200 L0 200Z" fill="#9CCF7A"/>
+    ${[200, 222, 244, 330, 346].map((x, i) => poplar(x, 150, .9 - (i % 2) * .15)).join('')}
+    ${uzHouse(90, 172, 1.1)}${uzHouse(276, 172, 1.05)}${roundTree(28, 176, 1.05)}
+    <path d="M0 170 Q180 160 360 170 L360 200 L0 200Z" fill="#D9C9A8"/><path d="M140 200 Q180 176 220 174 Q250 174 270 200Z" fill="#CBB892"/>
+    ${[18, 60, 330].map((x, i) => `<g transform="translate(${x} ${184 + (i % 2) * 6})">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-3.4" rx="2.4" ry="3.6" fill="${i % 2 ? '#fff' : '#F49AB0'}" transform="rotate(${a})"/>`).join('')}<circle r="1.6" fill="#F5B731"/></g>`).join('')}`,
+
+  // The old city: a madrasa with a blue dome and minaret, pigeons on the square.
+  st_uzu2: (id) => `${sky(id, '#86CFF2', '#FFF0D6')}${spinSun(56, 50, 14, '#FFB84D')}${drift(150, 28, 1, 50, 12)}${drift(300, 44, .8, 44, 28)}
+    ${madrasa(250, 168, 1.35)}${poplar(40, 168, 1)}${poplar(62, 168, .8)}${poplar(352, 168, .9)}
+    ${bird(120, 60, .9, 0)}${bird(140, 52, .7, .8)}${bird(330, 30, .6, 1.6)}
+    <path d="M0 166 L360 166 L360 200 L0 200Z" fill="#E3D3B0"/>${Array.from({ length: 10 }, (_, i) => `<path d="M${i * 40 - 10} 200 L${i * 40 + 20} 166" stroke="#CDBB93" stroke-width="1.4"/>`).join('')}<path d="M0 178 H360 M0 190 H360" stroke="#CDBB93" stroke-width="1.4"/>
+    ${[[110, 186], [126, 190], [150, 184]].map(([x, y]) => `<g transform="translate(${x} ${y})"><ellipse cx="0" cy="0" rx="5" ry="3.4" fill="#8E99AE"/><circle cx="4.6" cy="-2.6" r="2.2" fill="#8E99AE"/><path d="M6.4 -2.6 l2 .6" stroke="#E8891C" stroke-width="1.2"/></g>`).join('')}`,
+
+  // A tea house under a grape trellis: tapchan, teapot, bread.
+  st_uzu3: (id) => `${sky(id, '#B6E2F2', '#F3F8E6')}${drift(90, 30, .9, 52, 20)}${drift(260, 22, 1.1, 60, 4)}
+    ${mountains(110)}<path d="M0 124 Q120 112 240 122 Q300 128 360 118 L360 200 L0 200Z" fill="#8CC57A"/>
+    ${poplar(26, 150, .9)}${poplar(44, 150, .7)}
+    <g>${[150, 346].map(px => `<rect x="${px}" y="58" width="6" height="116" fill="#7A4A2A"/>`).join('')}<rect x="140" y="54" width="220" height="7" fill="#8A5A2E"/>
+      ${Array.from({ length: 12 }, (_, i) => `<ellipse cx="${146 + i * 19}" cy="${54 + (i % 2) * 6}" rx="13" ry="8" fill="${i % 2 ? '#4E9A4A' : '#5BAA52'}"/>`).join('')}
+      ${[184, 246, 312].map((gx, i) => `<g transform="translate(${gx} 64)"><g class="s-swing" style="animation-delay:${-i * .7}s">${[[0, 0], [-4, 6], [4, 6], [0, 12], [-3, 18], [3, 18], [0, 23]].map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="3.4" fill="#7E3F8F"/>`).join('')}</g></g>`).join('')}
+      ${tapchan(250, 178, 1.9)}
+      ${[0, 1, 2].map(i => `<path class="s-steam" style="animation-delay:${i * .7}s" d="M${246 + i * 4} 104 q-4 -6 0 -12 q4 -6 0 -12" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>`).join('')}</g>
+    <path d="M0 176 Q180 168 360 176 L360 200 L0 200Z" fill="#C9A877"/><path d="M0 188 Q180 182 360 188 L360 200 L0 200Z" fill="#B8955F"/>`,
+});
+// The bazaar: the market scene with a domed hall behind it and a white taxi.
+SCENE_ART.st_uzu4 = (id) => {
+  const base = SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55, '#F4F4F2'));
+  const i = base.indexOf('<rect x="0" y="70"');
+  return i < 0 ? base : base.slice(0, i) + blueDome(196, 112, 1.25) + base.slice(i);
+};
 SCENE_ART.st_esu4 = (id) => SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55));
 
 export function storyScene(id) {

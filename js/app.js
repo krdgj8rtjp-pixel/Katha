@@ -1,7 +1,6 @@
-// Katha — spoken Sinhala and Spanish. App shell, routing and screens.
-import { UNITS, COMING, LEX, STORIES, DEFAULT_VOICE, COURSE, COURSES, COURSE_IDS, useCourse } from '../data/course.js';
-import { isSi, L, ro } from './lang.js';
-import { LETTER_GROUPS, ALL_LETTERS } from '../data/letters.js';
+// Katha — spoken Sinhala, Spanish and Uzbek. App shell, routing and screens.
+import { UNITS, COMING, LEX, STORIES, DEFAULT_VOICE, COURSE, COURSES, COURSE_IDS, useCourse, LETTER_GROUPS, ALL_LETTERS } from '../data/course.js';
+import { isSi, hasRo, hasLetters, L, ro, roLabel } from './lang.js';
 import * as S from './store.js';
 import { state } from './store.js';
 import * as audio from './audio.js';
@@ -11,7 +10,6 @@ import { ICONS, mascot, toast, modal, confetti, showHint, hideHint, siLine, audi
 import { badge } from './badges.js';
 import { pic } from './pics.js';
 import { esc, plural, fmtDuration } from './util.js';
-import { romanize } from './translit.js';
 import { strength } from './srs.js';
 import { buildLesson, buildUnitReview, buildPractice, buildLetters, caps, item, sent, nodeById } from './session.js';
 import { runSession } from './player.js';
@@ -80,7 +78,7 @@ const TABS_ALL = [
   ['learn', 'Learn', ICONS.home], ['letters', 'Letters', ICONS.letters], ['practice', 'Practice', ICONS.dumbbell],
   ['quests', 'Quests', ICONS.target], ['friends', 'Friends', ICONS.trophy], ['profile', 'Profile', ICONS.user],
 ];
-const tabsNow = () => TABS_ALL.filter(([id]) => id !== 'letters' || isSi());
+const tabsNow = () => TABS_ALL.filter(([id]) => id !== 'letters' || hasLetters());
 function tabbar(active) {
   const claimable = S.questsFor(S.today(), questCaps()).some(q => q.done && !q.claimed);
   return `<nav class="tabbar">${tabsNow().map(([id, label, icon]) => `<a href="#/${id}" class="tab ${id === active ? 'on' : ''}" aria-label="${label}">
@@ -146,7 +144,7 @@ function weekStrip() {
   return `<div class="week">${days.join('')}</div>`;
 }
 
-const questCaps = () => ({ letters: isSi(), speech: caps().speak && sync.canTranscribe() && state.profile.settings.speechCheck !== false, audio: caps().listen, practice: S.learnedItemIds().length >= 3, story: S.pathNodes().some(n => n.type === 'story' && S.lessonDone(n.id)) || S.currentNodeIndex() > 4 });
+const questCaps = () => ({ letters: hasLetters(), speech: caps().speak && sync.canTranscribe() && state.profile.settings.speechCheck !== false, audio: caps().listen, practice: S.learnedItemIds().length >= 3, story: S.pathNodes().some(n => n.type === 'story' && S.lessonDone(n.id)) || S.currentNodeIndex() > 4 });
 
 // ------------------------------------------------------------ tabs
 function renderTab(name) {
@@ -262,14 +260,14 @@ function lettersTab() {
   const next = S.nextLetterGroup(LETTER_GROUPS);
   const learned = Object.keys(state.letters).length;
   let html = `<div class="letters-tab">
-    <div class="tab-hero"><h1>Sinhala letters</h1><p>Learn to read the script — signs, menus and bus boards will start to make sense.</p>
+    <div class="tab-hero"><h1>${esc(COURSE.lettersTitle)}</h1><p>${esc(COURSE.lettersBlurb)}</p>
     <a class="btn primary wide" href="#/letters-session">${next ? (learned ? `Continue: ${esc(next.title)}` : 'Start learning letters') : 'Review letters'}</a></div>`;
   for (const g of LETTER_GROUPS) {
     html += `<h3 class="sec-title">${esc(g.title)}</h3><div class="letter-grid">`;
     for (const l of g.letters) {
       const s = S.letterStrength(l.ch);
       html += `<button class="letter-cell ${s ? '' : 'new'}" data-letter="${esc(l.ch)}">
-        <span class="lc" lang="si">${esc(l.ch)}</span><span class="lr">${esc(l.ro)}</span>
+        <span class="lc" lang="${L()}">${esc(l.up ? l.up + l.ch : l.ch)}</span><span class="lr">${esc(l.ro)}</span>
         <span class="lbar"><i style="width:${s * 25}%"></i></span></button>`;
     }
     html += `</div>`;
@@ -282,7 +280,7 @@ function mountLetters() {
     const c = e.target.closest('.letter-cell'); if (!c) return;
     const l = ALL_LETTERS.find(x => x.ch === c.dataset.letter);
     if (audio.canPlay(l.ch)) audio.play(l.ch);
-    toast(`<b lang="si">${esc(l.ch)}</b> · <i>${esc(l.ro)}</i> — ${esc(l.hint)}`, { ms: 3200 });
+    toast(`<b lang="${L()}">${esc(l.up ? l.up + l.ch : l.ch)}</b> · <i>${esc(l.ro)}</i> — ${esc(l.hint)}`, { ms: 3200 });
   });
 }
 
@@ -307,7 +305,7 @@ function practiceTab() {
     for (const { id, s } of rows) {
       const x = LEX[id];
       html += `<div class="word-row"><div class="wr-pic">${pic(LEX[id].pic || id, { size: 38 })}</div><button class="mini-play" data-play="${esc(x.si)}" aria-label="Play">${ICONS.speaker}</button>
-        <div class="wr-main"><span class="si" lang="${L()}">${esc(x.si)}</span>${isSi() ? `<span class="ro">${esc(ro(x.si))}</span>` : ''}</div>
+        <div class="wr-main"><span class="si" lang="${L()}">${esc(x.si)}</span>${hasRo() ? `<span class="ro">${esc(ro(x.si))}</span>` : ''}</div>
         <div class="wr-en">${esc(x.en)}</div><div class="bars s${s}" title="Strength ${s}/4"><i></i><i></i><i></i><i></i></div></div>`;
     }
     html += '</div>';
@@ -540,7 +538,7 @@ function profileTab() {
       <div class="stat">${ICONS.flame}<b>${st.streak}</b><span>Day streak</span></div>
       <div class="stat">${ICONS.bolt}<b>${S.totalXP()}</b><span>Total XP</span></div>
       <div class="stat">${ICONS.words}<b>${courseStats(COURSE).words}</b><span>${COURSE.name} words</span></div>
-      ${isSi() ? `<div class="stat"><span class="stat-emo" lang="si">අ</span><b>${S.lettersMastered()}</b><span>Letters</span></div>` : `<div class="stat">${ICONS.book || ICONS.words}<b>${Object.keys(STORIES).filter(id => S.lessonDone(id)).length}</b><span>Stories</span></div>`}
+      ${hasLetters() ? `<div class="stat"><span class="stat-emo" lang="${L()}">${COURSE.letterIcon}</span><b>${ALL_LETTERS.filter(l => S.letterStrength(l.ch) >= 3).length}</b><span>Letters</span></div>` : `<div class="stat">${ICONS.book || ICONS.words}<b>${Object.keys(STORIES).filter(id => S.lessonDone(id)).length}</b><span>Stories</span></div>`}
     </div>
     ${xpChart()}
     <a class="shop-link" href="#/shop">${ICONS.gem}<div><b>Shop</b><small>${S.gems()} gems · ${plural(S.freezesOwned(), 'streak freeze')}</small></div><span>›</span></a>
@@ -551,7 +549,7 @@ function profileTab() {
       <div class="setting avatar-set"><div><b>Avatar</b><small>What friends see on the leaderboard</small></div>
         <div class="av-pick">${AVATARS.map(a => `<button class="av-opt ${a === (p.avatar || 'aliya') ? 'on' : ''}" data-avatar="${a}" aria-label="${a}">${character(a, { head: true, size: 44 })}</button>`).join('')}</div></div>
       <label class="setting"><div><b>Daily goal</b></div><select data-goal>${[10, 20, 30, 50].map(g => `<option value="${g}" ${p.goal === g ? 'selected' : ''}>${g} XP · ${{ 10: 'Casual', 20: 'Regular', 30: 'Serious', 50: 'Intense' }[g]}</option>`).join('')}</select></label>
-      ${isSi() ? tog('roman', 'Show romanization', 'English letters under Sinhala script') : ''}
+      ${isSi() ? tog('roman', 'Show romanization', 'English letters under Sinhala script') : hasRo() ? tog('roman', 'Show Latin spelling', `The Latin-alphabet spelling under the ${COURSE.name} Cyrillic`) : ''}
       ${tog('sound', 'Sound effects')}
       ${tog('hearts', 'Hearts', 'Mistakes cost hearts in lessons')}
       ${tog('listening', 'Listening exercises')}
@@ -718,8 +716,8 @@ function renderOnboarding(step) {
         .map(([g, l, d]) => `<button class="choice goal-opt ${p.goal === g ? 'sel' : ''}" data-goal="${g}"><b>${l}</b><span>${d}</span><i>${g} XP</i></button>`).join('')}</div>
       <div class="onb-btns"><button class="btn primary wide" data-next>Continue</button></div></div>`,
     () => `<div class="onb">${mascot('happy', 110)}<h2>Where do you want to start?</h2>
-      <button class="choice start-opt" data-start="lesson"><span class="so-ic">${ICONS.chat}</span><div><b>Start speaking</b><span>Jump into Unit 1: Greetings.${isSi() ? ' Romanization helps you read along.' : ''}</span></div></button>
-      ${isSi() ? `<button class="choice start-opt" data-start="letters"><span class="so-ic" lang="si">අ</span><div><b>Learn the letters first</b><span>Get to know the Sinhala script, then start speaking.</span></div></button>` : ''}</div>`,
+      <button class="choice start-opt" data-start="lesson"><span class="so-ic">${ICONS.chat}</span><div><b>Start speaking</b><span>Jump into Unit 1: Greetings.${hasRo() ? ` The ${roLabel()} helps you read along.` : ''}</span></div></button>
+      ${hasLetters() ? `<button class="choice start-opt" data-start="letters"><span class="so-ic" lang="${L()}">${COURSE.letterIcon}</span><div><b>Learn the letters first</b><span>Get to know the ${isSi() ? 'Sinhala script' : 'Cyrillic alphabet'}, then start speaking.</span></div></button>` : ''}</div>`,
   ];
   app.innerHTML = `<div class="page onboarding">${step > 0 ? `<div class="onb-progress"><i style="width:${(step / (steps.length - 1)) * 100}%"></i></div>` : ''}${steps[step]()}</div>`;
   const root = app.querySelector('.onboarding');

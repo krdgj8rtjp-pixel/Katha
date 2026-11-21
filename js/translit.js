@@ -101,10 +101,41 @@ export function levenshtein(a, b) {
   return prev[n];
 }
 
+// ---------- Uzbek: Cyrillic → official Latin alphabet (1995 rules)
+const UZ = { а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', ё: 'yo', ж: 'j', з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'x', ч: 'ch', ш: 'sh', ъ: 'ʼ', ь: '', э: 'e', ю: 'yu', я: 'ya', ў: 'oʻ', қ: 'q', ғ: 'gʻ', ҳ: 'h' };
+const UZ_VOWEL = /[аеёиоуэюяў]/i;
+const isLetter = (c) => !!c && /\p{L}/u.test(c);
+export function uzLatin(text) {
+  const cs = Array.from(String(text).normalize('NFC'));
+  let out = '';
+  for (let i = 0; i < cs.length; i++) {
+    const c = cs[i], lc = c.toLowerCase(), prev = cs[i - 1], next = cs[i + 1];
+    let r;
+    if (lc === 'е') r = !isLetter(prev) || UZ_VOWEL.test(prev) || /[ъь]/i.test(prev) ? 'ye' : 'e';
+    else if (lc === 'ц') r = prev && UZ_VOWEL.test(prev) && next && UZ_VOWEL.test(next) ? 'ts' : 's';
+    else if (lc in UZ) r = UZ[lc];
+    else { out += c; continue; }
+    if (c !== lc && r) r = next && isLetter(next) && next !== next.toLowerCase() ? r.toUpperCase() : r[0].toUpperCase() + r.slice(1);
+    out += r;
+  }
+  return out;
+}
+export const isCyrillic = (s) => /[\u0400-\u04FF]/.test(s);
+// Fold Uzbek (either alphabet) to a skeleton: lenient about ʻ/', x/ҳ and q/к, which learners mix up.
+export function foldUz(s) {
+  return uzLatin(s).toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[ʻʼ'’‘`]/g, '')
+    .replace(/x/g, 'h').replace(/q/g, 'k')
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // Compare a typed answer to a list of acceptable answers.
 // Returns 'exact' | 'typo' | false
 export function matchAnswer(input, accepted, mode = 'en') {
-  const fold = mode === 'roman' ? foldRoman : foldLatin;
+  const fold = mode === 'roman' ? foldRoman : mode === 'uz' ? foldUz : foldLatin;
   const a = fold(input);
   if (!a) return false;
   let best = Infinity;

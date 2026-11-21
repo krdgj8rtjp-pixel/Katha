@@ -140,6 +140,28 @@ const BUILD = {
     hairFront: `<path d="M32.5 52 C31 30 45 22 61 22 C77 22 90 30 87.5 52 C86 44 81 38 74 36 C66 39 54 39 46 35 C40 39 35 45 32.5 52Z" fill="#1b1310"/><path d="M33 52 l1 7 M87 52 l-1 7" stroke="#1b1310" stroke-width="4" stroke-linecap="round"/>`,
     extrasFace: `<path d="M37 64 C38 80 48 88 60 88 C72 88 82 80 83 64 C80 72 74 78 69 78 C66 74 54 74 51 78 C46 78 40 72 37 64Z" fill="#1b1310" opacity=".28"/>`,
   }, pose),
+  // Uzbek course: Dilnoza in an atlas (ikat) dress with long braids; Aziz in a striped chapan and a doppi cap.
+  dilnoza: (pose) => person({
+    skin: '#E0B08A', shade: '#C6936C', browColor: '#2a1a14', lashes: true, lip: '#9b3b3b',
+    shirt: '#8E3FA8',
+    shirtExtras: `${[[31, '#F5C23A'], [43, '#E84A7F'], [55, '#3FC1C9'], [67, '#F5C23A'], [79, '#E84A7F'], [91, '#3FC1C9']].map(([x, c]) => `<path d="M${x} ${x < 36 || x > 84 ? 111 : 101} ${x < 36 || x > 84 ? '' : 'q4 5 0 10 '}q-4 5 0 10 q4 5 0 9" stroke="${c}" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".9"/>`).join('')}<path d="M46 93 Q60 104 74 93" stroke="#F5C23A" stroke-width="3" fill="none"/>`,
+    hairBack: `<path d="M30 56 C27 30 44 21 60 21 C76 21 93 30 90 56 C89 64 87 68 85 70 L35 70 C33 68 31 64 30 56Z" fill="#231815"/>
+      ${[[30, 1], [90, -1]].map(([x, d]) => `<g fill="#231815">${[0, 1, 2, 3, 4].map(i => `<ellipse cx="${x + d * (i % 2 ? -1 : 1)}" cy="${70 + i * 10}" rx="5.2" ry="6.4"/>`).join('')}<path d="M${x - 2} 118 l2 8 l2 -8z"/></g><circle cx="${x}" cy="117" r="2.6" fill="#E84A7F"/>`).join('')}`,
+    hairFront: `<path d="M32.5 54 C33 33 45 26 60 26 C75 26 87 33 87.5 54 C84 44 75 37 64 36 L60 30 L56 36 C45 37 36 44 32.5 54Z" fill="#231815"/>`,
+    extrasHead: `<path d="M41 30 C45 20 75 20 79 30 L78 34 C70 30 50 30 42 34Z" fill="#C2185B"/><path d="M44 29 h32" stroke="#F5C23A" stroke-width="1.6" stroke-dasharray="2.6 2.4"/>
+      <circle cx="33.5" cy="67" r="2.4" fill="#F5C23A"/><circle cx="86.5" cy="67" r="2.4" fill="#F5C23A"/>`,
+  }, pose),
+  aziz: (pose) => person({
+    skin: '#D2A076', shade: '#B78358', browColor: '#141114', lip: '#6b2f28',
+    shirt: '#2D5B9A',
+    shirtExtras: `${[26, 38, 50, 70, 82, 94].map((x, i) => `<path d="M${x} ${x < 32 || x > 88 ? 112 : 98} V132" stroke="${i % 2 ? '#E8B53A' : '#79A8DA'}" stroke-width="2.6"/>`).join('')}
+      <path d="M50 92 L60 112 L70 92 L66 90 L60 102 L54 90Z" fill="#F3F1EA"/><path d="M60 112 V132" stroke="#1F4373" stroke-width="2"/>
+      <path d="M22 122 Q60 130 98 122 L99 128 Q60 136 21 128Z" fill="#3FA35F"/>`,
+    hairFront: `<path d="M32.5 54 C32 44 34 38 38 36 L82 36 C86 38 88 44 87.5 54 C85 47 80 44 74 43 C64 45 54 45 46 43 C40 44 35 47 32.5 54Z" fill="#17131a"/>`,
+    extrasFace: `<path d="M49 66.8 q5.5 -4.6 11 -1.4 q5.5 -3.2 11 1.4 q-5.5 2.6 -11 0.4 q-5.5 2.2 -11 -0.4z" fill="#17131a"/>`,
+    extrasHead: `<path d="M35 38 L38 20 Q60 14 82 20 L85 38 Q60 33 35 38Z" fill="#17131a"/><path d="M38 20 Q60 14 82 20" stroke="#2c2630" stroke-width="2" fill="none"/>
+      ${[[46, 31, -1], [60, 28, 1], [74, 31, 1]].map(([x, y, d]) => `<path d="M${x - 2 * d} ${y + 5} C${x - 5 * d} ${y - 1} ${x - d} ${y - 5} ${x + 3 * d} ${y - 6} C${x + d} ${y - 2} ${x + 2 * d} ${y + 2} ${x - 2 * d} ${y + 5}Z" fill="#fff"/>`).join('')}`,
+  }, pose),
   aliya: () => `
   <ellipse cx="60" cy="129" rx="32" ry="3.5" fill="#000" opacity=".08"/>
   <g class="rig">
@@ -168,6 +190,10 @@ export const CAST = {
   kumari: { name: 'Kumari', color: '#C2185B' },
   nimal: { name: 'Nimal', color: '#00796B' },
   john: { name: 'John', color: '#1565C0' },
+  sofia: { name: 'Sofía', color: '#C2185B' },
+  mateo: { name: 'Mateo', color: '#00796B' },
+  dilnoza: { name: 'Dilnoza', color: '#8E3FA8' },
+  aziz: { name: 'Aziz', color: '#2D5B9A' },
 };
 
 let n = 0;

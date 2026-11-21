@@ -1,7 +1,7 @@
 // Speaking check: turn a recording into 16 kHz mono WAV, send it to the
 // "transcribe" helper (Azure, via Supabase), and grade it against the target.
 import { levenshtein } from './translit.js';
-import { foldT, isSi } from './lang.js';
+import { foldT, isSi, isUz } from './lang.js';
 import { COURSE } from '../data/course.js';
 import { transcribe, canTranscribe } from './sync.js';
 import { state } from './store.js';
@@ -68,13 +68,16 @@ function encodeWav(samples, rate) {
 const DIGITS_SI = { 1: 'එක', 2: 'දෙක', 3: 'තුන', 4: 'හතර', 5: 'පහ', 6: 'හය', 7: 'හත', 8: 'අට', 9: 'නවය', 10: 'දහය', 20: 'විස්ස', 50: 'පනහ', 80: 'අසූව', 100: 'සීය' };
 // Spoken/written spellings the recognizer may use for the same word.
 const DIGITS_ES = { 1: 'uno', 2: 'dos', 3: 'tres', 4: 'cuatro', 5: 'cinco', 6: 'seis', 7: 'siete', 8: 'ocho', 9: 'nueve', 10: 'diez', 15: 'quince', 20: 'veinte', 50: 'cincuenta', 100: 'cien' };
+const DIGITS_UZ = { 1: 'bir', 2: 'ikki', 3: 'uch', 4: 'toʻrt', 5: 'besh', 6: 'olti', 7: 'yetti', 8: 'sakkiz', 9: 'toʻqqiz', 10: 'oʻn', 15: 'oʻn besh', 20: 'yigirma', 50: 'ellik', 100: 'yuz', 1000: 'ming' };
 const SAME = [['නැහැ', 'නෑ', 'නැ'], ['ඕනේ', 'ඕනෑ'], ['හොඳයි', 'හොදයි'], ['ස්තුතියි', 'ස්තූතියි'], ['මොකක්ද', 'මොකද්ද'], ['කීයද', 'කීයක්ද']];
 const canon = {};
 SAME.forEach(g => g.forEach(w => { canon[w] = g[0]; }));
 
 function tokens(s) {
-  const D = isSi() ? DIGITS_SI : DIGITS_ES;
-  const withWords = String(s || '').replace(/\d+/g, d => ` ${D[d] || d} `);
+  const D = isSi() ? DIGITS_SI : isUz() ? DIGITS_UZ : DIGITS_ES;
+  let text = String(s || '');
+  if (isUz()) text = text.replace(/(\d+)[\s,.\u00a0]?000\b/g, '$1 ming'); // "50 000 so'm" → "50 ming so'm"
+  const withWords = text.replace(/\d+/g, d => ` ${D[d] || d} `);
   return foldT(withWords).split(' ').filter(Boolean).map(w => canon[w] || w);
 }
 const close = (a, b) => a === b || levenshtein(a, b) <= Math.max(1, Math.floor(Math.max(a.length, b.length) / 4));
