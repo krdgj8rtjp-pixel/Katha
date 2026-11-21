@@ -1,0 +1,21 @@
+{
+  "name": "katha",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "check": "node tools/check-content.mjs",
+    "build": "node tools/build.mjs",
+    "preview": "node tools/build-preview.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@fontsource/noto-sans-sinhala": "^5.3.0",
+    "@fontsource/nunito": "^5.3.0",
+    "esbuild": "^0.28.2"
+  },
+  "type": "module",
+  "private": true
+}

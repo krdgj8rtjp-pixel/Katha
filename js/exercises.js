@@ -1,0 +1,395 @@
+// Exercise renderers. Each returns a controller:
+//   { el, footer: 'check'|'continue'|'none', check(): {ok, solution, meaning, items?}, autoplay?(), ungraded? }
+import { esc, shuffle, siTokens, enTokens } from './util.js';
+import { romanize, matchAnswer, foldSinhala, isSinhala } from './translit.js';
+import { ICONS, siLine, audioBtn, mascot } from './ui.js';
+import * as audio from './audio.js';
+import { sfx } from './sfx.js';
+import { state } from './store.js';
+import { DEFAULT_VOICE } from '../data/course.js';
+
+const roOn = () => state.profile.settings.roman;
+function h(html) { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstElementChild; }
+const title = (t) => `<h2 class="ex-title">${t}</h2>`;
+const roSpan = (si) => roOn() ? `<span class="ro">${esc(romanize(si))}</span>` : '';
+const playIf = (text, voice) => { if (audio.canPlay(text, voice)) audio.play(text, { voice }); };
+
+// ---------------------------------------------------------------- teach
+function teach(ex) {
+  const it = ex.item;
+  const el = h(`<div class="ex teach">
+    <div class="ex-kicker">${ICONS.star} New word</div>
+    <div class="teach-card">
+      ${it.emoji ? `<div class="teach-emoji">${it.emoji}</div>` : ''}
+      <div class="teach-si" lang="si">${esc(it.si)}</div>
+      <div class="teach-ro">${esc(it.ro)}</div>
+      ${audio.canPlay(it.si) ? audioBtn(it.si, { big: true }) : ''}
+      <div class="teach-en">${esc(it.en)}</div>
+      ${it.note ? `<p class="teach-note">${esc(it.note)}</p>` : ''}
+    </div>
+  </div>`);
+  return { el, footer: 'continue', autoplay: () => playIf(it.si), check: () => ({ ok: true }) };
+}
+
+function teachLetter(ex) {
+  const l = ex.letter;
+  const el = h(`<div class="ex teach">
+    <div class="ex-kicker">${ICONS.star} New letter</div>
+    <div class="teach-card">
+      <div class="teach-letter" lang="si">${esc(l.ch)}</div>
+      <div class="teach-ro big">${esc(l.ro)}</div>
+      ${audio.canPlay(l.ch) ? audioBtn(l.ch, { big: true, slow: false }) : ''}
+      <p class="teach-note">${esc(l.hint)}</p>
+    </div>
+  </div>`);
+  return { el, footer: 'continue', autoplay: () => playIf(l.ch), check: () => ({ ok: true }) };
+}
+
+// ---------------------------------------------------------------- choice helpers
+function choiceList(options, render, onPick) {
+  const wrap = h(`<div class="choices"></div>`);
+  options.forEach((o, i) => {
+    const b = h(`<button class="choice" data-i="${i}"><span class="kbd">${i + 1}</span>${render(o)}</button>`);
+    b.addEventListener('click', () => {
+      wrap.querySelectorAll('.choice').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel'); sfx.tap(); onPick(i, o);
+    });
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+
+function selectSi(ex, ctx) {
+  const it = ex.item;
+  const pics = ex.options.every(o => o.emoji);
+  let picked = null;
+  const el = h(`<div class="ex">${title(`Which one means “${esc(it.en)}”?`)}</div>`);
+  const grid = h(`<div class="cards ${pics ? 'pics' : ''}"></div>`);
+  ex.options.forEach((o, i) => {
+    const b = h(`<button class="card-choice" data-i="${i}">
+      ${pics ? `<div class="pic">${o.emoji}</div>` : ''}
+      <div class="si" lang="si">${esc(o.si)}</div>${roSpan(o.si)}
+    </button>`);
+    b.addEventListener('click', () => {
+      grid.querySelectorAll('.card-choice').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel'); picked = o; sfx.tap(); playIf(o.si); ctx.onReady(true);
+    });
+    grid.appendChild(b);
+  });
+  el.appendChild(grid);
+  return {
+    el, footer: 'check',
+    check: () => ({ ok: picked?.id === it.id, solution: `<span lang="si">${esc(it.si)}</span> <i>${esc(it.ro)}</i>`, meaning: it.en }),
+  };
+}
+
+function selectEn(ex, ctx) {
+  const it = ex.item;
+  let picked = null;
+  const canAudio = audio.canPlay(it.si);
+  const el = h(`<div class="ex">${title('What does this mean?')}
+    <div class="prompt-row">${canAudio ? audioBtn(it.si, { slow: false }) : ''}${siLine(it.si, [it.en], { cls: 'big' })}</div>
+  </div>`);
+  el.appendChild(choiceList(ex.options, o => `<span>${esc(o)}</span>`, (i, o) => { picked = o; ctx.onReady(true); }));
+  return { el, footer: 'check', autoplay: () => playIf(it.si), check: () => ({ ok: picked === ex.answer, solution: esc(ex.answer) }) };
+}
+
+function listenSelect(ex, ctx) {
+  const it = ex.item;
+  let picked = null;
+  const el = h(`<div class="ex">${title('Tap what you hear')}<div class="listen-hero">${audioBtn(it.si, { big: true })}</div></div>`);
+  el.appendChild(choiceList(ex.options, o => `<span class="si" lang="si">${esc(o.si)}</span>${roSpan(o.si)}`, (i, o) => { picked = o; ctx.onReady(true); }));
+  return {
+    el, footer: 'check', autoplay: () => playIf(it.si),
+    check: () => ({ ok: picked?.id === it.id, solution: `<span lang="si">${esc(it.si)}</span> <i>${esc(it.ro)}</i>`, meaning: it.en }),
+  };
+}
+
+// ---------------------------------------------------------------- matching
+function matchPairs(ex, ctx, { letters = false } = {}) {
+  const pairs = ex.pairs;
+  const left = shuffle(pairs.map((p, i) => ({ i, label: letters ? p.ch : p.si, si: true })));
+  const right = shuffle(pairs.map((p, i) => ({ i, label: letters ? p.ro : p.en })));
+  const wrong = new Set();
+  let sel = null, done = 0;
+  const el = h(`<div class="ex">${title('Tap the matching pairs')}<div class="match ${letters ? 'letters' : ''}"><div class="col l"></div><div class="col r"></div></div></div>`);
+  const mk = (o, side) => {
+    const b = h(`<button class="choice match-btn ${o.si ? 'si-btn' : ''}" data-side="${side}" data-i="${o.i}">${o.si ? `<span class="si" lang="si">${esc(o.label)}</span>` : `<span>${esc(o.label)}</span>`}</button>`);
+    b.addEventListener('click', () => {
+      if (b.classList.contains('done')) return;
+      if (side === 'l') playIf(letters ? pairs[o.i].ch : pairs[o.i].si);
+      if (!sel || sel.side === side) {
+        el.querySelectorAll(`.match-btn[data-side="${side}"]`).forEach(x => x.classList.remove('sel'));
+        b.classList.add('sel'); sel = { side, i: o.i, b }; sfx.tap(); return;
+      }
+      if (sel.i === o.i) {
+        [sel.b, b].forEach(x => { x.classList.remove('sel'); x.classList.add('ok-flash', 'done'); });
+        sfx.match(); done++; sel = null;
+        if (done === pairs.length) setTimeout(() => ctx.submit(), 350);
+      } else {
+        const a = sel.b; wrong.add(sel.i); wrong.add(o.i);
+        [a, b].forEach(x => { x.classList.remove('sel'); x.classList.add('bad-shake'); setTimeout(() => x.classList.remove('bad-shake'), 500); });
+        sfx.wrong(); sel = null;
+      }
+    });
+    return b;
+  };
+  left.forEach(o => el.querySelector('.col.l').appendChild(mk(o, 'l')));
+  right.forEach(o => el.querySelector('.col.r').appendChild(mk(o, 'r')));
+  return {
+    el, footer: 'none', ungraded: true,
+    check: () => {
+      const items = {}, lettersRes = {};
+      pairs.forEach((p, i) => { if (letters) lettersRes[p.ch] = !wrong.has(i); else items[p.id] = !wrong.has(i); });
+      return { ok: true, items, letters: lettersRes, praise: wrong.size ? 'All matched!' : 'Perfect match!' };
+    },
+  };
+}
+
+// ---------------------------------------------------------------- word tiles
+function tilesWidget(tiles, { si = false, onChange }) {
+  const wrap = h(`<div class="tiles-wrap"><div class="answer-area"><div class="answer-lines"></div></div><div class="bank"></div></div>`);
+  const area = wrap.querySelector('.answer-lines');
+  const bank = wrap.querySelector('.bank');
+  const placed = [];
+  const btns = tiles.map((t, i) => {
+    const b = h(`<button class="tile ${si ? 'si-tile' : ''}" data-i="${i}">${si ? `<span lang="si">${esc(t)}</span>${roOn() ? `<small>${esc(romanize(t))}</small>` : ''}` : esc(t)}</button>`);
+    const slot = h(`<span class="tile-slot"></span>`);
+    slot.appendChild(b); bank.appendChild(slot);
+    b.addEventListener('click', () => {
+      if (b.parentElement === area) { // send back
+        placed.splice(placed.indexOf(i), 1); slot.appendChild(b);
+      } else {
+        placed.push(i); area.appendChild(b);
+        if (si) playIf(t); else sfx.tap();
+      }
+      onChange(placed.map(j => tiles[j]));
+    });
+    return b;
+  });
+  return { el: wrap, value: () => placed.map(j => tiles[j]), disable: () => btns.forEach(b => b.disabled = true) };
+}
+
+function bubble(inner, mood = 'idle') {
+  return `<div class="speaker-row"><div class="speaker-mascot">${mascot(mood, 84)}</div><div class="bubble">${inner}</div></div>`;
+}
+
+function tilesEn(ex, ctx) {
+  const s = ex.sent;
+  const canAudio = audio.canPlay(s.si, s.voice);
+  let mode = 'tiles', typed = '';
+  const el = h(`<div class="ex">${title('Translate this sentence')}
+    ${bubble(`${canAudio ? audioBtn(s.si, { voice: s.voice, slow: false }) : ''}${siLine(s.si, s.g, { voice: s.voice })}`)}
+    <div class="tiles-host"></div>
+    <button class="link-btn kb-toggle">${ICONS.keyboard}<span>Use keyboard</span></button>
+  </div>`);
+  const host = el.querySelector('.tiles-host');
+  let w = tilesWidget(ex.tiles, { onChange: v => ctx.onReady(v.length > 0) });
+  host.appendChild(w.el);
+  el.querySelector('.kb-toggle').addEventListener('click', (e) => {
+    mode = mode === 'tiles' ? 'type' : 'tiles';
+    host.innerHTML = '';
+    if (mode === 'type') {
+      const ta = h(`<textarea class="type-box" rows="3" placeholder="Type in English" autocapitalize="sentences"></textarea>`);
+      ta.addEventListener('input', () => { typed = ta.value; ctx.onReady(typed.trim().length > 0); });
+      ta.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); ctx.enter(); } });
+      host.appendChild(ta); ta.focus();
+      e.currentTarget.querySelector('span').textContent = 'Use word bank';
+      ctx.onReady(false);
+    } else {
+      w = tilesWidget(ex.tiles, { onChange: v => ctx.onReady(v.length > 0) });
+      host.appendChild(w.el);
+      e.currentTarget.querySelector('span').textContent = 'Use keyboard';
+      ctx.onReady(false);
+    }
+  });
+  return {
+    el, footer: 'check', autoplay: () => playIf(s.si, s.voice),
+    check: () => {
+      const input = mode === 'tiles' ? w.value().join(' ') : typed;
+      let ok = matchAnswer(input, ex.accepted, 'en');
+      if (mode === 'tiles' && ok === 'typo') ok = false;
+      return { ok, solution: esc(s.en) };
+    },
+  };
+}
+
+function tilesSi(ex, ctx) {
+  const s = ex.sent;
+  const listen = ex.type === 'listen_tiles';
+  const el = h(`<div class="ex">${title(listen ? 'Tap what you hear' : 'Write this in Sinhala')}
+    ${listen ? `<div class="listen-hero">${audioBtn(s.si, { voice: s.voice, big: true })}</div>` : bubble(`<div class="en-prompt">${esc(s.en)}</div>`)}
+    <div class="tiles-host"></div>
+  </div>`);
+  const w = tilesWidget(ex.tiles, { si: true, onChange: v => ctx.onReady(v.length > 0) });
+  el.querySelector('.tiles-host').appendChild(w.el);
+  return {
+    el, footer: 'check', autoplay: listen ? () => playIf(s.si, s.voice) : null,
+    check: () => {
+      const got = foldSinhala(w.value().join(' '));
+      const want = foldSinhala(ex.answer.join(' '));
+      return { ok: got === want, solution: `<span lang="si">${esc(s.si)}</span> <i>${esc(s.ro)}</i>`, meaning: listen ? s.en : null };
+    },
+  };
+}
+
+function fillBlank(ex, ctx) {
+  const s = ex.sent;
+  const toks = s.si.trim().split(/\s+/);
+  let picked = null;
+  const line = toks.map((t, i) => {
+    if (i === ex.blank) {
+      const punct = t.match(/[.,!?]+$/)?.[0] || '';
+      return `<span class="blank">&nbsp;</span>${esc(punct)}`;
+    }
+    return `<span class="w" data-t="${esc(t.replace(/[.,!?]+/g, ''))}" data-g="${esc(s.g[i] || '')}">${esc(t)}</span>`;
+  }).join(' ');
+  const el = h(`<div class="ex">${title('Fill in the blank')}
+    <div class="en-sub">${esc(s.en)}</div>
+    <div class="si-line big"><div class="si fill-line" lang="si">${line}</div></div>
+  </div>`);
+  const blankEl = el.querySelector('.blank');
+  el.appendChild(choiceList(ex.options, o => `<span class="si" lang="si">${esc(o)}</span>${roSpan(o)}`, (i, o) => {
+    picked = o; blankEl.textContent = o; blankEl.classList.add('filled'); playIf(o); ctx.onReady(true);
+  }));
+  return { el, footer: 'check', check: () => ({ ok: picked === ex.answer, solution: `<span lang="si">${esc(s.si)}</span> <i>${esc(s.ro)}</i>`, meaning: s.en }) };
+}
+
+function typeSi(ex, ctx) {
+  const it = ex.item;
+  let typed = '';
+  const el = h(`<div class="ex">${title('Write this in Sinhala')}
+    ${bubble(`<div class="en-prompt">${esc(it.en)}</div>`)}
+    <input class="type-box one" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type it — English letters are fine">
+    <p class="type-tip">Tip: type how it sounds, e.g. <i>${esc(exampleRo(it))}</i></p>
+  </div>`);
+  const inp = el.querySelector('input');
+  inp.addEventListener('input', () => { typed = inp.value; ctx.onReady(typed.trim().length > 0); });
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); ctx.enter(); } });
+  return {
+    el, footer: 'check', focus: () => inp.focus({ preventScroll: true }),
+    check: () => {
+      let ok;
+      if (isSinhala(typed)) ok = foldSinhala(typed) === foldSinhala(it.si) ? 'exact' : false;
+      else ok = matchAnswer(typed, ex.accepted.filter(a => !isSinhala(a)), 'roman');
+      return { ok, solution: `<span lang="si">${esc(it.si)}</span> <i>${esc(it.ro)}</i>` };
+    },
+  };
+}
+function exampleRo(it) { return it.id === 'ayubovan' ? 'kohomada' : 'ayubowan'; }
+
+// ---------------------------------------------------------------- speaking
+function speak(ex, ctx) {
+  const t = ex.target;
+  const voice = t.voice || DEFAULT_VOICE;
+  const canAudio = audio.canPlay(t.si, voice);
+  const el = h(`<div class="ex">${title('Say this out loud')}
+    ${bubble(`${canAudio ? audioBtn(t.si, { voice, slow: true }) : ''}${siLine(t.si, t.g || [t.en], { voice })}`)}
+    <div class="speak-zone">
+      <button class="mic-btn">${ICONS.mic}<span>Tap to record</span></button>
+      <div class="speak-after" hidden>
+        <div class="compare">
+          <button class="btn small ghost you">▶ You</button>
+          ${canAudio ? `<button class="btn small ghost native">▶ Native</button>` : ''}
+        </div>
+        <div class="self-check">
+          <button class="btn small again">Try again</button>
+          <button class="btn small primary said">I said it ✓</button>
+        </div>
+      </div>
+      <p class="speak-meaning">${esc(t.en)}</p>
+    </div>
+    <button class="link-btn cant">Can't speak now</button>
+  </div>`);
+  const mic = el.querySelector('.mic-btn');
+  const after = el.querySelector('.speak-after');
+  let rec = null, chunks = [], url = null, stream = null, timer = null;
+  const stopRec = () => { try { rec && rec.state !== 'inactive' && rec.stop(); } catch {} clearTimeout(timer); };
+  const showAfter = () => { mic.hidden = true; after.hidden = false; };
+  mic.addEventListener('click', async () => {
+    if (rec && rec.state === 'recording') { stopRec(); return; }
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { showAfter(); el.querySelector('.you').hidden = true; return; }
+    try {
+      audio.stop();
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      rec = new MediaRecorder(stream); chunks = [];
+      rec.ondataavailable = (e) => chunks.push(e.data);
+      rec.onstop = () => {
+        stream.getTracks().forEach(tr => tr.stop());
+        if (url) URL.revokeObjectURL(url);
+        url = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || 'audio/webm' }));
+        mic.classList.remove('rec'); mic.querySelector('span').textContent = 'Tap to record';
+        showAfter();
+      };
+      rec.start(); mic.classList.add('rec'); mic.querySelector('span').textContent = 'Recording… tap to stop';
+      timer = setTimeout(stopRec, 7000);
+    } catch (e) {
+      showAfter(); el.querySelector('.you').hidden = true;
+    }
+  });
+  el.querySelector('.you').addEventListener('click', () => { if (url) new Audio(url).play(); });
+  el.querySelector('.native')?.addEventListener('click', () => audio.play(t.si, { voice }));
+  el.querySelector('.again').addEventListener('click', () => { after.hidden = true; mic.hidden = false; ctx.onReady(false); });
+  el.querySelector('.said').addEventListener('click', () => { ctx.submit(); });
+  el.querySelector('.cant').addEventListener('click', () => { stopRec(); ctx.skip({ speakOff: true }); });
+  return {
+    el, footer: 'none', ungraded: true, autoplay: () => playIf(t.si, voice),
+    cleanup: () => { stopRec(); try { stream?.getTracks().forEach(tr => tr.stop()); } catch {} },
+    check: () => ({ ok: true, praise: 'Nice speaking!' }),
+  };
+}
+
+// ---------------------------------------------------------------- letters
+function letterSound(ex, ctx) {
+  const l = ex.letter;
+  let picked = null;
+  const el = h(`<div class="ex">${title('What sound does this make?')}<div class="big-letter" lang="si">${esc(l.ch)}</div></div>`);
+  el.appendChild(choiceList(ex.options, o => `<span class="ro-opt">${esc(o)}</span>`, (i, o) => { picked = o; ctx.onReady(true); }));
+  return {
+    el, footer: 'check',
+    check: () => { playIf(l.ch); return { ok: picked === ex.answer, solution: `<span lang="si">${esc(l.ch)}</span> = <i>${esc(l.ro)}</i>`, meaning: l.hint, letters: { [l.ch]: picked === ex.answer } }; },
+  };
+}
+function soundLetter(ex, ctx) {
+  const l = ex.letter;
+  let picked = null;
+  const canAudio = audio.canPlay(l.ch);
+  const el = h(`<div class="ex">${title(`Which letter makes the sound “${esc(l.ro)}”?`)}
+    ${canAudio ? `<div class="listen-hero">${audioBtn(l.ch, { slow: false })}</div>` : ''}</div>`);
+  const grid = h(`<div class="cards letters"></div>`);
+  ex.options.forEach((o) => {
+    const b = h(`<button class="card-choice"><div class="si big-glyph" lang="si">${esc(o)}</div></button>`);
+    b.addEventListener('click', () => { grid.querySelectorAll('.card-choice').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); picked = o; sfx.tap(); ctx.onReady(true); });
+    grid.appendChild(b);
+  });
+  el.appendChild(grid);
+  return { el, footer: 'check', autoplay: () => playIf(l.ch), check: () => ({ ok: picked === ex.answer, solution: `<span lang="si">${esc(l.ch)}</span> = <i>${esc(l.ro)}</i>`, letters: { [l.ch]: picked === ex.answer } }) };
+}
+function readWord(ex, ctx) {
+  const it = ex.item;
+  let picked = null;
+  const el = h(`<div class="ex">${title('How do you read this word?')}<div class="big-word" lang="si">${esc(it.si)}</div></div>`);
+  el.appendChild(choiceList(ex.options, o => `<span class="ro-opt">${esc(o)}</span>`, (i, o) => { picked = o; ctx.onReady(true); }));
+  return { el, footer: 'check', check: () => { playIf(it.si); return { ok: picked === ex.answer, solution: `<i>${esc(it.ro)}</i>`, meaning: `It means “${it.en}”` }; } };
+}
+
+export function renderExercise(ex, ctx) {
+  switch (ex.type) {
+    case 'teach': return teach(ex, ctx);
+    case 'teach_letter': return teachLetter(ex, ctx);
+    case 'select_si': return selectSi(ex, ctx);
+    case 'select_en': return selectEn(ex, ctx);
+    case 'listen_select': return listenSelect(ex, ctx);
+    case 'match': return matchPairs(ex, ctx);
+    case 'letter_match': return matchPairs(ex, ctx, { letters: true });
+    case 'tiles_en': return tilesEn(ex, ctx);
+    case 'tiles_si': case 'listen_tiles': return tilesSi(ex, ctx);
+    case 'fill': return fillBlank(ex, ctx);
+    case 'type_si': return typeSi(ex, ctx);
+    case 'speak': return speak(ex, ctx);
+    case 'letter_sound': return letterSound(ex, ctx);
+    case 'sound_letter': return soundLetter(ex, ctx);
+    case 'read_word': return readWord(ex, ctx);
+    default: throw new Error('Unknown exercise ' + ex.type);
+  }
+}
