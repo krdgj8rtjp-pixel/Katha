@@ -18,8 +18,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
-      AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+      # Azure sign-in uses a federated identity that trusts only this repo's main branch,
+      # so no password or key is stored anywhere. These IDs are not secrets.
+      AZURE_CLIENT_ID: b33e7051-c232-432d-9dfb-94a63a73d8f7
+      AZURE_TENANT_ID: cbe62aa0-d94c-45bc-9fe3-9b6d52b7e884
+      AZURE_SUBSCRIPTION_ID: dfda8e14-1085-4f47-b5f0-6303e5b439b7
+      AZURE_SPEECH_RESOURCE: katha-speech
+      AZURE_SPEECH_GROUP: katha-rg
+      AZURE_SPEECH_REGION: westus2
+      AZURE_TTS_DELAY_MS: 3100 # the free tier allows ~20 requests a minute
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,6 +35,23 @@ jobs:
 
       - name: Check course content
         run: node tools/check-content.mjs
+
+      - name: Sign in to Azure
+        id: azure
+        continue-on-error: true
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get the speech key
+        if: steps.azure.outcome == 'success'
+        continue-on-error: true
+        run: |
+          KEY=$(az cognitiveservices account keys list -n "$AZURE_SPEECH_RESOURCE" -g "$AZURE_SPEECH_GROUP" --query key1 -o tsv)
+          echo "::add-mask::$KEY"
+          echo "AZURE_SPEECH_KEY=$KEY" >> "$GITHUB_ENV"
 
       - name: Generate any missing Sinhala audio
         if: env.AZURE_SPEECH_KEY != ''

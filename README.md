@@ -58,19 +58,21 @@ Two optional settings in the Supabase dashboard (**Authentication**):
 To recreate this in a fresh project: run `supabase/schema.sql` in the SQL editor and put the new URL and publishable key in `js/config.js`.
 Never put the secret / `service_role` key in the app.
 
-## 3. Add real Sinhala voices (Azure, free tier)
+## 3. Sinhala voices (Azure) — already set up
 
-Phones rarely ship a Sinhala voice, so the app plays pre-generated clips. The generator uses Azure's two
-Sinhala neural voices (Thilini, female; Sameera, male). The whole course is ~400 short clips — a few thousand characters.
+Phones rarely ship a Sinhala voice, so the app plays pre-generated clips made with Azure's two Sinhala neural
+voices (Thilini, female; Sameera, male). The whole course is ~400 short clips — a few thousand characters,
+well inside the free tier.
 
-1. In the Azure portal, create a **Speech** resource (the free F0 tier is fine). Note its **key** and **region** (e.g. `eastus`).
-2. In GitHub: **Settings → Secrets and variables → Actions → New repository secret**: add `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION`.
-3. **Actions → Build and deploy → Run workflow**. It generates any missing clips, commits them to `audio/`, and deploys.
-   After that, only new sentences get generated.
+What exists in Azure (subscription *Azure subscription 1*, resource group `katha-rg`, West US 2):
+- `katha-speech` — a Speech resource on the free **F0** tier.
+- `katha-github` — a managed identity with a federated credential that trusts only
+  `repo:krdgj8rtjp-pixel/Katha:ref:refs/heads/main`, and the *Cognitive Services User* role on `katha-speech` only.
 
-Or locally: `AZURE_SPEECH_KEY=… AZURE_SPEECH_REGION=eastus node tools/generate-audio.mjs`.
+On every push, the workflow signs in to Azure as that identity (no stored password or key), reads the speech key,
+generates any clips that are missing, commits them to `audio/`, and deploys. Re-running is cheap: existing clips are skipped.
 
-Until clips exist, listening exercises are hidden automatically (unless the device has its own Sinhala voice, e.g. some Android phones).
+Locally: `AZURE_SPEECH_KEY=… AZURE_SPEECH_REGION=westus2 node tools/generate-audio.mjs`.
 You can swap any clip for a native speaker's recording by replacing the matching `audio/<id>.mp3`.
 
 ## 4. Install on your phone
