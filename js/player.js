@@ -13,7 +13,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
   const queue = session.exercises.map((e, i) => ({ ...e, _k: i }));
   const retried = new Set();
   const items = {}, letters = {};
-  let pos = 0, ctrl = null, phase = 'answer', mistakes = 0, combo = 0, maxCombo = 0, firstTry = 0, graded = 0, listen = 0;
+  let pos = 0, ctrl = null, phase = 'answer', mistakes = 0, combo = 0, maxCombo = 0, firstTry = 0, graded = 0, listen = 0, spoke = 0;
   const start = Date.now();
 
   host.innerHTML = `<div class="lesson">
@@ -99,6 +99,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
       if (isGraded) { combo++; maxCombo = Math.max(maxCombo, combo); if (firstAttempt) firstTry++; }
       if (isGraded && firstAttempt) graded++;
       if (ex.listen || ex.type === 'listen_tiles') listen++;
+      if (res.verified) spoke++;
       if (combo > 0 && combo % 5 === 0 && isGraded) comboMsg = `${combo} in a row!`;
       sfx.correct();
       const title = comboMsg || res.praise || (res.ok === 'typo' ? 'You have a typo' : pick(PRAISE));
@@ -163,7 +164,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
     const perfect = mistakes === 0;
     const accuracy = graded ? Math.round((firstTry / graded) * 100) : 100;
     const bonus = perfect && session.kind !== 'letters' ? 5 : 0;
-    onComplete({ kind: session.kind, nodeId: session.nodeId, title: session.title, xp: session.xp + bonus, bonus, perfect, accuracy, maxCombo, ms: Date.now() - start, listen, items, letters });
+    onComplete({ kind: session.kind, nodeId: session.nodeId, title: session.title, xp: session.xp + bonus, bonus, perfect, accuracy, maxCombo, ms: Date.now() - start, listen, spoke, items, letters });
   }
 
   function cleanup() { hideHint(); audio.stop(); ctrl?.cleanup?.(); document.removeEventListener('keydown', onKey); }

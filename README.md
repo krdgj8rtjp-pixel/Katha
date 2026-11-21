@@ -76,6 +76,17 @@ generates any clips that are missing, commits them to `audio/`, and deploys. Re-
 Locally: `AZURE_SPEECH_KEY=… AZURE_SPEECH_REGION=westus2 node tools/generate-audio.mjs`.
 You can swap any clip for a native speaker's recording by replacing the matching `audio/<id>.mp3`.
 
+## Speaking checks (Azure speech-to-text via Supabase)
+
+Speaking exercises record you, convert the recording to 16 kHz WAV in the browser, and send it to the
+Supabase Edge Function `transcribe` (`supabase/functions/transcribe`). The function:
+- only answers signed-in users,
+- reserves the seconds against caps in `public.speech_usage` (15 min/day, ~4.2 h/month — Azure's free tier is 5 h/month),
+- calls Azure speech-to-text for `si-LK` with the key stored as the function secret `AZURE_SPEECH_KEY`,
+- returns what it heard. The app grades it leniently (word matches, spelling variants, digits) and highlights missed words.
+
+Turn it off under Profile → Settings → *Check my speaking*. Without sign-in, speaking falls back to record-and-compare.
+
 ## 4. Install on your phone
 
 - **iPhone**: open the URL in Safari → Share → **Add to Home Screen**.

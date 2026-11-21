@@ -63,7 +63,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add audio
-          git diff --cached --quiet || (git commit -m "Add generated audio clips" && git push)
+          git diff --cached --quiet || (git commit -m "Add generated audio clips" && git pull --rebase origin main && git push)
 
       - name: Build site
         run: node tools/build.mjs

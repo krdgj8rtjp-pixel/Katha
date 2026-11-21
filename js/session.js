@@ -205,6 +205,12 @@ export function buildPractice(mode = 'smart') {
   } else ids = weakestItems(8);
   const pool = uniq([...ids, ...learned]);
   const out = [];
+  if (mode === 'speaking') {
+    const sids = uniq(knownSentences());
+    sample(sids, 5).forEach(sid => out.push(speak(sent(sid))));
+    if (!out.length) return null;
+    return { kind: 'practice', nodeId: null, title: 'Speaking practice', exercises: out, teach: [], xp: 10 };
+  }
   if (mode === 'listening' && C.listen) {
     ids.slice(0, 5).forEach(id => { const it = item(id); if (audio.canPlay(it.si)) out.push(listenSelect(it, pool)); });
     const sids = uniq(knownSentences()).filter(sid => itemsInSentence(sid).some(i => ids.includes(i)) || true);
@@ -221,6 +227,7 @@ export function buildPractice(mode = 'smart') {
     const m = match(sample(ids, 5)); if (m) out.push(m);
     const sids = uniq(knownSentences()).filter(sid => itemsInSentence(sid).some(i => ids.includes(i)));
     sample(sids, 4).forEach((sid, i) => { const s = sent(sid); out.push(i % 2 ? tilesEn(s, sids) : tilesSi(s, sids, pool)); });
+    if (C.speak && sids.length) out.push(speak(sent(pick(sids))));
   }
   if (!out.length) return null;
   return { kind: 'practice', nodeId: null, title: mode === 'listening' ? 'Listening practice' : mode === 'mistakes' ? 'Mistakes review' : 'Practice', exercises: spread(shuffle(out)), teach: [], xp: 10 };

@@ -113,5 +113,21 @@ export function syncNow() {
   return syncing;
 }
 
+// Speech recognition through the Supabase "transcribe" helper (signed-in users only).
+export const canTranscribe = () => configured() && !!session && navigator.onLine;
+export async function transcribe(wav, lang = 'si-LK') {
+  if (!canTranscribe()) { const e = new Error('Sign in to have Katha check your speaking.'); e.code = 'signin'; throw e; }
+  await fresh();
+  const r = await fetch(SUPABASE_URL.replace(/\/$/, '') + `/functions/v1/transcribe?lang=${encodeURIComponent(lang)}`, {
+    method: 'POST',
+    headers: { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + session.access_token, 'Content-Type': 'audio/wav' },
+    body: wav,
+  });
+  let d = {};
+  try { d = await r.json(); } catch {}
+  if (!r.ok) { const e = new Error(d.error || `Speech check failed (${r.status})`); e.status = r.status; throw e; }
+  return d;
+}
+
 let timer = null;
 export function syncSoon(ms = 1500) { clearTimeout(timer); timer = setTimeout(syncNow, ms); }

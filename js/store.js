@@ -27,7 +27,7 @@ export function blank() {
   return {
     v: 1,
     profile: { name: '', goal: 20, created: Date.now(), onboarded: false, u: 0,
-      settings: { sound: true, roman: true, hearts: true, listening: true, speaking: true } },
+      settings: { sound: true, roman: true, hearts: true, listening: true, speaking: true, speechCheck: true } },
     lessons: {}, srs: {}, letters: {},
     log: {}, claims: {}, purchases: {}, frozen: {},
     hearts: { n: MAX_HEARTS, ts: Date.now(), u: 0 },
@@ -69,7 +69,7 @@ export function addDays(key, n) {
 export const today = () => dateKey();
 
 // ---------- per-day log (this device only writes its own bucket)
-const LOG_FIELDS = ['xp', 'lessons', 'perfect', 'combo', 'letters', 'stories', 'practice', 'listen', 'ms'];
+const LOG_FIELDS = ['xp', 'lessons', 'perfect', 'combo', 'letters', 'stories', 'practice', 'listen', 'speak', 'ms'];
 export function myDay(key = today()) {
   const dev = state.log[DEVICE] || (state.log[DEVICE] = {});
   return dev[key] || (dev[key] = {});
@@ -144,6 +144,7 @@ export const QUEST_POOL = [
   { id: 'practice', text: 'Do a practice session', target: 1, stat: 'practice', reward: 10, needs: 'practice' },
   { id: 'listen', text: 'Complete 5 listening exercises', target: 5, stat: 'listen', reward: 10, needs: 'audio' },
   { id: 'story', text: 'Finish a story', target: 1, stat: 'stories', reward: 15, needs: 'story' },
+  { id: 'speak', text: 'Say 3 sentences Katha understands', target: 3, stat: 'speak', reward: 15, needs: 'speech' },
 ];
 
 function hash(str) { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -252,6 +253,7 @@ export function recordSession(r) {
   if (r.perfect && r.kind !== 'letters') d.perfect = (d.perfect || 0) + 1;
   d.combo = Math.max(d.combo || 0, r.maxCombo || 0);
   d.listen = (d.listen || 0) + (r.listen || 0);
+  d.speak = (d.speak || 0) + (r.spoke || 0);
   d.ms = (d.ms || 0) + (r.ms || 0);
   if (r.nodeId) {
     const L = state.lessons[r.nodeId] || { done: 0, best: 0, first: now };

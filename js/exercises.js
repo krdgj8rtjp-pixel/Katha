@@ -4,7 +4,8 @@ import { esc, shuffle, siTokens, enTokens } from './util.js';
 import { romanize, matchAnswer, foldSinhala, isSinhala } from './translit.js';
 import { ICONS, siLine, audioBtn, mascot } from './ui.js';
 import * as audio from './audio.js';
-import { sfx } from './sfx.js';
+import { sfx, unlock as unlockSfx } from './sfx.js';
+import { speechCheckOn, checkRecording } from './speech.js';
 import { state } from './store.js';
 import { DEFAULT_VOICE } from '../data/course.js';
 
@@ -279,14 +280,22 @@ function typeSi(ex, ctx) {
 function exampleRo(it) { return it.id === 'ayubovan' ? 'kohomada' : 'ayubowan'; }
 
 // ---------------------------------------------------------------- speaking
+const PASS = 0.6, PASS_RETRY = 0.5;
 function speak(ex, ctx) {
   const t = ex.target;
   const voice = t.voice || DEFAULT_VOICE;
   const canAudio = audio.canPlay(t.si, voice);
+  const checking = speechCheckOn();
   const el = h(`<div class="ex">${title('Say this out loud')}
     ${bubble(`${canAudio ? audioBtn(t.si, { voice, slow: true }) : ''}${siLine(t.si, t.g || [t.en], { voice })}`)}
     <div class="speak-zone">
-      <button class="mic-btn">${ICONS.mic}<span>Tap to record</span></button>
+      <button class="mic-btn">${ICONS.mic}<span>Tap to speak</span></button>
+      <div class="speak-status" hidden><span class="spinner"></span><span>Listening to what you said…</span></div>
+      <div class="speak-result" hidden>
+        <div class="sr-words si" lang="si"></div>
+        <div class="sr-msg"></div>
+        <div class="sr-heard"></div>
+      </div>
       <div class="speak-after" hidden>
         <div class="compare">
           <button class="btn small ghost you">▶ You</button>
@@ -295,47 +304,103 @@ function speak(ex, ctx) {
         <div class="self-check">
           <button class="btn small again">Try again</button>
           <button class="btn small primary said">I said it ✓</button>
+          <button class="btn small primary go-on" hidden>Continue</button>
         </div>
       </div>
       <p class="speak-meaning">${esc(t.en)}</p>
+      ${!checking && state.profile.settings.speechCheck !== false ? `<p class="speak-tip">Sign in under Profile → Account and Katha will check your speaking.</p>` : ''}
     </div>
     <button class="link-btn cant">Can't speak now</button>
   </div>`);
-  const mic = el.querySelector('.mic-btn');
-  const after = el.querySelector('.speak-after');
-  let rec = null, chunks = [], url = null, stream = null, timer = null;
+  const $ = (q) => el.querySelector(q);
+  const mic = $('.mic-btn'), after = $('.speak-after'), status = $('.speak-status'), result = $('.speak-result');
+  let rec = null, chunks = [], url = null, stream = null, timer = null, attempts = 0, passed = false, heard = '', verified = false;
+
   const stopRec = () => { try { rec && rec.state !== 'inactive' && rec.stop(); } catch {} clearTimeout(timer); };
-  const showAfter = () => { mic.hidden = true; after.hidden = false; };
+  const showButtons = ({ selfCheck, cont, again = true }) => {
+    after.hidden = false;
+    $('.said').hidden = !selfCheck;
+    $('.go-on').hidden = !cont;
+    $('.again').hidden = !again;
+    $('.again').classList.toggle('primary', again && !cont && !selfCheck);
+  };
+  const reset = () => { after.hidden = true; result.hidden = true; status.hidden = true; mic.hidden = false; ctx.onReady(false); };
+
+  function paintWords(hits) {
+    const toks = t.si.trim().split(/\s+/);
+    $('.sr-words').innerHTML = toks.map((w, i) => `<span class="${hits[i] ? 'hit' : 'miss'}">${esc(w)}</span>`).join(' ');
+  }
+
+  async function handleRecording(blob) {
+    if (!checking) { mic.hidden = true; showButtons({ selfCheck: true }); return; }
+    mic.hidden = true; status.hidden = false;
+    try {
+      const r = await checkRecording(blob, t.si);
+      attempts++;
+      status.hidden = true; result.hidden = false;
+      heard = r.heard || '';
+      paintWords(r.hits || []);
+      const need = attempts > 1 ? PASS_RETRY : PASS;
+      if (r.empty) {
+        $('.sr-msg').textContent = "I didn't catch anything. Hold the phone a little closer and try again.";
+        $('.sr-heard').textContent = '';
+        showButtons({ selfCheck: attempts >= 2 });
+      } else if (r.score >= need) {
+        passed = true; verified = true; sfx.correct();
+        $('.sr-msg').textContent = r.score >= 0.9 ? 'Excellent — that came through clearly!' : 'Nice — Katha understood you!';
+        $('.sr-heard').innerHTML = `Heard: <span lang="si">${esc(heard)}</span>`;
+        showButtons({ cont: true });
+      } else {
+        sfx.wrong();
+        $('.sr-msg').textContent = r.score >= 0.35 ? 'Almost! Listen once more and try again.' : 'Not quite. Play the native audio, then try again.';
+        $('.sr-heard').innerHTML = heard ? `Heard: <span lang="si">${esc(heard)}</span>` : '';
+        showButtons({ selfCheck: attempts >= 2 });
+        if (attempts >= 2) $('.said').textContent = 'Continue anyway';
+      }
+    } catch (e) {
+      status.hidden = true; result.hidden = false;
+      $('.sr-words').innerHTML = '';
+      $('.sr-msg').textContent = e.message || 'Speech check is unavailable right now.';
+      $('.sr-heard').textContent = 'You can still compare with the native audio and check yourself.';
+      showButtons({ selfCheck: true });
+    }
+  }
+
   mic.addEventListener('click', async () => {
     if (rec && rec.state === 'recording') { stopRec(); return; }
-    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { showAfter(); el.querySelector('.you').hidden = true; return; }
+    if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { mic.hidden = true; $('.you').hidden = true; showButtons({ selfCheck: true, again: false }); return; }
     try {
-      audio.stop();
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audio.stop(); unlockSfx();
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
       rec = new MediaRecorder(stream); chunks = [];
-      rec.ondataavailable = (e) => chunks.push(e.data);
+      rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
       rec.onstop = () => {
         stream.getTracks().forEach(tr => tr.stop());
+        mic.classList.remove('rec'); mic.querySelector('span').textContent = 'Tap to speak';
+        const blob = new Blob(chunks, { type: rec.mimeType || 'audio/webm' });
         if (url) URL.revokeObjectURL(url);
-        url = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || 'audio/webm' }));
-        mic.classList.remove('rec'); mic.querySelector('span').textContent = 'Tap to record';
-        showAfter();
+        url = URL.createObjectURL(blob);
+        handleRecording(blob);
       };
-      rec.start(); mic.classList.add('rec'); mic.querySelector('span').textContent = 'Recording… tap to stop';
-      timer = setTimeout(stopRec, 7000);
+      rec.start(); mic.classList.add('rec'); mic.querySelector('span').textContent = 'Listening… tap when done';
+      timer = setTimeout(stopRec, 8000);
     } catch (e) {
-      showAfter(); el.querySelector('.you').hidden = true;
+      mic.hidden = true; $('.you').hidden = true; showButtons({ selfCheck: true, again: false });
     }
   });
-  el.querySelector('.you').addEventListener('click', () => { if (url) new Audio(url).play(); });
-  el.querySelector('.native')?.addEventListener('click', () => audio.play(t.si, { voice }));
-  el.querySelector('.again').addEventListener('click', () => { after.hidden = true; mic.hidden = false; ctx.onReady(false); });
-  el.querySelector('.said').addEventListener('click', () => { ctx.submit(); });
-  el.querySelector('.cant').addEventListener('click', () => { stopRec(); ctx.skip({ speakOff: true }); });
+  $('.you').addEventListener('click', () => { if (url) new Audio(url).play(); });
+  $('.native')?.addEventListener('click', () => audio.play(t.si, { voice }));
+  $('.again').addEventListener('click', reset);
+  $('.said').addEventListener('click', () => { passed = true; ctx.submit(); });
+  $('.go-on').addEventListener('click', () => ctx.submit());
+  $('.cant').addEventListener('click', () => { stopRec(); ctx.skip({ speakOff: true }); });
   return {
     el, footer: 'none', ungraded: true, autoplay: () => playIf(t.si, voice),
     cleanup: () => { stopRec(); try { stream?.getTracks().forEach(tr => tr.stop()); } catch {} },
-    check: () => ({ ok: true, praise: 'Nice speaking!' }),
+    check: () => ({
+      ok: true, verified,
+      praise: verified ? 'Great speaking!' : 'Keep practicing that one',
+    }),
   };
 }
 

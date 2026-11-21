@@ -133,7 +133,7 @@ function weekStrip() {
   return `<div class="week">${days.join('')}</div>`;
 }
 
-const questCaps = () => ({ audio: caps().listen, practice: S.learnedItemIds().length >= 3, story: S.pathNodes().some(n => n.type === 'story' && S.lessonDone(n.id)) || S.currentNodeIndex() > 4 });
+const questCaps = () => ({ speech: caps().speak && sync.canTranscribe() && state.profile.settings.speechCheck !== false, audio: caps().listen, practice: S.learnedItemIds().length >= 3, story: S.pathNodes().some(n => n.type === 'story' && S.lessonDone(n.id)) || S.currentNodeIndex() > 4 });
 
 // ------------------------------------------------------------ tabs
 function renderTab(name) {
@@ -278,6 +278,7 @@ function practiceTab() {
     ${card('#/practice-session/smart', ICONS.dumbbell, 'Personalized practice', enough ? (due ? `${plural(due, 'word')} ready for review` : 'Strengthen your weakest words') : 'Finish your first lesson to unlock', enough)}
     ${card('#/practice-session/mistakes', ICONS.target, 'Mistakes', mistakes ? `${plural(mistakes, 'word')} you've missed before` : 'Nothing here yet — nice!', enough && mistakes > 0)}
     ${C.listen ? card('#/practice-session/listening', ICONS.speaker, 'Listening', 'Train your ear with audio only', enough) : ''}
+    ${C.speak ? card('#/practice-session/speaking', ICONS.mic, 'Speaking', sync.canTranscribe() && state.profile.settings.speechCheck !== false ? 'Say sentences out loud — Katha checks them' : 'Say sentences out loud and compare with a native speaker', enough && S.pathNodes().some(n => n.type === 'lesson' && S.lessonDone(n.id))) : ''}
     <h3 class="sec-title">Words · ${learned.length}</h3>`;
   if (!learned.length) html += `<p class="muted center">Words you learn will show up here with how well you know them.</p>`;
   else {
@@ -401,6 +402,7 @@ function profileTab() {
       ${tog('hearts', 'Hearts', 'Mistakes cost hearts in lessons')}
       ${tog('listening', 'Listening exercises')}
       ${tog('speaking', 'Speaking exercises')}
+      ${tog('speechCheck', 'Check my speaking', 'Sends your recordings to Azure to grade them (needs sign-in)')}
     </div>
     <h3 class="sec-title">Audio</h3>
     <div class="panel"><p class="muted">${audio.hasClips() ? 'Using recorded Sinhala voices.' : audio.deviceVoice() ? `Using this device's Sinhala voice (${esc(audio.deviceVoice().name)}). Recorded voices will replace it once they're generated.` : 'No Sinhala audio yet on this device — listening exercises are hidden until voice clips are generated (see README).'}</p></div>

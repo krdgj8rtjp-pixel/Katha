@@ -452,3 +452,17 @@ svg { display: block; }
 
 .match.letters .si { font-size: 34px; line-height: 1.2; }
 .streak-num { font-size: 64px; font-weight: 900; color: #FF9600; line-height: 1; margin-top: -10px; }
+
+/* speaking check */
+.speak-status { display: flex; align-items: center; gap: 10px; color: var(--ink-2); font-weight: 800; }
+.spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--blue); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.speak-result { width: 100%; text-align: center; display: flex; flex-direction: column; gap: 6px; }
+.sr-words { font-size: 26px; line-height: 1.6; }
+.sr-words .hit { color: var(--ok-ink); background: var(--ok-bg); border-radius: 6px; padding: 0 4px; }
+.sr-words .miss { color: var(--bad-ink); text-decoration: underline wavy var(--bad); text-underline-offset: 6px; padding: 0 4px; }
+.sr-msg { font-weight: 900; font-size: 17px; }
+.sr-heard { color: var(--muted); font-size: 15px; }
+.sr-heard [lang="si"] { color: var(--ink-2); font-size: 17px; }
+.speak-tip { color: var(--muted); font-size: 13px; text-align: center; margin: 0; }
+.self-check { flex-wrap: wrap; justify-content: center; }
