@@ -1,5 +1,6 @@
 import { esc, rawTokens } from './util.js';
 import { hasRo, L, ro } from './lang.js';
+import { COURSE } from '../data/course.js';
 import { state } from './store.js';
 import { character } from './characters.js';
 
@@ -26,7 +27,10 @@ export const ICONS = {
   chestOpen: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 6 3.5h12l2 6z" fill="#8A4F14"/><rect x="3" y="11" width="18" height="9" rx="2" fill="#E59A3E"/><rect x="3" y="10" width="18" height="2.6" fill="#8A4F14"/><circle cx="9" cy="8" r="1.6" fill="#26A8F0"/><circle cx="14" cy="7" r="1.8" fill="#FFD54A"/></svg>',
   mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>',
   home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-7.2 9 7.2v9a1 1 0 0 1-1 1h-5.2v-6H9.2v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>',
-  letters: '<svg viewBox="0 0 24 24" aria-hidden="true"><text x="12" y="18.5" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor" font-family="Noto Sans Sinhala, Sinhala Sangam MN, sans-serif">අ</text></svg>',
+  get letters() {
+    const si = COURSE.script === 'sinhala';
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><text x="12" y="18.5" text-anchor="middle" font-size="${si ? 18 : 17}" font-weight="${si ? 700 : 800}" fill="currentColor" font-family="${si ? 'Noto Sans Sinhala, Sinhala Sangam MN, sans-serif' : 'Nunito, sans-serif'}">${COURSE.letterIcon || 'Aa'}</text></svg>`;
+  },
   dumbbell: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.8" y="9" width="3" height="6" rx="1" fill="currentColor"/><rect x="5" y="6.5" width="3.5" height="11" rx="1.2" fill="currentColor"/><rect x="8.5" y="10.8" width="7" height="2.4" fill="currentColor"/><rect x="15.5" y="6.5" width="3.5" height="11" rx="1.2" fill="currentColor"/><rect x="19.2" y="9" width="3" height="6" rx="1" fill="currentColor"/></svg>',
   target: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/></svg>',
   user: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4.2" fill="currentColor"/><path d="M4 20.5a8 8 0 0 1 16 0z" fill="currentColor"/></svg>',

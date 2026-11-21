@@ -11,21 +11,22 @@ import { uzLatin } from '../js/translit.js';
 export const COURSES = {
   si: {
     ...si, ...siLetters, id: 'si', name: 'Sinhala', native: 'සිංහල', lang: 'si', speechLang: 'si-LK', script: 'sinhala',
-    mark: 'ක', currency: 'රු', color: '#8D153A', cast: {},
+    mark: 'ක', currency: 'රු', color: '#8D153A', cast: { grandpa: 'abuelo', grandma: 'abuela' },
     tagline: 'everyday spoken Sinhala — the way people really talk in Sri Lanka',
-    lettersTitle: 'Sinhala letters', letterIcon: 'අ',
+    lettersTitle: 'Sinhala letters', letterIcon: 'අ', praise: ['නියමයි! (Great!)', 'හරි! (Right!)'],
     lettersBlurb: 'Learn to read the script — signs, menus and bus boards will start to make sense.',
   },
   es: {
     ...es, id: 'es', name: 'Spanish', native: 'Español', lang: 'es', speechLang: 'es-MX', script: 'latin',
-    mark: 'Ñ', currency: '$', color: '#C0392B', cast: { kumari: 'sofia', nimal: 'mateo' },
+    mark: 'Ñ', currency: '$', color: '#C0392B', cast: { kumari: 'sofia', nimal: 'mateo', amma: 'madre', thaththa: 'padre', putha: 'hijo', duva: 'hija', grandpa: 'abuelo', grandma: 'abuela' },
+    praise: ['¡Muy bien! (Very good!)', '¡Excelente! (Excellent!)', '¡Eso es! (That\'s it!)'],
     tagline: 'everyday Latin American Spanish, the way people talk at home, at church and at the market',
   },
   uz: {
     ...uz, ...uzLetters, id: 'uz', name: 'Uzbek', native: 'Ўзбекча', lang: 'uz-Cyrl', speechLang: 'uz-UZ', script: 'cyrillic',
-    mark: 'Ў', currency: 'сўм', color: '#0E8FB0', cast: { kumari: 'dilnoza', nimal: 'aziz' },
+    mark: 'Ў', currency: 'сўм', color: '#0E8FB0', cast: { kumari: 'dilnoza', nimal: 'aziz', amma: 'ona', thaththa: 'ota', putha: 'ogil', duva: 'qiz', grandpa: 'bobo', grandma: 'buvi' },
     tagline: 'everyday spoken Uzbek, written in Cyrillic — the way people talk at home, over tea and at the bazaar',
-    lettersTitle: 'Cyrillic letters', letterIcon: 'Ж',
+    lettersTitle: 'Cyrillic letters', letterIcon: 'Ж', praise: ['Баракалла! (Well done!)', 'Зўр! (Great!)', 'Тўғри! (Right!)'],
     lettersBlurb: 'Learn to read Uzbek Cyrillic. Many letters look familiar — and some only pretend to.',
     // Azure's Uzbek voices read the Latin alphabet, so clips are generated from the Latin spelling
     // (and single letters from their spoken names). Clips are still keyed by the Cyrillic text.

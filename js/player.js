@@ -6,8 +6,11 @@ import * as audio from './audio.js';
 import { state, heartsNow, loseHeart, gems, buy, PRICES, save, MAX_HEARTS } from './store.js';
 import { pick, esc } from './util.js';
 import { react } from './characters.js';
+import { COURSE } from '../data/course.js';
 
-const PRAISE = ['Nice!', 'Great job!', 'Correct!', 'Excellent!', 'Well done!', 'නියමයි! (Great!)', 'හරි! (Right!)'];
+// English praise, plus a little in the language being learned.
+const PRAISE = ['Nice!', 'Great job!', 'Correct!', 'Excellent!', 'Well done!'];
+const praiseNow = () => [...PRAISE, ...(COURSE.praise || [])];
 
 export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) {
   const usesHearts = ['lesson', 'review'].includes(session.kind) && state.profile.settings.hearts;
@@ -104,7 +107,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
       if (combo > 0 && combo % 5 === 0 && isGraded) comboMsg = `${combo} in a row!`;
       sfx.correct();
       react(exHost, 'happy', 1100);
-      const title = comboMsg || res.praise || (res.ok === 'typo' ? 'You have a typo' : pick(PRAISE));
+      const title = comboMsg || res.praise || (res.ok === 'typo' ? 'You have a typo' : pick(praiseNow()));
       fb.innerHTML = `<div class="fb-head">${ICONS.check}<span>${esc(title)}</span></div>
         ${res.ok === 'typo' ? `<div class="fb-sol">${res.solution}</div>` : ''}
         ${res.meaning ? `<div class="fb-mean">Meaning: ${esc(res.meaning)}</div>` : ''}`;

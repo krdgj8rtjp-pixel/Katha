@@ -94,6 +94,13 @@ const blueDome = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s}
   <path d="M-46 -22 Q0 -86 46 -22Z" fill="#2A8BD0"/>${[-30, -15, 0, 15, 30].map(dx => `<path d="M${dx} -24 Q${dx * .7} -46 0 -54" stroke="#6FC0F0" stroke-width="1.8" fill="none"/>`).join('')}<rect x="-46" y="-26" width="92" height="5" fill="#1E6FB8"/></g>`;
 const mountains = (y = 112) => `<path d="M0 ${y} L40 ${y - 30} L70 ${y - 14} L110 ${y - 44} L150 ${y - 18} L196 ${y - 50} L240 ${y - 20} L280 ${y - 40} L320 ${y - 16} L360 ${y - 34} L360 ${y + 20} L0 ${y + 20}Z" fill="#A9B8CE"/>
   <path d="M100 ${y - 38} L110 ${y - 44} L122 ${y - 36} L114 ${y - 34}Z M186 ${y - 43} L196 ${y - 50} L208 ${y - 41} L198 ${y - 39}Z M272 ${y - 35} L280 ${y - 40} L290 ${y - 33} L282 ${y - 31}Z" fill="#fff"/>`;
+// ---- weather and town pieces shared by the later units
+const rainOverlay = (n = 46) => `<g opacity=".75">${Array.from({ length: n }, (_, i) => { const x = (i * 53) % 360, y = 10 + (i * 37) % 170; return `<path class="s-fall" style="animation-delay:${-((i * .17) % 1.1).toFixed(2)}s" d="M${x} ${y} l-3 9" stroke="#8FB8DE" stroke-width="2" stroke-linecap="round"/>`; }).join('')}</g>`;
+const snowOverlay = (n = 40) => `<g>${Array.from({ length: n }, (_, i) => { const x = (i * 61) % 360, y = 8 + (i * 29) % 176; return `<circle class="s-fall snow" style="animation-delay:${-((i * .37) % 4.5).toFixed(2)}s" cx="${x}" cy="${y}" r="${1.6 + (i % 3) * .7}" fill="#fff"/>`; }).join('')}</g>`;
+const rainCloud = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><circle cx="-14" cy="0" r="11" fill="#AEB8C8"/><circle cx="2" cy="-7" r="14" fill="#AEB8C8"/><circle cx="17" cy="1" r="10" fill="#AEB8C8"/><rect x="-25" y="0" width="52" height="11" rx="5.5" fill="#AEB8C8"/>${[-12, 0, 12].map((dx, i) => `<path class="s-fall" style="animation-delay:${-i * .35}s" d="M${dx} 16 l-2 6" stroke="#6FA8DC" stroke-width="2.2" stroke-linecap="round"/>`).join('')}</g>`;
+const umbrella = (x, y, s = 1, c = '#E5484D') => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0 V-30" stroke="#3E4A5C" stroke-width="2.4"/><path d="M0 0 q0 5 -5 5" stroke="#3E4A5C" stroke-width="2.4" fill="none"/><path d="M-24 -28 Q0 -52 24 -28 Q18 -32 12 -28 Q6 -32 0 -28 Q-6 -32 -12 -28 Q-18 -32 -24 -28Z" fill="${c}"/></g>`;
+const pharmacySign = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-2.5" y="-46" width="5" height="46" fill="#7D8496"/><rect x="-14" y="-72" width="28" height="28" rx="5" fill="#3AAE5A"/><path d="M0 -66 v16 M-8 -58 h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></g>`;
+const snowman = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="-14" r="14" fill="#fff"/><circle cx="0" cy="-36" r="10" fill="#fff"/><circle cx="-3.5" cy="-38" r="1.4" fill="#2b2230"/><circle cx="3.5" cy="-38" r="1.4" fill="#2b2230"/><path d="M0 -35 l7 2 l-7 1.4z" fill="#E8891C"/><path d="M-9 -28 Q0 -24 9 -28 L9 -25 Q0 -21 -9 -25Z" fill="#E5484D"/></g>`;
 const sun = (x, y, r = 14) => `<g transform="translate(${x} ${y})"><circle r="${r}" fill="#FFC94D"/>${Array.from({ length: 8 }, (_, i) => `<path d="M0 -${r + 4} v-6" stroke="#FFC94D" stroke-width="3" stroke-linecap="round" transform="rotate(${i * 45})"/>`).join('')}</g>`;
 const cloud = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})" opacity=".9"><ellipse cx="0" cy="0" rx="18" ry="10" fill="#fff"/><ellipse cx="14" cy="-6" rx="12" ry="10" fill="#fff"/><ellipse cx="-12" cy="-4" rx="10" ry="8" fill="#fff"/></g>`;
 
@@ -110,6 +117,15 @@ const SCENES = {
   uzregistan: { who: 'kumari', art: () => `${madrasa(160, 150, .6)}${poplar(22, 150, .85)}${sun(40, 28, 11)}${cloud(96, 22, .7)}` },
   uzchoyxona: { who: 'nimal', art: () => `${tapchan(160, 150, .62)}${roundTree(28, 150, .9)}${sun(166, 26, 11)}${cloud(84, 26, .7)}` },
   uzbazaar: { who: 'john', art: () => `${melonPile(36, 150, .95)}${blueDome(162, 150, .5)}${cloud(80, 24, .8)}` },
+  esroad: { who: 'john', art: () => `<path d="M0 150 H190" stroke="#9AA0AE" stroke-width="10"/>${roadSign(30, 150)}${taxi(132, 146, .62)}${cloud(60, 30, .9)}` },
+  esweather: { who: 'kumari', art: () => `${rainCloud(44, 40, 1)}${umbrella(160, 150, 1.3)}${cloud(150, 26, .6)}` },
+  eshealth: { who: 'nimal', art: () => `${smallHouse(160, 150, .66)}${pharmacySign(30, 150, 1)}${sun(156, 26, 10)}` },
+  uzfamily: { who: 'amma', art: () => `${uzHouse(164, 150, .66)}${roundTree(26, 150, .85)}${sun(160, 24, 11)}${cloud(84, 26, .7)}` },
+  uzroad: { who: 'john', art: () => `<path d="M0 150 H190" stroke="#9AA0AE" stroke-width="10"/>${roadSign(30, 150)}${taxi(134, 146, .62, '#F4F4F2')}${poplar(178, 150, .6)}${cloud(70, 30, .8)}` },
+  uzdaily: { who: 'duva', art: () => `${poplar(16, 150, .85)}${poplar(32, 150, .7)}${kite(150, 40)}${sun(70, 26, 11)}${cloud(160, 70, .7)}` },
+  uzweather: { who: 'kumari', art: () => `${snowman(162, 150, 1.1)}${poplar(22, 150, .8)}${cloud(90, 28, .8)}${[[40, 30], [120, 50], [170, 30], [70, 70], [150, 90]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.4" fill="#fff" stroke="#D8E2EC" stroke-width=".8"/>`).join('')}` },
+  uzchurch: { who: 'nimal', art: () => `${smallChurch(160, 150, .72)}${poplar(22, 150, .85)}${sun(40, 28, 11)}${cloud(110, 24, .7)}` },
+  uzhealth: { who: 'nimal', art: () => `${uzHouse(164, 150, .62)}${pharmacySign(30, 150, 1)}${poplar(186, 150, .5)}${sun(160, 24, 10)}` },
   esplaza: { who: 'kumari', art: () => `${colonial(146, 150, .72)}${fountain(30, 150, .72)}${sun(36, 30, 11)}${cloud(96, 24, .7)}` },
   esmarket: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${taxi(150, 150, .62)}${cloud(40, 28, .8)}` },
 };
@@ -292,6 +308,15 @@ SCENE_ART.st_uzu4 = (id) => {
   const i = base.indexOf('<rect x="0" y="70"');
   return i < 0 ? base : base.slice(0, i) + blueDome(196, 112, 1.25) + base.slice(i);
 };
+// Story scenes for the later units, mostly variations of existing ones.
+SCENE_ART.st_esroad = (id) => SCENE_ART.st_u6(id).replace(tuktuk(0, 0, .62), taxi(0, 0, .62));
+SCENE_ART.st_uzroad = (id) => SCENE_ART.st_u6(id).replace(tuktuk(0, 0, .62), taxi(0, 0, .62, '#F4F4F2'));
+const greySky = (svg) => svg.replace('stop-color="#9ED8F5"', 'stop-color="#AEBDCC"').replace('stop-color="#FFF2DA"', 'stop-color="#E6EAEE"');
+SCENE_ART.st_esrain = (id) => greySky(SCENE_ART.st_esroad(id)).replace(spinSun(300, 36, 13), rainCloud(300, 40, 1.5) + rainCloud(170, 30, 1.1)) + rainOverlay();
+SCENE_ART.st_uzhome = (id) => SCENE_ART.st_u5(id).replace(palm(58, 112, .5), poplar(58, 112, .42)).replace(palm(96, 112, .4, true), poplar(92, 112, .36));
+SCENE_ART.st_uzsnow = (id) => greySky(SCENE_ART.st_uzu1(id)).replace(spinSun(300, 40), `<g transform="translate(300 40)"><circle cx="-14" cy="0" r="12" fill="#fff"/><circle cx="4" cy="-6" r="15" fill="#fff"/><circle cx="20" cy="2" r="11" fill="#fff"/></g>`)
+  .replace('fill="#9CCF7A"', 'fill="#EEF3F8"').replace('fill="#D9C9A8"', 'fill="#F4F7FB"').replace('fill="#CBB892"', 'fill="#E4EBF2"')
+  + `${snowman(330, 186, 1)}${snowOverlay()}`;
 SCENE_ART.st_esu4 = (id) => SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55));
 
 export function storyScene(id) {

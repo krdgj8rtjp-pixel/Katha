@@ -78,7 +78,7 @@ const TABS_ALL = [
   ['learn', 'Learn', ICONS.home], ['letters', 'Letters', ICONS.letters], ['practice', 'Practice', ICONS.dumbbell],
   ['quests', 'Quests', ICONS.target], ['friends', 'Friends', ICONS.trophy], ['profile', 'Profile', ICONS.user],
 ];
-const tabsNow = () => TABS_ALL.filter(([id]) => id !== 'letters' || hasLetters());
+const tabsNow = () => TABS_ALL.filter(([id]) => id !== 'letters' || hasLetters()).map(t => t[0] === 'letters' ? [t[0], t[1], ICONS.letters] : t);
 function tabbar(active) {
   const claimable = S.questsFor(S.today(), questCaps()).some(q => q.done && !q.claimed);
   return `<nav class="tabbar">${tabsNow().map(([id, label, icon]) => `<a href="#/${id}" class="tab ${id === active ? 'on' : ''}" aria-label="${label}">
@@ -192,7 +192,10 @@ function learnTab() {
     html += `<section class="unit coming" style="--u:${c.color}"><div class="unit-banner">
       <div><div class="unit-k">Unit ${UNITS.length + ci + 1} · Coming soon</div><h2>${esc(c.title)}</h2><p>${esc(c.desc)}</p></div>${ICONS.lock}</div></section>`;
   });
-  html += `<div class="path-end">${mascot('happy', 80)}<p>Units ${UNITS.length + 1}–${UNITS.length + COMING.length} complete the A1 course. New units will appear here as they're written.</p></div>`;
+  const nextIsA2 = COMING.length && COMING.every(c => /\(A2\)/.test(c.desc));
+  html += `<div class="path-end">${mascot('happy', 80)}<p>${nextIsA2
+    ? `Units 1–${UNITS.length} cover the whole A1 course. A2 units will appear here as they're written.`
+    : `Units ${UNITS.length + 1}–${UNITS.length + COMING.length} complete the A1 course. New units will appear here as they're written.`}</p></div>`;
   return html + '</div>';
 }
 function nodeTitle(n) {

@@ -930,3 +930,8 @@ svg { display: block; }
 .course-pick { flex-wrap: wrap; gap: 8px; padding: 0 4px; }
 .cp-opt { padding: 6px 12px 6px 6px; font-size: 15px; gap: 6px; }
 .cp-opt .brand-mark { width: 30px; height: 30px; font-size: 18px; }
+/* falling rain and snow in story scenes */
+.s-fall { animation: s-fall 1.1s linear infinite; }
+.s-fall.snow { animation-duration: 4.5s; }
+@keyframes s-fall { from { transform: translateY(-24px); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } to { transform: translateY(34px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .s-fall { animation: none; } }

@@ -8,11 +8,14 @@ and can sync your progress across devices through a free Supabase project.
 
 - **Three courses**: Sinhala, Spanish and Uzbek. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
   are shared; each course keeps its own path, words and practice.
-  - Spanish: units 1–4 (Greetings, About me, Food & drink, Numbers & market: 79 words and phrases, 60 sentences, 4 stories),
-    with Mexican and US Spanish neural voices.
-  - Uzbek, written in Cyrillic: units 1–4 (Greetings, About me, Food & tea, Numbers & money: 78 words and phrases,
-    65 sentences, 4 stories), a 35-letter Cyrillic trainer, and the official Latin spelling shown under the Cyrillic
-    (toggle in settings). Typed answers are accepted in either alphabet.
+  - Spanish and Uzbek each cover the whole of A1 in 10 units: Greetings, About me, Food, Numbers & money, Family,
+    Getting around, Daily life, Time & weather, Faith (church, the Bible, prayer and talking about what you believe),
+    and Health & plans (with simple past and future). About 200 words and phrases, 160+ sentences and 10 stories each.
+  - Spanish uses Mexican and US Spanish neural voices.
+  - Uzbek is written in Cyrillic, with a 35-letter Cyrillic trainer and the official Latin spelling shown under the
+    Cyrillic (toggle in settings). Typed answers are accepted in either alphabet.
+  - Pictures are drawn once by meaning and re-cast per course: Sofía, Mateo and a Latin American family for Spanish;
+    Dilnoza, Aziz and an Uzbek family for Uzbek.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
   Units 1–8 are written (Greetings, About me, Food & drink, Numbers & money, Family, Getting around, Everyday verbs,
   Faith & church: 157 words and phrases, 122 sentences, 8 stories). Units 9–12 of the A1 map are shown as "coming soon".
