@@ -138,7 +138,7 @@ function spread(list) {
 // ---------- sessions
 export function buildLesson(node) {
   const C = caps();
-  const first = !lessonDone(node.id);
+  const first = !lessonDone(node.id) || !!state.lessons[node.id]?.skipped;
   const unit = unitOf(node.id);
   const unitItems = unit.path.filter(n => n.type === 'lesson').flatMap(n => n.items);
   const earlier = lessonsUpTo(node.id).flatMap(n => n.items);
@@ -199,7 +199,7 @@ export function buildUnitReview(node) {
   });
   const f = fill(sent(pick(sids)), pool); if (f) out.push(f);
   if (C.speak) out.push(speak(sent(pick(sids))));
-  return { kind: 'review', nodeId: node.id, title: `Unit ${UNITS.indexOf(unit) + 1} review`, exercises: spread(shuffle(out)), teach: [], xp: lessonDone(node.id) ? 10 : 20 };
+  return { kind: 'review', nodeId: node.id, title: `Unit ${UNITS.indexOf(unit) + 1} review`, exercises: spread(shuffle(out)), teach: [], xp: lessonDone(node.id) && !state.lessons[node.id]?.skipped ? 10 : 20 };
 }
 
 export function buildPractice(mode = 'smart') {
@@ -239,6 +239,66 @@ export function buildPractice(mode = 'smart') {
   }
   if (!out.length) return null;
   return { kind: 'practice', nodeId: null, title: mode === 'listening' ? 'Listening practice' : mode === 'mistakes' ? 'Mistakes review' : 'Practice', exercises: spread(shuffle(out)), teach: [], xp: 10 };
+}
+
+// ---------- tests: "Find my level" (placement) and "Jump here?"
+// No teaching and no picture cards: build sentences, translate, type and listen, so guessing doesn't pass.
+function unitPools(ui) {
+  const lessons = UNITS[ui].path.filter(n => n.type === 'lesson');
+  return { items: uniq(lessons.flatMap(n => n.items)), sents: uniq(lessons.flatMap(n => n.sentences)) };
+}
+function poolsUpTo(ui) {
+  const items = [], sents = [];
+  for (let i = 0; i <= ui; i++) { const p = unitPools(i); items.push(...p.items); sents.push(...p.sents); }
+  return { items: uniq(items), sents: uniq(sents) };
+}
+function testQuestion(ui, used, want) {
+  const C = caps();
+  const { items, sents } = unitPools(ui);
+  const all = poolsUpTo(ui);
+  const fresh = (arr) => { const f = arr.filter(x => !used.has(x)); return f.length ? f : arr; };
+  if (want === 'sentence' && sents.length) {
+    const s = sent(pick(fresh(sents))); used.add(s.id);
+    const r = Math.random();
+    const ex = r < 0.3 && C.listen && audio.canPlay(s.si, s.voice) ? tilesSi(s, all.sents, all.items, true)
+      : r < 0.65 ? tilesSi(s, all.sents, all.items) : tilesEn(s, all.sents);
+    return { ...ex, unit: ui };
+  }
+  const it = item(pick(fresh(items))); used.add(it.id);
+  const kinds = [selectEn];
+  if (siTokens(it.si).length <= 2) kinds.push(typeSi, typeSi);
+  if (C.listen && audio.canPlay(it.si)) kinds.push(listenSelect);
+  const f = pick(kinds);
+  return { ...(f === typeSi ? typeSi(it) : f(it, all.items)), unit: ui };
+}
+export const JUMP_QUESTIONS = 12, JUMP_LIVES = 3;
+// A test on everything before unit `target`: half from the unit just before it, half from earlier ones.
+export function buildJumpTest(target) {
+  const used = new Set(), last = target - 1;
+  const plan = Array.from({ length: JUMP_QUESTIONS }, (_, i) => (i < JUMP_QUESTIONS / 2 || last === 0 ? last : Math.floor(Math.random() * last)));
+  const out = plan.map((ui, i) => testQuestion(ui, used, i % 3 === 2 ? 'item' : 'sentence'));
+  return { kind: 'test', test: 'jump', target, nodeId: null, title: `Jump to Unit ${target + 1}`, exercises: spread(shuffle(out)), teach: [], xp: 20, lives: JUMP_LIVES };
+}
+// Adaptive placement: start with Unit 1; two right answers move up a unit, two wrong answers stop the
+// test and place you in that unit. Passing every unit places you at the end of the course.
+export function buildPlacement() {
+  const N = UNITS.length, MAX = 2 * N + 4, used = new Set();
+  let level = 0, right = 0, wrong = 0, asked = 0, done = false, placed = 0, shown = 0;
+  const q = () => testQuestion(level, used, (right + wrong) % 2 ? 'sentence' : 'item');
+  const adaptive = {
+    answer(ok) {
+      if (done) return;
+      asked++;
+      if (ok) { if (++right >= 2) { level++; right = 0; wrong = 0; if (level >= N) { done = true; placed = N; } } }
+      else if (++wrong >= 2) { done = true; placed = level; }
+      if (!done && asked >= MAX) { done = true; placed = level; }
+    },
+    next: () => (done ? null : q()),
+    progress() { shown = Math.max(shown, done ? 1 : Math.min(0.95, Math.max(asked / MAX, (level + right / 2) / N))); return shown; },
+    result: () => placed,
+    get level() { return level; },
+  };
+  return { kind: 'test', test: 'placement', nodeId: null, title: 'Find my level', exercises: [q()], teach: [], xp: 15, adaptive };
 }
 
 // ---------- letters

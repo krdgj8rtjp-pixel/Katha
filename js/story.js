@@ -4,7 +4,7 @@ import { ICONS, siLine, modal, mascot, hideHint } from './ui.js';
 import { esc } from './util.js';
 import * as audio from './audio.js';
 import { sfx } from './sfx.js';
-import { lessonDone } from './store.js';
+import { lessonDone, state } from './store.js';
 import { character, react } from './characters.js';
 import { storyScene } from './art.js';
 
@@ -98,7 +98,7 @@ export function runStory(id, { host, onQuit, onComplete }) {
 
   function finish() {
     audio.stop();
-    const replay = lessonDone(id);
+    const replay = (lessonDone(id)) && !state.lessons[id]?.skipped;
     onComplete({ kind: 'story', nodeId: id, title: st.title, xp: replay ? 5 : 15, bonus: 0, perfect: mistakes === 0, accuracy: 100, maxCombo: 0, ms: Date.now() - start, listen: 0, items: {}, letters: {} });
   }
 

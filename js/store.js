@@ -260,10 +260,11 @@ export function gainHeart(k = 1) { setHearts(heartsNow() + k); save(); }
 
 // ---------- learning progress
 export function lessonDone(id) { return (state.lessons[id]?.done || 0) > 0; }
-export function wordsLearned() { return Object.keys(state.srs).filter(id => Object.values(COURSES).some(c => c.LEX[id])).length; }
+// Words skipped by a test (card flag `sk`) count once you've practiced them for real.
+export function wordsLearned() { return Object.keys(state.srs).filter(id => !state.srs[id].sk && Object.values(COURSES).some(c => c.LEX[id])).length; }
 export function courseStarted(c) { return c.UNITS.some(u => u.path.some(n => state.lessons[n.id]?.done)); }
 export function lettersMastered() { return Object.values(state.letters).filter(c => strength(c) >= 3).length; }
-export function storiesDone() { return Object.keys(state.lessons).filter(id => id.startsWith('st_') && state.lessons[id].done).length; }
+export function storiesDone() { return Object.keys(state.lessons).filter(id => id.startsWith('st_') && state.lessons[id].done && !state.lessons[id].skipped).length; }
 export function sumLog(f) { let n = 0; for (const dev of Object.values(state.log)) for (const d of Object.values(dev)) n += d[f] || 0; return n; }
 
 // Flat ordered list of path nodes across units.
@@ -272,7 +273,25 @@ export function pathNodes() {
   UNITS.forEach((u, ui) => u.path.forEach((n, i) => out.push({ ...n, unit: u, unitIndex: ui, index: i })));
   return out;
 }
-export function nodeDone(n) { return n.type === 'chest' ? !!state.claims['chest:' + n.id] : lessonDone(n.id); }
+export function nodeDone(n) { return n.type === 'chest' ? !!(state.claims['chest:' + n.id] || state.claims['skip:' + n.id]) : lessonDone(n.id); }
+export const nodeSkipped = (n) => (n.type === 'chest' ? !state.claims['chest:' + n.id] && !!state.claims['skip:' + n.id] : !!state.lessons[n.id]?.skipped);
+// Skipping ahead (placement test or "Jump here?"): everything before unit `ui` counts as done, but
+// skipped chests pay no gems, skipped lessons replay like new, and the words go into review, due now.
+export function skipToUnit(ui, now = Date.now()) {
+  const words = [];
+  UNITS.forEach((u, i) => {
+    if (i >= ui) return;
+    for (const n of u.path) {
+      if (n.type === 'chest') { if (!state.claims['chest:' + n.id]) state.claims['skip:' + n.id] = state.claims['skip:' + n.id] || now; continue; }
+      if (!lessonDone(n.id)) state.lessons[n.id] = { done: 1, best: 0, first: now, last: now, skipped: true };
+      if (n.type === 'lesson') words.push(...n.items);
+    }
+  });
+  let added = 0;
+  for (const id of new Set(words)) if (!state.srs[id]) { state.srs[id] = { ...review(undefined, true, now), due: now, sk: 1 }; added++; }
+  save();
+  return added;
+}
 export function currentNodeIndex() {
   const nodes = pathNodes();
   const i = nodes.findIndex(n => !nodeDone(n));
@@ -361,7 +380,7 @@ export function merge(a, b) {
   for (const id of new Set([...Object.keys(a.lessons), ...Object.keys(b.lessons)])) {
     const x = a.lessons[id], y = b.lessons[id];
     if (!x || !y) { out.lessons[id] = x || y; continue; }
-    out.lessons[id] = { done: Math.max(x.done, y.done), best: Math.max(x.best || 0, y.best || 0), first: Math.min(x.first || Infinity, y.first || Infinity), last: Math.max(x.last || 0, y.last || 0) };
+    out.lessons[id] = { done: Math.max(x.done, y.done), best: Math.max(x.best || 0, y.best || 0), first: Math.min(x.first || Infinity, y.first || Infinity), last: Math.max(x.last || 0, y.last || 0), ...(x.skipped && y.skipped ? { skipped: true } : {}) };
   }
   for (const k of ['srs', 'letters']) {
     for (const id of new Set([...Object.keys(a[k]), ...Object.keys(b[k])])) {

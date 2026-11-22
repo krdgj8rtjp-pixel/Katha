@@ -13,7 +13,7 @@ import { badge } from './badges.js';
 import { pic } from './pics.js';
 import { esc, plural, fmtDuration } from './util.js';
 import { strength } from './srs.js';
-import { buildLesson, buildUnitReview, buildPractice, buildLetters, caps, item, sent, nodeById } from './session.js';
+import { buildLesson, buildUnitReview, buildPractice, buildLetters, buildJumpTest, buildPlacement, JUMP_QUESTIONS, JUMP_LIVES, caps, item, sent, nodeById } from './session.js';
 import { runSession } from './player.js';
 import { runStory } from './story.js';
 import { character } from './characters.js';
@@ -57,6 +57,8 @@ function route() {
     case 'letters-session': return startLetters(arg);
     case 'practice-session': return startPractice(arg || 'smart');
     case 'shop': return renderShop();
+    case 'jump': return startJump(+arg);
+    case 'placement': return startPlacement();
     case 'guide': return renderGuide(arg);
     case 'onboarding': return renderOnboarding(Number(arg) || 0);
     default: return renderTab('learn');
@@ -170,6 +172,7 @@ function learnTab() {
   const cur = S.currentNodeIndex();
   let html = '<div class="path">';
   let gi = 0;
+  const curUnit = nodes[cur]?.unitIndex ?? UNITS.length;
   UNITS.forEach((u, ui) => {
     const unitNodes = nodes.filter(n => n.unitIndex === ui);
     const unitDone = unitNodes.every(S.nodeDone);
@@ -185,7 +188,8 @@ function learnTab() {
       const x = OFFSETS[i % OFFSETS.length];
       html += `<div class="node-wrap" style="--x:${x}px" data-node="${n.id}">
         ${status === 'current' ? `<div class="start-bubble">${n.type === 'chest' ? 'OPEN' : 'START'}</div>` : ''}
-        <button class="node n-${n.type} ${status}" data-node="${n.id}" aria-label="${esc(nodeTitle(n))}">${nodeIcon(n, done)}</button>
+        ${status === 'locked' && i === 0 && ui === curUnit + 1 ? `<button class="start-bubble jump-bubble" data-node="${n.id}">JUMP HERE?</button>` : ''}
+        <button class="node n-${n.type} ${status} ${done && S.nodeSkipped(n) ? 'skipped' : ''}" data-node="${n.id}" aria-label="${esc(nodeTitle(n))}">${nodeIcon(n, done)}</button>
       </div>`;
       if (i === 2) html += pathScene(u.id, x > 0 ? 'left' : 'right');
     });
@@ -223,7 +227,7 @@ function mountLearn() {
     justDone = null;
   }
   app.querySelector('.path').addEventListener('click', async (e) => {
-    const b = e.target.closest('button.node'); if (!b) return;
+    const b = e.target.closest('button.node, .jump-bubble'); if (!b) return;
     e.stopPropagation();
     const idx = nodes.findIndex(n => n.id === b.dataset.node);
     const n = nodes[idx];
@@ -234,17 +238,31 @@ function mountLearn() {
     const done = S.nodeDone(n);
     const locked = !done && idx > cur;
     if (n.type === 'chest' && !locked && !done) return openChest(n);
+    const skipped = done && S.nodeSkipped(n);
+    // The first lesson of a locked unit: offer to test out of everything before it.
+    if (locked && n.index === 0 && n.unitIndex > 0) {
+      const pop = document.createElement('div');
+      pop.className = 'node-pop jump';
+      pop.innerHTML = `<h3>Jump to Unit ${n.unitIndex + 1}?</h3><p>Pass a ${JUMP_QUESTIONS}-question test on ${unitRange(n.unitIndex)} to skip ahead. You can make ${JUMP_LIVES - 1} mistakes.</p>
+        <button class="btn primary wide">Take the test</button>`;
+      wrap.appendChild(pop);
+      requestAnimationFrame(() => pop.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+      pop.querySelector('button').addEventListener('click', () => { closePops(); go(`jump/${n.unitIndex}`); });
+      return;
+    }
     const lessonsInUnit = n.unit.path.filter(x => x.type === 'lesson');
     let sub = '';
     if (n.type === 'lesson') sub = `Lesson ${lessonsInUnit.findIndex(x => x.id === n.id) + 1} of ${lessonsInUnit.length}`;
     if (n.type === 'story') sub = STORIES[n.id].blurb;
     if (n.type === 'review') sub = 'Practice everything in this unit';
-    if (n.type === 'chest') sub = done ? 'Already opened' : 'Finish the lessons before it to open';
-    const xp = n.type === 'story' ? (done ? 5 : 15) : n.type === 'review' ? (done ? 10 : 20) : (done ? 5 : 10);
+    if (n.type === 'chest') sub = skipped ? 'Skipped — you jumped past this one' : done ? 'Already opened' : 'Finish the lessons before it to open';
+    else if (skipped) sub = `${sub ? sub + ' · ' : ''}Skipped — play it any time`;
+    const fresh = !done || skipped;
+    const xp = n.type === 'story' ? (fresh ? 15 : 5) : n.type === 'review' ? (fresh ? 20 : 10) : (fresh ? 10 : 5);
     const pop = document.createElement('div');
     pop.className = `node-pop ${locked ? 'locked' : ''}`;
     pop.innerHTML = `<h3>${esc(nodeTitle(n))}</h3><p>${esc(locked ? 'Complete the levels above to unlock this' : sub)}</p>
-      ${locked || n.type === 'chest' ? '' : `<button class="btn ${done ? '' : 'primary'} wide">${done ? 'Practice' : 'Start'} +${xp} XP</button>`}`;
+      ${locked || n.type === 'chest' ? '' : `<button class="btn ${fresh ? 'primary' : ''} wide">${fresh ? 'Start' : 'Practice'} +${xp} XP</button>`}`;
     wrap.appendChild(pop);
     requestAnimationFrame(() => pop.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
     pop.querySelector('button')?.addEventListener('click', () => { closePops(); go(`lesson/${n.id}`); });
@@ -719,6 +737,12 @@ document.addEventListener('click', (e) => {
     setCourse(id); sfx.whoosh();
     toast(`Switched to ${COURSE.name}`, { icon: `<span class="brand-mark c-${id} mini">${COURSE.mark}</span>` });
     if (currentTab === 'learn') renderTab('learn'); else go('learn');
+    if (!S.courseStarted(COURSE)) setTimeout(async () => {
+      const v = await modal({ art: `<span class="brand-mark c-${id} big-mark">${COURSE.mark}</span>`, title: `New to ${COURSE.name}?`,
+        body: `<p>Start at the beginning, or take a 5-minute test to find your level.</p>`,
+        buttons: [{ label: 'Start from the beginning', value: 'start', cls: 'primary' }, { label: 'Find my level', value: 'test', cls: '' }], dismiss: null });
+      if (v === 'test') go('placement');
+    }, 400);
   }
 });
 
@@ -782,6 +806,7 @@ function renderOnboarding(step) {
       <div class="onb-btns"><button class="btn primary wide" data-next>Continue</button></div></div>`,
     () => `<div class="onb">${mascot('happy', 110)}<h2>Where do you want to start?</h2>
       <button class="choice start-opt" data-start="lesson"><span class="so-ic">${ICONS.chat}</span><div><b>Start speaking</b><span>Jump into Unit 1: Greetings.${hasRo() ? ` The ${roLabel()} helps you read along.` : ''}</span></div></button>
+      <button class="choice start-opt" data-start="placement"><span class="so-ic">${ICONS.target}</span><div><b>Find my level</b><span>Already know some ${esc(COURSE.name)}? A 5-minute test starts you in the right unit.</span></div></button>
       ${hasLetters() ? `<button class="choice start-opt" data-start="letters"><span class="so-ic" lang="${L()}">${COURSE.letterIcon}</span><div><b>Learn the letters first</b><span>Get to know the ${isSi() ? 'Sinhala script' : 'Cyrillic alphabet'}, then start speaking.</span></div></button>` : ''}</div>`,
   ];
   app.innerHTML = `<div class="page onboarding">${step > 0 ? `<div class="onb-progress"><i style="width:${(step / (steps.length - 1)) * 100}%"></i></div>` : ''}${steps[step]()}</div>`;
@@ -798,7 +823,7 @@ function renderOnboarding(step) {
     const gb = e.target.closest('[data-goal]');
     if (gb) { root.querySelectorAll('.goal-opt').forEach(x => x.classList.remove('sel')); gb.classList.add('sel'); S.setProfile({ goal: Number(gb.dataset.goal) }); }
     const sb = e.target.closest('[data-start]');
-    if (sb) { S.setProfile({ onboarded: true }); S.ensureWelcome(); go(sb.dataset.start === 'letters' ? 'letters-session' : `lesson/${UNITS[0].path[0].id}`); }
+    if (sb) { S.setProfile({ onboarded: true }); S.ensureWelcome(); go(sb.dataset.start === 'letters' ? 'letters-session' : sb.dataset.start === 'placement' ? 'placement' : `lesson/${UNITS[0].path[0].id}`); }
   });
   root.querySelector('.name-in')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') root.querySelector('[data-next]').click(); });
 }
@@ -838,7 +863,7 @@ function lessonIntro(n) {
   const ui = UNITS.indexOf(u);
   const lessons = u.path.filter(x => x.type === 'lesson');
   const li = lessons.findIndex(x => x.id === n.id);
-  const first = !S.lessonDone(n.id);
+  const first = !S.lessonDone(n.id) || !!state.lessons[n.id]?.skipped;
   const host = stage();
   sfx.whoosh();
   const words = n.type === 'lesson' ? n.items : [];
@@ -862,6 +887,71 @@ function lessonIntro(n) {
     }, { once: true });
     host.querySelector('.ic-close').addEventListener('click', () => { res(false); go('learn'); }, { once: true });
   });
+}
+
+// ------------------------------------------------------------ placement test & "Jump here?"
+const unitRange = (n) => (n === 1 ? 'Unit 1' : `Units 1–${n}`);
+function testIntro({ art, meta, title, sub, points, go: goLabel, alt }) {
+  const host = stage();
+  sfx.whoosh();
+  host.innerHTML = `<div class="intro-card test-intro">
+    <button class="icon-btn ic-close" aria-label="Close">${ICONS.close}</button>
+    <div class="ic-hero test-hero">${art}</div>
+    <div class="ic-body"><div class="ic-meta">${esc(meta)}</div><h1>${esc(title)}</h1><p class="ic-sub">${esc(sub)}</p>
+      <ul class="test-points">${points.map(([ic, t]) => `<li>${ic}<span>${t}</span></li>`).join('')}</ul></div>
+    <div class="ic-foot"><button class="btn primary wide ic-go">${esc(goLabel)}</button>${alt ? `<button class="link-btn ic-alt">${esc(alt)}</button>` : ''}</div>
+  </div>`;
+  return new Promise(res => {
+    host.querySelector('.ic-go').addEventListener('click', () => res('go'), { once: true });
+    host.querySelector('.ic-alt')?.addEventListener('click', () => res('alt'), { once: true });
+    host.querySelector('.ic-close').addEventListener('click', () => res('close'), { once: true });
+  });
+}
+function currentUnitIndex() { const n = S.pathNodes()[S.currentNodeIndex()]; return n ? n.unitIndex : UNITS.length; }
+
+async function startJump(target) {
+  if (!(target >= 1 && target < UNITS.length) || target <= currentUnitIndex()) return go('learn');
+  const u = UNITS[target];
+  const v = await testIntro({
+    art: unitHero(u.id), meta: `Unit ${target + 1} · ${u.title}`, title: `Jump to Unit ${target + 1}?`,
+    sub: `Pass a short test on ${unitRange(target)} and everything before ${u.title} unlocks.`,
+    points: [[ICONS.target, `${JUMP_QUESTIONS} questions, mostly building sentences and typing`], [ICONS.heart, `You can make ${JUMP_LIVES - 1} mistakes — the ${JUMP_LIVES === 3 ? 'third' : 'last'} ends the test. Your hearts are safe.`], [ICONS.words, 'Skipped words come back in Practice, and you can replay any skipped lesson.']],
+    go: 'Start the test', alt: 'Not now',
+  });
+  if (v !== 'go') return go('learn');
+  runSession(buildJumpTest(target), { host: stage(), onQuit: () => go('learn'), onComplete: (r) => finishTest(r) });
+}
+
+async function startPlacement(fromOnboarding = false) {
+  const v = await testIntro({
+    art: castLineup(['kumari', 'aliya', 'nimal'], 84, 'wave'), meta: COURSE.name, title: 'Find your level',
+    sub: `Already know some ${COURSE.name}? Questions get harder as you go, and we'll start you in the right unit.`,
+    points: [[ICONS.clock, 'About 5 minutes'], [ICONS.chat, 'Not sure? Tap <b>I don\'t know</b> — guessing places you too high.'], [ICONS.check, 'Everything before your level unlocks. You can replay any of it.']],
+    go: 'Start', alt: 'Start from the beginning instead',
+  });
+  if (v === 'alt') return go(`lesson/${UNITS[0].path[0].id}`);
+  if (v !== 'go') return go('learn');
+  runSession(buildPlacement(), { host: stage(), onQuit: () => go('learn'), onComplete: (r) => finishTest(r) });
+}
+
+function finishTest(r) {
+  if (r.test === 'jump') {
+    if (r.failed) {
+      r.xp = 5; r.bonus = 0; r.resTitle = 'Not quite this time';
+      r.resSub = `That was ${JUMP_LIVES} mistakes, so Unit ${r.target + 1} stays locked for now. Keep going where you are — you can try the jump again anytime.`;
+      return finishSession(r, 'learn');
+    }
+    S.skipToUnit(r.target);
+    r.resTitle = `You jumped to Unit ${r.target + 1}!`;
+    r.resSub = `${UNITS[r.target].title} is open. Words from the lessons you skipped will come back in Practice.`;
+    return finishSession(r, 'learn');
+  }
+  const p = Math.min(r.placed || 0, UNITS.length);
+  r.perfect = false; r.bonus = 0;
+  if (p === 0) { r.resTitle = "Let's start at the beginning"; r.resSub = `Unit 1 is the right place for you. You'll move quickly through anything you already know.`; }
+  else if (p >= UNITS.length) { S.skipToUnit(UNITS.length); r.resTitle = 'You know this whole course!'; r.resSub = `Every unit is unlocked. Practice and the unit reviews will keep it fresh.`; }
+  else { S.skipToUnit(p); r.resTitle = `You're starting at Unit ${p + 1}`; r.resSub = `${UNITS[p].title}. We unlocked ${unitRange(p)} for you — replay any lesson there whenever you like.`; }
+  return finishSession(r, 'learn');
 }
 
 function startLetters(groupId) {
@@ -902,17 +992,18 @@ async function finishSession(r, back) {
   sync.syncSoon(500);
   const unit = r.nodeId ? UNITS.find(u => u.path.some(x => x.id === r.nodeId)) : null;
   const titles = { lesson: 'Lesson complete!', review: 'Unit review complete!', story: 'Story complete!', practice: 'Practice complete!', letters: 'Letters practiced!' };
-  const title = unitDone && unit ? `Unit ${UNITS.indexOf(unit) + 1} complete!` : (titles[r.kind] || 'Complete!');
+  const title = r.resTitle || (unitDone && unit ? `Unit ${UNITS.indexOf(unit) + 1} complete!` : (titles[r.kind] || 'Complete!'));
   const cast = unit ? [...new Set(['aliya', ...Object.values(STORIES[`st_${unit.id}`]?.lines || []).map(l => l.sp).filter(Boolean)])].slice(0, 3) : [];
-  const art = unitDone
+  const art = r.failed ? `<div class="res-art">${character('aliya', { size: 150, mood: 'sad' })}</div>` : unitDone
     ? `<div class="res-art unit-done"><div class="res-rays"></div><div class="res-trophy">${trophyArt(104)}</div>${castLineup(cast, 74, 'happy')}</div>`
     : `<div class="res-art"><div class="res-rays"></div>${character('aliya', { size: 170, mood: 'dance' })}</div>`;
-  (unitDone ? sfx.fanfare : sfx.complete)();
+  if (!r.failed) (unitDone ? sfx.fanfare : sfx.complete)();
   const host = app.querySelector('.stage') || stage();
   host.innerHTML = `<div class="results ${unitDone ? 'unit-complete' : ''}" style="--u:${unit?.color || 'var(--brand)'}">
     ${art}
     <h1 class="res-title">${esc(title)}</h1>
-    ${unitDone ? `<p class="res-sub">You finished ${esc(unit.title)}. ${UNITS.indexOf(unit) + 1 < UNITS.length ? 'The next unit is open!' : 'That\'s every unit so far!'}</p>` : ''}
+    ${r.resSub ? `<p class="res-sub">${esc(r.resSub)}</p>` : ''}
+    ${unitDone && !r.resSub ? `<p class="res-sub">You finished ${esc(unit.title)}. ${UNITS.indexOf(unit) + 1 < UNITS.length ? 'The next unit is open!' : 'That\'s every unit so far!'}</p>` : ''}
     <div class="res-stats">
       <div class="rs gold" style="--i:0"><span>Total XP</span><b>${ICONS.bolt}0</b></div>
       <div class="rs green" style="--i:1"><span>${r.accuracy >= 90 ? 'Amazing' : r.accuracy >= 70 ? 'Good' : 'Accuracy'}</span><b>${ICONS.target}0%</b></div>
@@ -921,7 +1012,7 @@ async function finishSession(r, back) {
     ${bonuses.length ? `<div class="res-bonus">${bonuses.map((b, i) => `<div class="rb ${b.cls}" style="--i:${i}"><span class="rb-ic">${b.icon}</span><span class="rb-l">${esc(b.label)}</span><b>${b.val}</b></div>`).join('')}</div>` : ''}
     <div class="res-foot"><button class="btn primary wide go-on">Continue</button></div>
   </div>`;
-  confetti(unitDone ? 180 : 90);
+  if (!r.failed) confetti(unitDone || (r.kind === 'test' && r.resTitle?.startsWith('You')) ? 180 : 90);
   if (unitDone) setTimeout(() => confetti(120), 900);
   setTimeout(() => countUp(host.querySelector('.rs.gold b'), r.xp, ICONS.bolt), 350);
   setTimeout(() => countUp(host.querySelector('.rs.green b'), r.accuracy, ICONS.target, '%'), 500);

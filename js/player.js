@@ -14,6 +14,10 @@ const praiseNow = () => [...PRAISE, ...(COURSE.praise || [])];
 
 export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) {
   const usesHearts = ['lesson', 'review'].includes(session.kind) && state.profile.settings.hearts;
+  // Tests (placement, jump): no second tries, their own lives (your hearts are safe), optional adaptive questions.
+  const isTest = session.kind === 'test';
+  const lives = isTest ? session.lives || 0 : 0;
+  const adaptive = session.adaptive || null;
   const queue = session.exercises.map((e, i) => ({ ...e, _k: i }));
   const retried = new Set();
   const items = {}, letters = {};
@@ -24,7 +28,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
     <div class="lesson-top">
       <button class="icon-btn quit" aria-label="Quit">${ICONS.close}</button>
       <div class="progress"><div class="bar"></div><div class="combo-tag" hidden></div></div>
-      <div class="hearts-pill">${usesHearts ? `${ICONS.heart}<b>${heartsNow()}</b>` : state.profile.settings.hearts ? `${ICONS.infinity}` : ''}</div>
+      <div class="hearts-pill ${lives ? 'test-lives' : ''}">${lives ? `${ICONS.heart}<b>${lives}</b>` : isTest ? '' : usesHearts ? `${ICONS.heart}<b>${heartsNow()}</b>` : state.profile.settings.hearts ? `${ICONS.infinity}` : ''}</div>
     </div>
     <div class="lesson-body"><div class="ex-host"></div></div>
     <div class="lesson-foot">
@@ -55,7 +59,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
   function removeRemaining(fn) { for (let i = queue.length - 1; i > pos; i--) if (fn(queue[i])) queue.splice(i, 1); }
 
   function setProgress(extra = 0) {
-    const pct = Math.min(1, (pos + extra) / queue.length);
+    const pct = adaptive ? adaptive.progress() : Math.min(1, (pos + extra) / queue.length);
     bar.style.width = (pct * 100).toFixed(1) + '%';
   }
 
@@ -72,8 +76,8 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
     fb.hidden = true; foot.className = 'lesson-foot';
     go.className = 'btn primary go';
     const isListen = ex.listen || ex.type === 'listen_tiles';
-    skipBtn.hidden = !isListen;
-    skipBtn.textContent = "Can't listen now";
+    skipBtn.hidden = !isListen && !isTest;
+    skipBtn.textContent = isTest ? "I don't know" : "Can't listen now";
     if (ctrl.footer === 'continue') { go.textContent = 'Continue'; go.disabled = false; go.hidden = false; }
     else if (ctrl.footer === 'none') { go.hidden = true; }
     else { go.textContent = 'Check'; go.disabled = true; go.hidden = false; }
@@ -95,6 +99,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
     for (const [ch, v] of Object.entries(res.letters || {})) if (!(ch in letters)) letters[ch] = v;
     for (const ch of ex.testsLetters || []) if (!(ch in letters)) letters[ch] = !!res.ok;
 
+    if (adaptive && isGraded) adaptive.answer(!!res.ok);
     phase = 'feedback';
     exHost.querySelectorAll('button, input, textarea').forEach(b => { if (!b.closest('.audio-btns') && !b.classList.contains('w')) b.disabled = true; });
     skipBtn.hidden = true;
@@ -122,7 +127,8 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
         ${res.meaning ? `<div class="fb-mean">Meaning: ${esc(res.meaning)}</div>` : ''}`;
       foot.className = 'lesson-foot bad';
       go.className = 'btn go bad';
-      if (!retried.has(ex._k)) { retried.add(ex._k); queue.push(ex); }
+      if (!isTest && !retried.has(ex._k)) { retried.add(ex._k); queue.push(ex); }
+      if (lives) loseLife();
       if (usesHearts) {
         const n = loseHeart();
         $('.hearts-pill b').textContent = n;
@@ -138,7 +144,33 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
     setProgress(1);
   }
 
+  function loseLife() {
+    const left = Math.max(0, lives - mistakes);
+    const pill = $('.hearts-pill');
+    pill.querySelector('b').textContent = left;
+    pill.classList.add('lost'); setTimeout(() => pill.classList.remove('lost'), 600);
+  }
+  // "I don't know" in a test: counts as a miss, shows the answer if we have it, and moves on.
+  function dontKnow() {
+    if (phase !== 'answer') return;
+    const ex = queue[pos];
+    mistakes++; combo = 0; graded++;
+    adaptive?.answer(false);
+    for (const id of ex.tests || []) if (!(id in items)) items[id] = false;
+    if (lives) loseLife();
+    phase = 'feedback';
+    exHost.querySelectorAll('button, input, textarea').forEach(b => { if (!b.closest('.audio-btns')) b.disabled = true; });
+    skipBtn.hidden = true;
+    const sol = ex.sent ? esc(ex.sent.si) + `<div class="fb-mean">${esc(ex.sent.en)}</div>` : ex.item ? `${esc(ex.item.si)} = ${esc(ex.item.en)}` : '';
+    fb.innerHTML = `<div class="fb-head">${ICONS.close}<span>No problem — here's the answer:</span></div><div class="fb-sol">${sol}</div>`;
+    foot.className = 'lesson-foot bad'; go.className = 'btn go bad';
+    fb.hidden = false; go.textContent = 'Continue'; go.disabled = false; go.hidden = false;
+    setProgress(1);
+  }
+
   async function next() {
+    if (phase === 'feedback' && lives && mistakes >= lives) return finish({ failed: true });
+    if (adaptive && phase === 'feedback') { const nx = adaptive.next(); if (nx) queue.push({ ...nx, _k: 1000 + queue.length }); }
     if (phase === 'feedback' && usesHearts && heartsNow() <= 0) {
       const choice = await outOfHearts();
       if (choice === 'refill') { $('.hearts-pill b').textContent = heartsNow(); }
@@ -165,14 +197,15 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
     return v;
   }
 
-  function finish() {
+  function finish({ failed = false } = {}) {
     cleanup();
     for (const id of session.teach || []) if (!(id in items)) items[id] = true;
     for (const ch of session.teachLetters || []) if (!(ch in letters)) letters[ch] = true;
     const perfect = mistakes === 0;
     const accuracy = graded ? Math.round((firstTry / graded) * 100) : 100;
     const bonus = perfect && session.kind !== 'letters' ? 5 : 0;
-    onComplete({ kind: session.kind, nodeId: session.nodeId, title: session.title, xp: session.xp + bonus, bonus, perfect, accuracy, maxCombo, ms: Date.now() - start, listen, spoke, items, letters });
+    onComplete({ kind: session.kind, nodeId: session.nodeId, title: session.title, xp: session.xp + bonus, bonus, perfect, accuracy, maxCombo, ms: Date.now() - start, listen, spoke, items, letters,
+      ...(isTest ? { test: session.test, target: session.target, failed, mistakes, placed: adaptive?.result() } : {}) });
   }
 
   function cleanup() { hideHint(); audio.stop(); ctrl?.cleanup?.(); document.removeEventListener('keydown', onKey); }
@@ -187,7 +220,7 @@ export function runSession(session, { host, onQuit, onComplete, onNeedHearts }) 
   document.addEventListener('keydown', onKey);
 
   go.addEventListener('click', () => { if (phase === 'answer') check(); else next(); });
-  skipBtn.addEventListener('click', () => ctx.skip({ listenOff: true }));
+  skipBtn.addEventListener('click', () => (isTest ? dontKnow() : ctx.skip({ listenOff: true })));
   $('.quit').addEventListener('click', async () => {
     const v = await modal({
       art: mascot('sad', 100), title: 'Wait, don\'t go!', body: '<p>You\'ll lose your progress in this session if you quit now.</p>',

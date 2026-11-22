@@ -17,6 +17,10 @@ and can sync your progress across devices through a free Supabase project.
   - Pictures are drawn once by meaning and re-cast per course: Sofía, Mateo and a Latin American family for Spanish;
     Dilnoza, Aziz and an Uzbek family for Uzbek.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
+- **Find my level / Jump here?** (modelled on Duolingo): an adaptive placement test when you start a course (two right
+  answers move up a unit, two misses stop it), and a 12-question test on the first lesson of any locked unit (3 lives).
+  Skipped lessons are marked done but replay like new; skipped chests pay no gems; skipped words go into review, due now,
+  and count toward achievements only once practiced. Tests never cost hearts.
   Units 1–8 are written (Greetings, About me, Food & drink, Numbers & money, Family, Getting around, Everyday verbs,
   Faith & church: 157 words and phrases, 122 sentences, 8 stories). Units 9–12 of the A1 map are shown as "coming soon".
   Every word has a hand-drawn picture (`js/pics.js`); every story opens with an animated scene (`js/art.js`).
