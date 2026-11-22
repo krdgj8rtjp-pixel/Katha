@@ -5,6 +5,7 @@ import * as S from './store.js';
 import { state } from './store.js';
 import * as audio from './audio.js';
 import * as sync from './sync.js';
+import { initUpdates, checkNow, versionLabel, refreshUpdateCard } from './update.js';
 import { sfx, unlock } from './sfx.js';
 import { ICONS, mascot, toast, modal, confetti, showHint, hideHint, siLine, audioBtn, bigFlame, chestArt, trophyArt } from './ui.js';
 import { badge } from './badges.js';
@@ -47,6 +48,7 @@ function route() {
   if (!state.profile.onboarded && name !== 'onboarding') { go('onboarding'); return; }
   if (state.profile.onboarded && name === 'onboarding') { go('learn'); return; }
   inSession = false;
+  refreshUpdateCard();
   switch (name) {
     case 'learn': case 'letters': case 'practice': case 'quests': case 'friends': case 'profile': return renderTab(name);
     case 'add': return addFriendLink(arg);
@@ -196,7 +198,7 @@ function learnTab() {
   html += `<div class="path-end">${mascot('happy', 80)}<p>${nextIsA2
     ? `Units 1–${UNITS.length} cover the whole A1 course. A2 units will appear here as they're written.`
     : `Units ${UNITS.length + 1}–${UNITS.length + COMING.length} complete the A1 course. New units will appear here as they're written.`}</p></div>`;
-  return html + '</div>';
+  return html + '</div>' + signInNudge();
 }
 function nodeTitle(n) {
   if (n.type === 'chest') return 'Treasure chest';
@@ -527,12 +529,7 @@ function profileTab() {
       <p class="muted sync-status">${sync.isSyncing() ? 'Syncing…' : ls ? `Last synced ${timeAgo(ls)}` : 'Not synced yet'}${sync.lastError() ? ` · <span class="err">${esc(sync.lastError())}</span>` : ''}</p>
       <div class="row-btns"><button class="btn small" data-act="sync">Sync now</button><button class="btn small ghost" data-act="signout">Sign out</button></div>`;
   } else {
-    account = `<form class="auth-form">
-      <p class="muted">Sign in to keep your progress in sync across your phone, tablet and computer.</p>
-      <input type="email" name="email" placeholder="Email" autocomplete="email" required>
-      <input type="password" name="password" placeholder="Password (6+ characters)" autocomplete="current-password" minlength="6" required>
-      <div class="row-btns"><button class="btn primary small" data-mode="in">Sign in</button><button class="btn small" data-mode="up">Create account</button></div>
-      <p class="auth-msg muted"></p></form>`;
+    account = PERKS + AUTH_FORM('Sign in to keep your progress in sync across your phone, tablet and computer.');
   }
   return `<div class="profile-tab">
     <div class="prof-head"><div class="avatar-big char-av">${character(p.avatar || 'aliya', { head: true, size: 72 })}</div>
@@ -562,7 +559,7 @@ function profileTab() {
     <h3 class="sec-title">Audio</h3>
     <div class="panel"><p class="muted">${audio.hasClips() ? `Using recorded ${COURSE.name} voices.` : audio.deviceVoice() ? `Using this device's ${COURSE.name} voice (${esc(audio.deviceVoice().name)}). Recorded voices will replace it once they're generated.` : 'No Sinhala audio yet on this device — listening exercises are hidden until voice clips are generated (see README).'}</p></div>
     <div class="danger-zone"><button class="link-btn danger" data-act="reset">Reset all progress on this device</button>
-    <p class="muted small">Katha v${window.KATHA_VERSION || 'dev'}</p></div>
+    <p class="muted small app-ver">${esc(versionLabel() || 'Katha')} · <button class="link-btn small" data-act="check-update">Check for updates</button></p></div>
   </div>`;
 }
 function timeAgo(t) {
@@ -593,8 +590,24 @@ function mountProfile() {
     }
   });
   const form = root.querySelector('.auth-form');
-  form?.addEventListener('submit', (e) => e.preventDefault());
-  form?.addEventListener('click', async (e) => {
+  if (form) wireAuthForm(form, () => {
+    const pending = sessionStorage.getItem('katha.addFriend');
+    if (pending) { sessionStorage.removeItem('katha.addFriend'); return go('add/' + pending); }
+    renderTab('profile');
+  });
+  root.querySelectorAll('.xc-col').forEach(c => c.addEventListener('click', () => { root.querySelectorAll('.xc-col').forEach(x => x.classList.remove('show')); c.classList.add('show'); }));
+}
+
+// ------------------------------------------------------------ sign-in
+const AUTH_FORM = (lead) => `<form class="auth-form">
+  ${lead ? `<p class="muted">${lead}</p>` : ''}
+  <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+  <input type="password" name="password" placeholder="Password (6+ characters)" autocomplete="current-password" minlength="6" required>
+  <div class="row-btns"><button class="btn primary small" data-mode="in">Sign in</button><button class="btn small" data-mode="up">Create account</button></div>
+  <p class="auth-msg muted"></p></form>`;
+function wireAuthForm(form, onDone) {
+  form.addEventListener('submit', (e) => e.preventDefault());
+  form.addEventListener('click', async (e) => {
     const b = e.target.closest('[data-mode]'); if (!b) return;
     e.preventDefault();
     const email = form.email.value.trim(), password = form.password.value;
@@ -608,15 +621,46 @@ function mountProfile() {
         if (r === 'confirm-email') { msg.textContent = 'Check your email to confirm your account, then come back and sign in.'; form.querySelectorAll('button').forEach(x => x.disabled = false); return; }
       } else await sync.signIn(email, password);
       toast('Signed in — progress synced', { icon: ICONS.cloud });
-      const pending = sessionStorage.getItem('katha.addFriend');
-      if (pending) { sessionStorage.removeItem('katha.addFriend'); return go('add/' + pending); }
-      renderTab('profile');
+      onDone?.();
     } catch (err) {
       msg.textContent = err.message || 'Something went wrong.';
       form.querySelectorAll('button').forEach(x => x.disabled = false);
     }
   });
-  root.querySelectorAll('.xc-col').forEach(c => c.addEventListener('click', () => { root.querySelectorAll('.xc-col').forEach(x => x.classList.remove('show')); c.classList.add('show'); }));
+}
+const PERKS = `<ul class="perks">
+  <li>${ICONS.mic}<span><b>Speaking checks</b> — Katha listens and tells you how you did</span></li>
+  <li>${ICONS.cloud}<span><b>Progress backed up</b> and synced to your other devices</span></li>
+  <li>${ICONS.trophy}<span><b>Friends</b> and the weekly leaderboard</span></li></ul>`;
+// A sign-in sheet that works anywhere, including in the middle of a lesson.
+function openSignIn(reason) {
+  if (!sync.configured() || window.KATHA_PREVIEW) return go('profile');
+  if (sync.user()) return;
+  const lead = reason === 'speech' ? 'Sign in and Katha will check your speaking from the next exercise on.' : 'Free, and it takes a few seconds.';
+  modal({ title: 'Get the full Katha experience', body: PERKS + AUTH_FORM(lead), buttons: [{ label: 'Not now', value: null, cls: 'ghost' }], dismiss: null });
+  const wrap = [...document.querySelectorAll('.modal-wrap')].pop();
+  const form = wrap?.querySelector('.auth-form');
+  if (form) wireAuthForm(form, () => {
+    wrap.querySelector('[data-i="0"]')?.click();
+    if (!inSession && currentTab) renderTab(currentTab);
+  });
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act="signin"], [data-act="nudge-later"], [data-act="check-update"]'); if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'signin') openSignIn('nudge');
+  else if (act === 'check-update') checkNow();
+  else { try { localStorage.setItem('katha.nudgeAt', String(Date.now())); } catch {} b.closest('.nudge')?.remove(); }
+});
+// The Learn-tab nudge: shown to signed-out learners after their first lesson, at most every few days.
+function signInNudge() {
+  if (!sync.configured() || sync.user() || window.KATHA_PREVIEW) return '';
+  if (!Object.values(state.lessons).some(l => l?.done)) return '';
+  let at = 0; try { at = +localStorage.getItem('katha.nudgeAt') || 0; } catch {}
+  if (Date.now() - at < 4 * 864e5) return '';
+  return `<div class="nudge float"><span class="nudge-ic">${ICONS.mic}</span><div class="nudge-main">
+    <b>Get the full experience</b><p>Sign in free so Katha can check your speaking, back up your progress and let you add friends.</p>
+    <div class="row-btns"><button class="btn primary small" data-act="signin">Sign in</button><button class="btn small ghost" data-act="nudge-later">Not now</button></div></div></div>`;
 }
 
 // ------------------------------------------------------------ courses
@@ -916,25 +960,8 @@ async function boot() {
   sync.onSyncChange(() => { const s = app.querySelector('.sync-status'); if (s && currentTab === 'profile') s.textContent = sync.isSyncing() ? 'Syncing…' : sync.lastSync() ? `Last synced ${timeAgo(sync.lastSync())}` : ''; });
   setInterval(() => { if (!inSession && currentTab) refreshTopbar(); }, 60000);
 
-  if ('serviceWorker' in navigator && !window.KATHA_PREVIEW && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    try {
-      const reg = await navigator.serviceWorker.register('sw.js');
-      reg.addEventListener('updatefound', () => {
-        const w = reg.installing;
-        w?.addEventListener('statechange', () => {
-          if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdateBanner(w);
-        });
-      });
-    } catch (e) { console.warn('SW failed', e); }
-  }
-}
-function showUpdateBanner(worker) {
-  const b = document.createElement('button');
-  b.className = 'update-banner';
-  b.textContent = 'A new version of Katha is ready — tap to update';
-  b.addEventListener('click', () => { worker.postMessage('skipWaiting'); });
-  document.body.appendChild(b);
-  navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
+  initUpdates({ busy: () => inSession });
+  window.addEventListener('katha:signin', (e) => openSignIn(e.detail?.reason));
 }
 
 boot();

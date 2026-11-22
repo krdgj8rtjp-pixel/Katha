@@ -29,6 +29,7 @@ const version = hash.digest('hex').slice(0, 10);
 
 const sw = readFileSync(join(ROOT, 'tools/sw-template.js'), 'utf8')
   .replace('__VERSION__', version)
+  .replace('__BUILT__', new Date().toISOString())
   .replace('__PRECACHE__', JSON.stringify(['./', ...shell.filter(f => f !== 'audio/index.json')], null, 0));
 writeFileSync(join(ROOT, 'sw.js'), sw);
 

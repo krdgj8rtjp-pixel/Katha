@@ -935,3 +935,46 @@ svg { display: block; }
 .s-fall.snow { animation-duration: 4.5s; }
 @keyframes s-fall { from { transform: translateY(-24px); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } to { transform: translateY(34px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .s-fall { animation: none; } }
+
+/* ---------------------------------------------------------------- app updates */
+.upd { position: fixed; left: 50%; bottom: calc(84px + var(--safe-b)); z-index: 97; width: min(560px, calc(100% - 24px));
+  display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; border-radius: 18px;
+  background: var(--card); border: 2px solid var(--line); border-bottom-width: 4px; box-shadow: 0 10px 30px rgba(0,0,0,.18);
+  transform: translate(-50%, 140%); opacity: 0; transition: transform .35s cubic-bezier(.2,1.2,.4,1), opacity .25s; pointer-events: none; }
+.upd.in { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+.upd-ic { width: 38px; height: 38px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--blue-bg); color: var(--blue); }
+.upd-ic svg { width: 24px; height: 24px; }
+.upd.ready .upd-ic { background: var(--ok-bg); color: var(--ok); }
+.upd.failed .upd-ic { background: var(--bad-bg); color: var(--bad); }
+.upd.downloading .upd-ic svg { animation: upd-bob 1.2s ease-in-out infinite; }
+@keyframes upd-bob { 50% { transform: translateY(2px); } }
+.upd-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.upd-main b { font-size: 15px; } .upd-main small { color: var(--muted); font-weight: 700; font-size: 13px; }
+.upd-bar { height: 8px; border-radius: 99px; background: var(--soft); overflow: hidden; margin-top: 6px; }
+.upd-bar > i { display: block; height: 100%; border-radius: 99px; background: var(--blue); transition: width .3s ease; }
+.upd-bar.ind > i { animation: upd-ind 1.1s ease-in-out infinite; }
+@keyframes upd-ind { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+.upd-go { flex: none; }
+.upd-x { flex: none; width: 32px; height: 32px; border: 0; background: none; color: var(--muted); display: grid; place-items: center; cursor: pointer; }
+.upd-x svg { width: 18px; height: 18px; }
+.stage ~ .upd, body:has(.stage) .upd { bottom: calc(110px + var(--safe-b)); }
+@media (prefers-reduced-motion: reduce) { .upd, .upd-bar > i { transition: none; } .upd-bar.ind > i, .upd.downloading .upd-ic svg { animation: none; } }
+.app-ver .link-btn { font-size: inherit; padding: 0; }
+
+/* ---------------------------------------------------------------- sign-in nudge */
+.nudge { display: flex; gap: 12px; margin: 4px 0 14px; padding: 14px; border-radius: 18px; background: var(--blue-bg); border: 2px solid var(--blue); border-bottom-width: 4px; }
+.nudge-ic { width: 42px; height: 42px; flex: none; border-radius: 14px; background: var(--blue); color: #fff; display: grid; place-items: center; }
+.nudge-ic svg { width: 24px; height: 24px; }
+.nudge-main b { font-size: 16px; } .nudge-main p { margin: 2px 0 10px; color: var(--ink-2); font-size: 14px; }
+.perks { list-style: none; padding: 0; margin: 0 0 12px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.perks li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--ink-2); }
+.perks svg { width: 20px; height: 20px; flex: none; color: var(--blue); margin-top: 1px; }
+.modal .auth-form { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.modal .auth-form input { font: inherit; padding: 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); }
+button.speak-tip { display: inline-flex; align-items: center; gap: 6px; color: var(--blue); font-weight: 800; font-size: 14px; margin: 4px auto 0; }
+button.speak-tip svg { width: 16px; height: 16px; }
+.nudge.float { position: fixed; left: 50%; bottom: calc(84px + var(--safe-b)); z-index: 30; width: min(560px, calc(100% - 24px)); margin: 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,.16); background: var(--card); animation: nudge-in .45s cubic-bezier(.2,1.2,.4,1) .6s both; }
+@keyframes nudge-in { from { transform: translate(-50%, 140%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+body:has(.upd.in) .nudge.float { display: none; }
+@media (prefers-reduced-motion: reduce) { .nudge.float { animation: none; transform: translateX(-50%); } }

@@ -334,10 +334,11 @@ function speak(ex, ctx) {
         </div>
       </div>
       <p class="speak-meaning">${esc(t.en)}</p>
-      ${!checking && state.profile.settings.speechCheck !== false ? `<p class="speak-tip">Sign in under Profile → Account and Katha will check your speaking.</p>` : ''}
+      ${!checking && state.profile.settings.speechCheck !== false ? `<button class="link-btn speak-tip" data-signin>${ICONS.mic} Sign in so Katha can check your speaking</button>` : ''}
     </div>
     <button class="link-btn cant">Can't speak now</button>
   </div>`);
+  el.querySelector('[data-signin]')?.addEventListener('click', () => window.dispatchEvent(new CustomEvent('katha:signin', { detail: { reason: 'speech' } })));
   const $ = (q) => el.querySelector(q);
   const mic = $('.mic-btn'), after = $('.speak-after'), status = $('.speak-status'), result = $('.speak-result');
   let rec = null, chunks = [], url = null, stream = null, timer = null, attempts = 0, passed = false, heard = '', verified = false;
