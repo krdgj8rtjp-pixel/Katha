@@ -126,6 +126,12 @@ const mosque = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"
 const sun = (x, y, r = 14) => `<g transform="translate(${x} ${y})"><circle r="${r}" fill="#FFC94D"/>${Array.from({ length: 8 }, (_, i) => `<path d="M0 -${r + 4} v-6" stroke="#FFC94D" stroke-width="3" stroke-linecap="round" transform="rotate(${i * 45})"/>`).join('')}</g>`;
 const cloud = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})" opacity=".9"><ellipse cx="0" cy="0" rx="18" ry="10" fill="#fff"/><ellipse cx="14" cy="-6" rx="12" ry="10" fill="#fff"/><ellipse cx="-12" cy="-4" rx="10" ry="8" fill="#fff"/></g>`;
 
+const verandahHouse = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-40" y="-40" width="80" height="40" fill="#FFF3DC"/><path d="M-52 -38 L0 -68 L52 -38Z" fill="#C0533A"/><path d="M-52 -38 H52" stroke="#9E3F2A" stroke-width="3"/>
+  <rect x="-7" y="-28" width="14" height="28" fill="#7A4A2A"/><rect x="-31" y="-28" width="13" height="12" fill="#BFE6FA" stroke="#7A4A2A" stroke-width="2"/><rect x="18" y="-28" width="13" height="12" fill="#BFE6FA" stroke="#7A4A2A" stroke-width="2"/>
+  ${[-45, -13, 13, 45].map(px => `<rect x="${px - 2.5}" y="-38" width="5" height="38" fill="#fff" stroke="#E4DCCB" stroke-width="1"/>`).join('')}<rect x="-50" y="-2" width="100" height="4" fill="#D8C9A8"/></g>`;
+const train = (x, y, s = 1, cars = 3) => `<g transform="translate(${x} ${y}) scale(${s})">${Array.from({ length: cars }, (_, i) => `<g transform="translate(${-i * 62} 0)"><rect x="-58" y="-34" width="56" height="30" rx="5" fill="${i ? '#1F4E8C' : '#C0392B'}"/><rect x="-58" y="-34" width="56" height="5" rx="2" fill="${i ? '#173C6B' : '#962D22'}"/>${[-52, -38, -24].map(wx => `<rect x="${wx}" y="-26" width="10" height="9" rx="1.5" fill="#BFE6FA"/>`).join('')}<circle cx="-46" cy="-3" r="4.4" fill="#2b2230"/><circle cx="-14" cy="-3" r="4.4" fill="#2b2230"/></g>`).join('')}<path d="M-2 -32 Q8 -30 8 -18 L8 -6 L-2 -6Z" fill="#C0392B"/><circle cx="4" cy="-14" r="2.6" fill="#FFE08A"/></g>`;
+const kandyTemple = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-46" y="-20" width="92" height="20" fill="#FBF7EE"/><path d="M-50 -20 L-40 -30 L40 -30 L50 -20Z" fill="#B5502F"/>${[-36, -24, 24, 36].map(wx => `<rect x="${wx - 3}" y="-15" width="6" height="9" rx="3" fill="#7A4A2A"/>`).join('')}
+  <path d="M-14 -20 L-14 -48 L-8 -54 L8 -54 L14 -48 L14 -20Z" fill="#FBF7EE"/><path d="M-18 -52 L0 -66 L18 -52Z" fill="#B5502F"/><path d="M-14 -40 H14" stroke="#E4DCCB" stroke-width="1.4"/>${[-8, 0, 8].map(wx => `<rect x="${wx - 2}" y="-36" width="4" height="7" rx="2" fill="#7A4A2A"/>`).join('')}</g>`;
 const SCENES = {
   u1: { who: 'aliya', art: () => `${palm(26, 150, .95)}${palm(160, 150, .8, true)}${sun(150, 26)}${cloud(48, 34, .9)}` },
   u2: { who: 'kumari', art: () => `${sigiriya(96, 150, .9)}${palm(18, 150, .8)}${cloud(150, 30)}` },
@@ -149,6 +155,10 @@ const SCENES = {
   uzchurch: { who: 'nimal', art: () => `${smallChurch(160, 150, .72)}${poplar(22, 150, .85)}${sun(40, 28, 11)}${cloud(110, 24, .7)}` },
   uzhealth: { who: 'nimal', art: () => `${uzHouse(164, 150, .62)}${pharmacySign(30, 150, 1)}${poplar(186, 150, .5)}${sun(160, 24, 10)}` },
   u9: { who: 'aliya', art: () => `${dagoba(160, 150, .62)}${boTree(30, 150, .9)}${sun(96, 24, 11)}` },
+  u10: { who: 'kumari', art: () => `${rainCloud(44, 40, 1)}${sun(150, 26, 11)}${umbrella(160, 150, 1.3, '#1E9FE3')}${[[30, 66], [52, 74], [40, 90]].map(([x, y]) => `<path d="M${x} ${y} q-3 4.5 0 7 q3 -2.5 0 -7z" fill="#1E9FE3"/>`).join('')}` },
+  u11: { who: 'amma', art: () => `${verandahHouse(160, 150, .6)}${palm(22, 150, .8)}${sun(170, 24, 10)}${cloud(80, 26, .7)}` },
+  u12: { who: 'nimal', art: () => `${pharmacySign(30, 150, 1)}${smallHouse(160, 150, .66)}${sun(40, 26, 10)}${cloud(120, 24, .7)}` },
+  u13: { who: 'john', art: () => `<path d="M0 150 L0 108 L30 88 L56 104 L90 80 L126 102 L160 84 L190 100 L190 150Z" fill="#9CCF7A" opacity=".7"/>${train(188, 150, .5, 2)}${sun(150, 26, 11)}${cloud(60, 28, .8)}` },
   uzmasjid: { who: 'john', art: () => `${mosque(160, 150, .52)}${poplar(20, 150, .8)}${poplar(36, 150, .65)}${sun(96, 24, 11)}` },
   esplaza: { who: 'kumari', art: () => `${colonial(146, 150, .72)}${fountain(30, 150, .72)}${sun(36, 30, 11)}${cloud(96, 24, .7)}` },
   esmarket: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${taxi(150, 150, .62)}${cloud(40, 28, .8)}` },
@@ -355,6 +365,25 @@ SCENE_ART.st_uzu11 = (id) => `${sky(id, '#F28C5B', '#FFD9A0')}${moon(300, 34, 12
   ${tapchan(120, 186, 1.8)}
   ${[0, 1].map(i => `<path class="s-steam" style="animation-delay:${i * .8}s" d="M${114 + i * 6} 118 q-4 -6 0 -12 q4 -6 0 -12" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>`).join('')}
   <path d="M0 188 Q180 182 360 188 L360 200 L0 200Z" fill="#B8955F"/>`;
+// Sinhala A1: a monsoon afternoon, lunch at Kumari's, coriander tea, and a train to Kandy.
+SCENE_ART.st_u10 = (id) => SCENE_ART.st_u7(id).replace('stop-color="#FFD9A0"', 'stop-color="#A9B7C8"').replace('stop-color="#FFF4E0"', 'stop-color="#E3E8EE"')
+  .replace(spinSun(70, 70, 16, '#FFB84D'), rainCloud(70, 44, 1.5) + rainCloud(250, 26, 1.1)).replace(bird(250, 50, .9, 1), '').replace(bird(272, 42, .7, 2.2), '')
+  .replace('fill="#9CCF7A"', 'fill="#7FB46A"') + umbrella(96, 182, 1.3, '#1E9FE3') + rainOverlay();
+SCENE_ART.st_u11 = (id) => SCENE_ART.st_u5(id) + `<rect x="168" y="140" width="128" height="8" rx="3" fill="#8B5A2B"/><rect x="176" y="148" width="6" height="22" fill="#6A421E"/><rect x="282" y="148" width="6" height="22" fill="#6A421E"/>
+  ${[192, 272].map(px => `<ellipse cx="${px}" cy="138" rx="16" ry="4.4" fill="#fff" stroke="#DDD5C5" stroke-width="1"/><path d="M${px - 10} 137 Q${px} 128 ${px + 10} 137Z" fill="#FBF8F2"/>`).join('')}
+  <path d="M216 138 Q232 146 248 138 Z" fill="#C0533A"/>${[[224, 133], [232, 130], [240, 133]].map(([mx, my]) => `<ellipse cx="${mx}" cy="${my}" rx="5" ry="6" fill="#FFD54A" transform="rotate(-20 ${mx} ${my})"/>`).join('')}
+  ${[0, 1].map(i => `<path class="s-steam" style="animation-delay:${i * .8}s" d="M${188 + i * 80} 130 q-3 -5 0 -10 q3 -5 0 -10" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>`).join('')}`;
+SCENE_ART.st_u12 = (id) => SCENE_ART.st_u7(id).replace(palm(30, 160, .7), pharmacySign(24, 172, 1.3));
+SCENE_ART.st_u13 = (id) => `${sky(id, '#9ED8F5', '#FFF2DA')}${spinSun(300, 36, 13)}${drift(90, 30, 1, 50, 4)}${drift(220, 20, .8, 44, 26)}${bird(140, 52, .8, .5)}
+  <path d="M0 112 L50 72 L90 92 L140 60 L190 88 L240 64 L300 96 L360 74 L360 200 L0 200Z" fill="#7DB886"/>
+  <path d="M0 126 Q90 108 180 120 Q270 132 360 114 L360 200 L0 200Z" fill="#5AA36A"/>${teaBushes(60, 128, .7)}${teaBushes(320, 124, .6)}
+  <rect x="0" y="134" width="360" height="5" fill="#8E7A62"/>
+  <g transform="translate(0 135)"><g class="s-drive" style="animation-duration:15s">${train(0, 0, .62)}</g></g>
+  <path d="M0 146 Q180 140 360 146 L360 200 L0 200Z" fill="#86C9E3"/>
+  ${[[60, 164], [150, 172], [300, 168]].map(([wx, wy], i) => `<path class="s-twinkle" style="animation-delay:${i * .5}s" d="M${wx - 12} ${wy} q6 -3 12 0 t12 0" stroke="#fff" stroke-width="2" fill="none" opacity=".8"/>`).join('')}
+  ${kandyTemple(232, 158, .9)}<path d="M180 160 H290" stroke="#fff" stroke-width="2" opacity=".5"/>
+  ${palm(26, 190, .65)}${palm(340, 190, .55, true)}
+  <path d="M0 184 Q180 176 360 184 L360 200 L0 200Z" fill="#D9C9A8"/>`;
 SCENE_ART.st_esu4 = (id) => SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55));
 
 export function storyScene(id) {

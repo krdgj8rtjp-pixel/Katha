@@ -11,7 +11,9 @@ and can sync your progress across devices through a free Supabase project.
   - Spanish and Uzbek each cover the whole of A1 in 10 units: Greetings, About me, Food, Numbers & money, Family,
     Getting around, Daily life, Time & weather, Faith (church, the Bible, prayer and talking about what you believe),
     and Health & plans (with simple past and future). About 200 words and phrases, 160+ sentences and 10 stories each.
-  - Faith around you: Sinhala Unit 9 (Buddhism: the temple, Poya, Vesak, monks and etiquette) and Uzbek Unit 11
+  - Sinhala now covers A1 in 12 units, matching Spanish and Uzbek: Time & days, At home, Health & help, and Past & plans
+    complete it. Its coming-soon units are now A2.
+  - Faith around you: Sinhala Unit 13 (Buddhism: the temple, Poya, Vesak, monks and etiquette) and Uzbek Unit 11
     (Islam: the mosque, prayer, Ramadan, Eid, everyday blessings and etiquette), for understanding and respecting
     neighbours' faith. Pictures use symbols only, never images of the Buddha or the Prophet.
   - Spanish uses Mexican and US Spanish neural voices.
