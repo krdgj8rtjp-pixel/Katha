@@ -6,6 +6,7 @@ import { state } from './store.js';
 import * as audio from './audio.js';
 import * as sync from './sync.js';
 import { initUpdates, checkNow, versionLabel, refreshUpdateCard } from './update.js';
+import { showInstallHelp, shouldOfferInstall, snoozeInstall, isStandalone, isIOS, canPrompt, promptInstall, INSTALL_ICON } from './install.js';
 import { sfx, unlock } from './sfx.js';
 import { ICONS, mascot, toast, modal, confetti, showHint, hideHint, siLine, audioBtn, bigFlame, chestArt, trophyArt } from './ui.js';
 import { badge } from './badges.js';
@@ -198,7 +199,7 @@ function learnTab() {
   html += `<div class="path-end">${mascot('happy', 80)}<p>${nextIsA2
     ? `Units 1–${UNITS.length} cover the whole A1 course. A2 units will appear here as they're written.`
     : `Units ${UNITS.length + 1}–${UNITS.length + COMING.length} complete the A1 course. New units will appear here as they're written.`}</p></div>`;
-  return html + '</div>' + signInNudge();
+  return html + '</div>' + (signInNudge() || installNudge());
 }
 function nodeTitle(n) {
   if (n.type === 'chest') return 'Treasure chest';
@@ -543,6 +544,9 @@ function profileTab() {
     ${xpChart()}
     <a class="shop-link" href="#/shop">${ICONS.gem}<div><b>Shop</b><small>${S.gems()} gems · ${plural(S.freezesOwned(), 'streak freeze')}</small></div><span>›</span></a>
     <h3 class="sec-title">${ICONS.cloud} Account & sync</h3><div class="panel account">${account}</div>
+    ${isStandalone() ? '' : `<h3 class="sec-title">Get the app</h3>
+    <div class="panel get-app"><span class="ga-ic">${INSTALL_ICON}</span><div><b>Add Katha to your home screen</b><p class="muted">It opens full-screen like an app, works offline, and keeps your streak one tap away.</p>
+      <button class="btn primary small" data-act="install">${canPrompt() && !isIOS ? 'Install Katha' : 'Show me how'}</button></div></div>`}
     <h3 class="sec-title">Settings</h3>
     <div class="panel settings">
       <label class="setting"><div><b>Name</b></div><input class="name-in" type="text" value="${esc(p.name)}" placeholder="Your name" maxlength="30"></label>
@@ -636,7 +640,9 @@ const PERKS = `<ul class="perks">
 function openSignIn(reason) {
   if (!sync.configured() || window.KATHA_PREVIEW) return go('profile');
   if (sync.user()) return;
-  const lead = reason === 'speech' ? 'Sign in and Katha will check your speaking from the next exercise on.' : 'Free, and it takes a few seconds.';
+  const lead = reason === 'speech' ? 'Sign in and Katha will check your speaking from the next exercise on.'
+    : reason === 'install' ? 'Sign in here, then add Katha to your home screen and sign in there too. Your progress will be waiting.'
+    : 'Free, and it takes a few seconds.';
   modal({ title: 'Get the full Katha experience', body: PERKS + AUTH_FORM(lead), buttons: [{ label: 'Not now', value: null, cls: 'ghost' }], dismiss: null });
   const wrap = [...document.querySelectorAll('.modal-wrap')].pop();
   const form = wrap?.querySelector('.auth-form');
@@ -646,12 +652,24 @@ function openSignIn(reason) {
   });
 }
 document.addEventListener('click', (e) => {
-  const b = e.target.closest('[data-act="signin"], [data-act="nudge-later"], [data-act="check-update"]'); if (!b) return;
+  const b = e.target.closest('[data-act="signin"], [data-act="nudge-later"], [data-act="check-update"], [data-act="install"], [data-act="install-later"]'); if (!b) return;
   const act = b.dataset.act;
   if (act === 'signin') openSignIn('nudge');
   else if (act === 'check-update') checkNow();
+  else if (act === 'install') { b.closest('.install-float')?.remove(); snoozeInstall(); (canPrompt() && !isIOS) ? promptInstall() : openInstallHelp(); }
+  else if (act === 'install-later') { snoozeInstall(); b.closest('.nudge')?.remove(); }
   else { try { localStorage.setItem('katha.nudgeAt', String(Date.now())); } catch {} b.closest('.nudge')?.remove(); }
 });
+function openInstallHelp() {
+  showInstallHelp({ signedIn: !sync.configured() || !!sync.user() || !!window.KATHA_PREVIEW, onSignIn: () => openSignIn('install') });
+}
+// After the first lesson, invite phone users who are still in the browser to add Katha to their home screen.
+function installNudge() {
+  if (!shouldOfferInstall() || !Object.values(state.lessons).some(l => l?.done)) return '';
+  return `<div class="nudge float install-float"><span class="nudge-ic">${INSTALL_ICON}</span><div class="nudge-main">
+    <b>Put Katha on your home screen</b><p>It opens full-screen like an app, works offline, and your streak is one tap away.</p>
+    <div class="row-btns"><button class="btn primary small" data-act="install">${canPrompt() && !isIOS ? 'Install' : 'Show me how'}</button><button class="btn small ghost" data-act="install-later">Not now</button></div></div></div>`;
+}
 // The Learn-tab nudge: shown to signed-out learners after their first lesson, at most every few days.
 function signInNudge() {
   if (!sync.configured() || sync.user() || window.KATHA_PREVIEW) return '';
