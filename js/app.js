@@ -1,6 +1,6 @@
 // Katha — spoken Sinhala, Spanish and Uzbek. App shell, routing and screens.
 import { UNITS, COMING, LEX, STORIES, DEFAULT_VOICE, COURSE, COURSES, COURSE_IDS, useCourse, LETTER_GROUPS, ALL_LETTERS } from '../data/course.js';
-import { isSi, hasRo, hasLetters, L, ro, roLabel } from './lang.js';
+import { isSi, isIndic, hasRo, hasLetters, L, ro, roLabel } from './lang.js';
 import * as S from './store.js';
 import { state } from './store.js';
 import * as audio from './audio.js';
@@ -600,7 +600,7 @@ function profileTab() {
       <div class="setting avatar-set"><div><b>Avatar</b><small>What friends see on the leaderboard</small></div>
         <div class="av-pick">${AVATARS.map(a => `<button class="av-opt ${a === (p.avatar || 'aliya') ? 'on' : ''}" data-avatar="${a}" aria-label="${a}">${character(a, { head: true, size: 44 })}</button>`).join('')}</div></div>
       <label class="setting"><div><b>Daily goal</b></div><select data-goal>${[10, 20, 30, 50].map(g => `<option value="${g}" ${p.goal === g ? 'selected' : ''}>${g} XP · ${{ 10: 'Casual', 20: 'Regular', 30: 'Serious', 50: 'Intense' }[g]}</option>`).join('')}</select></label>
-      ${isSi() ? tog('roman', 'Show romanization', 'English letters under Sinhala script') : hasRo() ? tog('roman', 'Show Latin spelling', `The Latin-alphabet spelling under the ${COURSE.name} Cyrillic`) : ''}
+      ${isIndic() ? tog('roman', 'Show romanization', `English letters under ${COURSE.name} script`) : hasRo() ? tog('roman', 'Show Latin spelling', `The Latin-alphabet spelling under the ${COURSE.name} Cyrillic`) : ''}
       ${tog('sound', 'Sound effects')}
       ${tog('hearts', 'Hearts', 'Mistakes cost hearts in lessons')}
       ${tog('listening', 'Listening exercises')}
@@ -837,7 +837,7 @@ function renderOnboarding(step) {
     () => `<div class="onb">${mascot('happy', 110)}<h2>Where do you want to start?</h2>
       <button class="choice start-opt" data-start="lesson"><span class="so-ic">${ICONS.chat}</span><div><b>Start speaking</b><span>Jump into Unit 1: Greetings.${hasRo() ? ` The ${roLabel()} helps you read along.` : ''}</span></div></button>
       <button class="choice start-opt" data-start="placement"><span class="so-ic">${ICONS.target}</span><div><b>Find my level</b><span>Already know some ${esc(COURSE.name)}? A 5-minute test starts you in the right unit.</span></div></button>
-      ${hasLetters() ? `<button class="choice start-opt" data-start="letters"><span class="so-ic" lang="${L()}">${COURSE.letterIcon}</span><div><b>Learn the letters first</b><span>Get to know the ${isSi() ? 'Sinhala script' : 'Cyrillic alphabet'}, then start speaking.</span></div></button>` : ''}</div>`,
+      ${hasLetters() ? `<button class="choice start-opt" data-start="letters"><span class="so-ic" lang="${L()}">${COURSE.letterIcon}</span><div><b>Learn the letters first</b><span>Get to know the ${isIndic() ? `${COURSE.name} script` : 'Cyrillic alphabet'}, then start speaking.</span></div></button>` : ''}</div>`,
   ];
   app.innerHTML = `<div class="page onboarding">${step > 0 ? `<div class="onb-progress"><i style="width:${(step / (steps.length - 1)) * 100}%"></i></div>` : ''}${steps[step]()}</div>`;
   const root = app.querySelector('.onboarding');

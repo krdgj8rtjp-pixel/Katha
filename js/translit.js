@@ -135,7 +135,7 @@ export function foldUz(s) {
 // Compare a typed answer to a list of acceptable answers.
 // Returns 'exact' | 'typo' | false
 export function matchAnswer(input, accepted, mode = 'en') {
-  const fold = mode === 'roman' ? foldRoman : mode === 'uz' ? foldUz : foldLatin;
+  const fold = mode === 'roman' ? foldRoman : mode === 'taroman' ? foldTaRoman : mode === 'uz' ? foldUz : foldLatin;
   const a = fold(input);
   if (!a) return false;
   let best = Infinity;
@@ -148,4 +148,82 @@ export function matchAnswer(input, accepted, mode = 'en') {
   const len = Math.max(4, fold(accepted[0] || '').length);
   const allowed = len <= 5 ? 1 : Math.max(1, Math.floor(len / 7));
   return best <= allowed ? 'typo' : false;
+}
+
+// ---------- Tamil: script → learner-friendly romanization (how Sri Lankan Tamil is spoken)
+// Tamil writes k/g, s/ch/j, ṭ/ḍ, t/d, p/b with one letter each; the sound depends on where it sits:
+// hard at the start of a word or when doubled, soft (voiced) between vowels and after its nasal.
+// Long vowels get macrons; retroflex letters a dot (ṭ ḍ ṇ ḷ); ற is ṟ (tr when doubled, dr after ன்).
+const TA_VOW = { 'அ': 'a', 'ஆ': 'ā', 'இ': 'i', 'ஈ': 'ī', 'உ': 'u', 'ஊ': 'ū', 'எ': 'e', 'ஏ': 'ē', 'ஐ': 'ai', 'ஒ': 'o', 'ஓ': 'ō', 'ஔ': 'au' };
+const TA_SIGN = { 'ா': 'ā', 'ி': 'i', 'ீ': 'ī', 'ு': 'u', 'ூ': 'ū', 'ெ': 'e', 'ே': 'ē', 'ை': 'ai', 'ொ': 'o', 'ோ': 'ō', 'ௌ': 'au' };
+const TA_CONS = {
+  'க': 'k', 'ங': 'ṅ', 'ச': 's', 'ஞ': 'ñ', 'ட': 'ṭ', 'ண': 'ṇ', 'த': 't', 'ந': 'n', 'ப': 'p', 'ம': 'm',
+  'ய': 'y', 'ர': 'r', 'ல': 'l', 'வ': 'v', 'ழ': 'zh', 'ள': 'ḷ', 'ற': 'ṟ', 'ன': 'n',
+  'ஜ': 'j', 'ஶ': 'ś', 'ஷ': 'sh', 'ஸ': 's', 'ஹ': 'h',
+};
+const TA_PULLI = '்';
+const TA_SOFT = { 'க': 'g', 'ச': 's', 'ட': 'ḍ', 'த': 'dh', 'ப': 'b' };          // between vowels
+const TA_AFTER_NASAL = { 'க': ['ங', 'g'], 'ச': ['ஞ', 'j'], 'ட': ['ண', 'ḍ'], 'த': ['ந', 'd'], 'ப': ['ம', 'b'] };
+export function isTamil(s) { return /[஀-௿]/.test(s); }
+// Borrowed words the letters can't show (Tamil writes b/p, d/t, f the same way).
+const TA_WORDS = {
+  'பில்': 'bil', 'பஸ்': 'bas', 'பஸ்ஸில': 'bassila', 'டொக்டர்': 'ḍokṭar', 'டொக்டரிட்டைப்': 'ḍokṭariṭṭaip', 'ரீவி': 'ṭīvi',
+  'ஃபான்': 'fān', 'ஃபானைப்': 'fānaip', 'மீற்றர்': 'mīṭṭar', 'தீபாவளி': 'dīpāvaḷi', 'சேர்ச்சுக்குப்': 'sērchukkup', 'சேர்ச்சுக்கு': 'sērchukku',
+};
+export function taRoman(text) {
+  if (!text) return '';
+  if (/\s/.test(String(text).trim())) return String(text).split(/(\s+)/).map(w => (/^\s+$/.test(w) ? w : taRoman(w))).join('');
+  { const m = String(text).match(/^(.*?)([?!.,…:;]*)$/u); if (TA_WORDS[m[1]]) return TA_WORDS[m[1]] + m[2]; }
+  const cs = Array.from(String(text).normalize('NFC')).filter(c => c !== '‌' && c !== '‍');
+  // syllables: { c: consonant|null, v: vowel string|'' (dead) , raw }
+  let out = '', prev = null; // prev syllable in the current word
+  for (let i = 0; i < cs.length; i++) {
+    const c = cs[i];
+    if (TA_CONS[c]) {
+      const nx = cs[i + 1];
+      let v = 'a';
+      if (nx === TA_PULLI) { v = ''; i++; } else if (TA_SIGN[nx]) { v = TA_SIGN[nx]; i++; if (nx === 'ொ' || nx === 'ோ' || nx === 'ௌ') { /* single code points in NFC */ } }
+      let r = TA_CONS[c];
+      const gem = prev && prev.v === '' && prev.c === c;
+      const afterVowel = prev && (prev.v !== '' || (prev.v === '' && 'யரலவழள'.includes(prev.c)));  // vowels and y r l v zh ḷ soften the next stop
+      if (c === 'ற') r = gem ? 'r' : prev && prev.v === '' && prev.c === 'ன' ? 'dr' : 'ṟ';
+      else if (c === 'ச' && gem) r = 'ch';
+      else if (v !== '' && TA_AFTER_NASAL[c] && prev && prev.v === '' && prev.c === TA_AFTER_NASAL[c][0]) r = TA_AFTER_NASAL[c][1];
+      else if (v !== '' && TA_SOFT[c] && afterVowel) r = TA_SOFT[c];   // a stop with a dead pulli stays hard
+      // a dead nasal/ற before its partner reads plainly: ங்க → ng, ஞ்ச → nj, ற்ற → tr, ச்ச → chch
+      if (v === '') {
+        const nn = cs[i + 1];
+        if (c === 'ங' && nn === 'க') r = 'n';
+        else if (c === 'ஞ' && nn === 'ச') r = 'n';
+        else if (c === 'ற' && nn === 'ற') r = 't';
+        else if (c === 'ச') r = 'ch';   // ச் before ச (குடிச்சன்) or at the end of a borrowed word (சேர்ச்)
+      }
+      out += r + v;
+      prev = { c, v };
+      continue;
+    }
+    if (TA_VOW[c]) { out += TA_VOW[c]; prev = { c: null, v: TA_VOW[c] }; continue; }
+    if (c === 'ஃ') { out += 'h'; prev = { c: 'ஃ', v: '' }; continue; }
+    if (TA_SIGN[c] || c === TA_PULLI || c === 'ௗ') continue; // stray sign
+    out += c; prev = null;  // space or punctuation ends the word
+  }
+  return out;
+}
+export function foldTamil(s) {
+  return String(s).normalize('NFC').replace(/[‌‍]/g, '').replace(/[^஀-௿ ]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+// Romanized Tamil typed by learners ("vanakkam", "nanri", "eppidi irukkeenga"): voicing, long vowels
+// and doubled letters don't decide whether an answer is right.
+export function foldTaRoman(s) {
+  return foldLatin(s)
+    .replace(/ny|gn/g, 'n') // ஞ: ñ, ny or gn
+    .replace(/zh/g, 'l').replace(/ee/g, 'i').replace(/oo/g, 'u')
+    .replace(/th/g, 't').replace(/dh/g, 't').replace(/d/g, 't')
+    .replace(/kh/g, 'k').replace(/g/g, 'k')
+    .replace(/sh/g, 's').replace(/ch/g, 's').replace(/j/g, 's').replace(/c/g, 's')
+    .replace(/ph/g, 'p').replace(/bh/g, 'p').replace(/b/g, 'p')
+    .replace(/w/g, 'v')
+    .replace(/([a-z])\1+/g, '$1')
+    .replace(/ntr/g, 'nr').replace(/tr/g, 'r')
+    .replace(/\s+/g, '');
 }

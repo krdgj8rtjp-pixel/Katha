@@ -162,6 +162,33 @@ const BUILD = {
     extrasHead: `<path d="M35 38 L38 20 Q60 14 82 20 L85 38 Q60 33 35 38Z" fill="#17131a"/><path d="M38 20 Q60 14 82 20" stroke="#2c2630" stroke-width="2" fill="none"/>
       ${[[46, 31, -1], [60, 28, 1], [74, 31, 1]].map(([x, y, d]) => `<path d="M${x - 2 * d} ${y + 5} C${x - 5 * d} ${y - 1} ${x - d} ${y - 5} ${x + 3 * d} ${y - 6} C${x + d} ${y - 2} ${x + 2 * d} ${y + 2} ${x - 2 * d} ${y + 5}Z" fill="#fff"/>`).join('')}`,
   }, pose),
+  // ---- Tamil course (Jaffna): Kavitha, Ravi and their grandmother Ammamma
+  kavitha: (pose) => person({
+    skin: '#9A5F3C', shade: '#7E4B2D', browColor: '#141014', lashes: true, lip: '#6e2828',
+    shirt: '#D35F1E',
+    shirtExtras: `<path d="M24 132 C32 112 46 99 64 95 L82 132Z" fill="#B8441A"/><path d="M64 95 L83 132" stroke="#F2C14E" stroke-width="3.4"/><path d="M27 125 Q50 117 72 123" stroke="#F2C14E" stroke-width="2.2" fill="none"/><path d="M47 93 Q60 101 73 93" stroke="#F2C14E" stroke-width="2.6" fill="none"/>`,
+    hairBack: `<path d="M30 58 C27 28 44 20 60 20 C77 20 94 28 90 58 C89 66 87 70 85 72 L35 72 C33 70 31 66 30 58Z" fill="#141014"/>
+      <g fill="#141014">${[0, 1, 2, 3, 4].map(i => `<ellipse cx="${88 + (i % 2 ? -1.5 : 1.5)}" cy="${72 + i * 10}" rx="5.4" ry="6.4"/>`).join('')}</g>
+      ${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${93 + (i % 2 ? 1 : -0.5)}" cy="${68 + i * 8}" r="2.3" fill="#FFFDF5" stroke="#E9E2CF" stroke-width=".5"/>`).join('')}`,
+    hairFront: `<path d="M32.5 53 C33 33 45 26 60 26 C75 26 87 33 87.5 53 C82 41 72 35 60.5 35.5 C49 35 38 41 32.5 53Z" fill="#141014"/><path d="M60 26 V35" stroke="#2a2229" stroke-width="1.4"/>`,
+    extrasHead: `${[[33.5, 66], [86.5, 66]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.2" fill="#F2C14E"/><path d="M${x - 2.4} ${y + 3} q2.4 4 4.8 0z" fill="#F2C14E"/>`).join('')}`,
+  }, pose),
+  ravi: (pose) => person({
+    skin: '#8E5534', shade: '#74432A', browColor: '#100d10', lip: '#4f2620',
+    shirt: '#F4F2EC',
+    shirtExtras: `<path d="M49 92 L60 106 L71 92 L67 90 L60 99 L53 90Z" fill="#E4E0D6"/><path d="M60 106 V132" stroke="#D9D4C8" stroke-width="1.6"/><circle cx="60" cy="114" r="1.6" fill="#B9B3A6"/><circle cx="60" cy="124" r="1.6" fill="#B9B3A6"/>
+      <path d="M38 108 h11 v8 h-11z" fill="#E9E5DB"/><path d="M41 104 v7" stroke="#1565C0" stroke-width="2" stroke-linecap="round"/>`,
+    hairFront: `<path d="M32.5 51 C31 30 45 22 61 22 C77 22 90 30 87.5 51 C86 43 81 37 73 35 C66 38 52 39 44 36 C38 39 34 44 32.5 51Z" fill="#100d10"/><path d="M33 51 l1 7 M87 51 l-1 7" stroke="#100d10" stroke-width="4" stroke-linecap="round"/>`,
+    extrasFace: `<path d="M48 66.5 q6 -6 12 -2 q6 -4 12 2 q-3 3.4 -6 2.6 q-3 -1 -6 -0.6 q-3 -0.4 -6 0.6 q-3 0.8 -6 -2.6z" fill="#100d10"/>`,
+  }, pose),
+  ammamma: (pose) => person({
+    skin: '#8C5536', shade: '#734429', browColor: '#d9d4cf', lashes: true, lip: '#6e3030',
+    shirt: '#5B2C6F',
+    shirtExtras: `<path d="M22 132 C30 112 44 98 62 94 L80 132Z" fill="#47205A"/><path d="M62 94 L81 132" stroke="#E2B13C" stroke-width="3.4"/><path d="M25 124 Q50 116 70 122" stroke="#E2B13C" stroke-width="2.2" fill="none"/><path d="M48 92 Q60 100 72 92" stroke="#E2B13C" stroke-width="2.4" fill="none"/>`,
+    hairBack: `<ellipse cx="60" cy="24" rx="12" ry="9" fill="#B8B2AA"/><path d="M31 56 C29 32 44 24 60 24 C76 24 91 32 89 56 C88 62 86 66 84 68 L36 68 C34 66 32 62 31 56Z" fill="#C5BFB7"/>`,
+    hairFront: `<path d="M33 52 C34 34 46 28 60 28 L60 36 C48 37 38 42 33 52Z M87 52 C86 34 74 28 60 28 L60 36 C72 37 82 42 87 52Z" fill="#D3CEC6"/>`,
+    extrasFace: `<g fill="none" stroke="#3b2a1c" stroke-width="1.6"><rect x="40" y="48.5" width="14" height="11" rx="4"/><rect x="66" y="48.5" width="14" height="11" rx="4"/><path d="M54 53 q6 -2.6 12 0"/></g><circle cx="33.5" cy="66" r="2.3" fill="#E2B13C"/><circle cx="86.5" cy="66" r="2.3" fill="#E2B13C"/><circle cx="56.5" cy="63.5" r="1.3" fill="#E2B13C"/>`,
+  }, pose),
   // ---- Family casts for the Spanish and Uzbek courses (they stand in for amma, thaththa, putha, duva),
   // plus grandparents used by every course.
   madre: (pose) => person({
@@ -304,6 +331,9 @@ export const CAST = {
   achchi: { name: 'Achchi', color: '#9C6B3C' },
   buvi: { name: 'Buvi', color: '#7A2B3A' },
   aziz: { name: 'Aziz', color: '#2D5B9A' },
+  kavitha: { name: 'Kavitha', color: '#C0501A' },
+  ravi: { name: 'Ravi', color: '#00796B' },
+  ammamma: { name: 'Ammamma', color: '#5B2C6F' },
 };
 
 let n = 0;

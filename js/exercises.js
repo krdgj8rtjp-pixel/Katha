@@ -1,8 +1,8 @@
 // Exercise renderers. Each returns a controller:
 //   { el, footer: 'check'|'continue'|'none', check(): {ok, solution, meaning, items?}, autoplay?(), ungraded? }
 import { esc, shuffle, siTokens, enTokens } from './util.js';
-import { matchAnswer, foldSinhala, isSinhala } from './translit.js';
-import { ro, foldT, isSi, isUz, hasRo, L, courseName } from './lang.js';
+import { matchAnswer, foldSinhala, isSinhala, foldTamil, isTamil } from './translit.js';
+import { ro, foldT, isSi, isTa, isIndic, isUz, hasRo, L, courseName } from './lang.js';
 import { ICONS, siLine, audioBtn, letterDraw } from './ui.js';
 import { character, castId } from './characters.js';
 import { pic, hasPic } from './pics.js';
@@ -285,8 +285,8 @@ function typeSi(ex, ctx) {
   let typed = '';
   const el = h(`<div class="ex">${title(`Write this in ${courseName()}`)}
     ${bubble(`<div class="en-prompt">${esc(it.en)}</div>`, 'aliya')}
-    <input class="type-box one" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${isSi() ? 'Type it — English letters are fine' : isUz() ? 'Type it — Cyrillic or Latin letters' : 'Type it — accents are optional'}">
-    ${isSi() ? `<p class="type-tip">Tip: type how it sounds, e.g. <i>${esc(exampleRo(it))}</i></p>` : ''}
+    <input class="type-box one" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${isIndic() ? 'Type it — English letters are fine' : isUz() ? 'Type it — Cyrillic or Latin letters' : 'Type it — accents are optional'}">
+    ${isIndic() ? `<p class="type-tip">Tip: type how it sounds, e.g. <i>${esc(exampleRo(it))}</i></p>` : ''}
   </div>`);
   const inp = el.querySelector('input');
   inp.addEventListener('input', () => { typed = inp.value; ctx.onReady(typed.trim().length > 0); });
@@ -296,6 +296,7 @@ function typeSi(ex, ctx) {
     check: () => {
       let ok;
       if (isUz()) ok = matchAnswer(typed, ex.accepted, 'uz');
+      else if (isTa()) ok = isTamil(typed) ? (foldTamil(typed) === foldTamil(it.si) ? 'exact' : false) : matchAnswer(typed, ex.accepted.filter(a => !isTamil(a)), 'taroman');
       else if (!isSi()) ok = matchAnswer(typed, ex.accepted, 'en');
       else if (isSinhala(typed)) ok = foldSinhala(typed) === foldSinhala(it.si) ? 'exact' : false;
       else ok = matchAnswer(typed, ex.accepted.filter(a => !isSinhala(a)), 'roman');
@@ -303,7 +304,7 @@ function typeSi(ex, ctx) {
     },
   };
 }
-function exampleRo(it) { return it.id === 'ayubovan' ? 'kohomada' : 'ayubowan'; }
+function exampleRo(it) { return isTa() ? (it.id === 'ta_vanakkam' ? 'nanri' : 'vanakkam') : it.id === 'ayubovan' ? 'kohomada' : 'ayubowan'; }
 
 // ---------------------------------------------------------------- speaking
 const PASS = 0.6, PASS_RETRY = 0.5;

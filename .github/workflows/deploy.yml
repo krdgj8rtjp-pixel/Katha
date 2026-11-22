@@ -53,7 +53,7 @@ jobs:
           echo "::add-mask::$KEY"
           echo "AZURE_SPEECH_KEY=$KEY" >> "$GITHUB_ENV"
 
-      - name: Generate any missing Sinhala audio
+      - name: Generate any missing audio
         if: env.AZURE_SPEECH_KEY != ''
         run: node tools/generate-audio.mjs
 

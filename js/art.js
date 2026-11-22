@@ -132,6 +132,14 @@ const verandahHouse = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale
 const train = (x, y, s = 1, cars = 3) => `<g transform="translate(${x} ${y}) scale(${s})">${Array.from({ length: cars }, (_, i) => `<g transform="translate(${-i * 62} 0)"><rect x="-58" y="-34" width="56" height="30" rx="5" fill="${i ? '#1F4E8C' : '#C0392B'}"/><rect x="-58" y="-34" width="56" height="5" rx="2" fill="${i ? '#173C6B' : '#962D22'}"/>${[-52, -38, -24].map(wx => `<rect x="${wx}" y="-26" width="10" height="9" rx="1.5" fill="#BFE6FA"/>`).join('')}<circle cx="-46" cy="-3" r="4.4" fill="#2b2230"/><circle cx="-14" cy="-3" r="4.4" fill="#2b2230"/></g>`).join('')}<path d="M-2 -32 Q8 -30 8 -18 L8 -6 L-2 -6Z" fill="#C0392B"/><circle cx="4" cy="-14" r="2.6" fill="#FFE08A"/></g>`;
 const kandyTemple = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-46" y="-20" width="92" height="20" fill="#FBF7EE"/><path d="M-50 -20 L-40 -30 L40 -30 L50 -20Z" fill="#B5502F"/>${[-36, -24, 24, 36].map(wx => `<rect x="${wx - 3}" y="-15" width="6" height="9" rx="3" fill="#7A4A2A"/>`).join('')}
   <path d="M-14 -20 L-14 -48 L-8 -54 L8 -54 L14 -48 L14 -20Z" fill="#FBF7EE"/><path d="M-18 -52 L0 -66 L18 -52Z" fill="#B5502F"/><path d="M-14 -40 H14" stroke="#E4DCCB" stroke-width="1.4"/>${[-8, 0, 8].map(wx => `<rect x="${wx - 2}" y="-36" width="4" height="7" rx="2" fill="#7A4A2A"/>`).join('')}</g>`;
+// Jaffna: palmyra palms (straight trunks, fan-leaf crowns) and a kovil gopuram.
+const palmyra = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-2.6 0 L-2 -70 L2 -70 L2.6 0Z" fill="#5B4636"/>${[-60, -44, -28].map(h => `<path d="M-2.6 ${h} h5.2" stroke="#3E2F24" stroke-width="1"/>`).join('')}
+  <g class="s-sway" style="transform-origin:0 -70px">${Array.from({ length: 11 }, (_, i) => { const a = (-175 + i * 17) * Math.PI / 180; return `<path d="M0 -70 L${(Math.cos(a) * 20).toFixed(1)} ${(-70 + Math.sin(a) * 20).toFixed(1)}" stroke="${i % 2 ? '#2E7D32' : '#3C9A43'}" stroke-width="6" stroke-linecap="round"/>`; }).join('')}
+  <circle cx="-3" cy="-66" r="3" fill="#3a2a1d"/><circle cx="3" cy="-65" r="3" fill="#3a2a1d"/><circle cx="0" cy="-63" r="3" fill="#2a1f15"/></g></g>`;
+const kovilTower = (x, y, s = 1, gold = false) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-26" y="-16" width="52" height="16" fill="${gold ? '#F2C14E' : '#F2D28B'}" stroke="#B5803A" stroke-width="1.2"/><path d="M-7 0 V-10 Q0 -17 7 -10 V0Z" fill="#6b3a16"/>
+  ${[0, 1, 2, 3, 4, 5].map(i => { const w = 48 - i * 7, yy = -16 - i * 12; return `<rect x="${-w / 2}" y="${yy - 12}" width="${w}" height="12" fill="${gold ? (i % 2 ? '#E6B43C' : '#F2C14E') : (i % 2 ? '#E8C27A' : '#F2D28B')}" stroke="#B5803A" stroke-width="1.2"/>${Array.from({ length: Math.max(1, 5 - i) }, (_, k) => `<rect x="${(-w / 2 + (k + .5) * w / Math.max(1, 5 - i) - 2).toFixed(1)}" y="${yy - 9}" width="4" height="7" rx="2" fill="#9A6A2E" opacity=".7"/>`).join('')}`; }).join('')}
+  <path d="M-13 -88 Q0 -100 13 -88Z" fill="${gold ? '#F2C14E' : '#E8C27A'}" stroke="#B5803A" stroke-width="1.2"/>${[-7, 0, 7].map(dx => `<path d="M${dx} -94 v-6" stroke="#C98A0C" stroke-width="2"/><circle cx="${dx}" cy="-101" r="2" fill="#C98A0C"/>`).join('')}</g>`;
+const stripeWall = (x1, x2, y, h) => `<rect x="${x1}" y="${y - h}" width="${x2 - x1}" height="${h}" fill="#FBF7EE"/>${Array.from({ length: Math.floor((x2 - x1) / 10) }, (_, i) => `<rect x="${x1 + 3 + i * 10}" y="${y - h}" width="5" height="${h}" fill="#C0392B"/>`).join('')}<rect x="${x1 - 2}" y="${y - h - 4}" width="${x2 - x1 + 4}" height="5" fill="#E8C27A"/>`;
 const SCENES = {
   u1: { who: 'aliya', art: () => `${palm(26, 150, .95)}${palm(160, 150, .8, true)}${sun(150, 26)}${cloud(48, 34, .9)}` },
   u2: { who: 'kumari', art: () => `${sigiriya(96, 150, .9)}${palm(18, 150, .8)}${cloud(150, 30)}` },
@@ -159,6 +167,8 @@ const SCENES = {
   u11: { who: 'amma', art: () => `${verandahHouse(160, 150, .6)}${palm(22, 150, .8)}${sun(170, 24, 10)}${cloud(80, 26, .7)}` },
   u12: { who: 'nimal', art: () => `${pharmacySign(30, 150, 1)}${smallHouse(160, 150, .66)}${sun(40, 26, 10)}${cloud(120, 24, .7)}` },
   u13: { who: 'john', art: () => `<path d="M0 150 L0 108 L30 88 L56 104 L90 80 L126 102 L160 84 L190 100 L190 150Z" fill="#9CCF7A" opacity=".7"/>${train(188, 150, .5, 2)}${sun(150, 26, 11)}${cloud(60, 28, .8)}` },
+  tau12: { who: 'john', art: () => `<path d="M0 150 L0 116 L190 112 L190 150Z" fill="#E2C590" opacity=".7"/>${palmyra(20, 150, .85)}${palmyra(44, 150, .62)}${train(190, 150, .46, 2)}${sun(160, 24, 10)}${cloud(82, 26, .7)}` },
+  tau13: { who: 'ammamma', art: () => `${kovilTower(158, 150, .62, true)}${palmyra(22, 150, .8)}${sun(40, 24, 10)}` },
   uzmasjid: { who: 'john', art: () => `${mosque(160, 150, .52)}${poplar(20, 150, .8)}${poplar(36, 150, .65)}${sun(96, 24, 11)}` },
   esplaza: { who: 'kumari', art: () => `${colonial(146, 150, .72)}${fountain(30, 150, .72)}${sun(36, 30, 11)}${cloud(96, 24, .7)}` },
   esmarket: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${taxi(150, 150, .62)}${cloud(40, 28, .8)}` },
@@ -384,6 +394,21 @@ SCENE_ART.st_u13 = (id) => `${sky(id, '#9ED8F5', '#FFF2DA')}${spinSun(300, 36, 1
   ${kandyTemple(232, 158, .9)}<path d="M180 160 H290" stroke="#fff" stroke-width="2" opacity=".5"/>
   ${palm(26, 190, .65)}${palm(340, 190, .55, true)}
   <path d="M0 184 Q180 176 360 184 L360 200 L0 200Z" fill="#D9C9A8"/>`;
+// Tamil course: the train north to Jaffna (palmyra palms, the old fort) and the Nallur festival.
+SCENE_ART.st_tau12 = (id) => `${sky(id, '#9ED8F5', '#FFF2DA')}${spinSun(300, 36, 13)}${drift(90, 30, 1, 50, 4)}${drift(230, 22, .8, 44, 26)}${bird(150, 50, .8, .5)}
+  <path d="M0 128 Q180 118 360 126 L360 200 L0 200Z" fill="#D9B27A"/><path d="M0 120 Q90 112 180 118 Q270 124 360 116 L360 132 L0 132Z" fill="#9CBF6A"/>
+  ${palmyra(28, 128, .9)}${palmyra(60, 126, .7)}${palmyra(338, 126, .85)}${palmyra(312, 124, .6)}
+  <rect x="0" y="134" width="360" height="5" fill="#8E7A62"/><g transform="translate(0 135)"><g class="s-drive" style="animation-duration:15s">${train(0, 0, .62)}</g></g>
+  <path d="M206 160 L214 146 L286 146 L294 160Z" fill="#9E9384"/><path d="M214 146 L222 138 L278 138 L286 146Z" fill="#B3A897"/>${[222, 238, 254, 270].map(x => `<rect x="${x}" y="133" width="8" height="6" fill="#B3A897"/>`).join('')}<path d="M214 152 H286" stroke="#857A6B" stroke-width="1.5"/>
+  <path d="M0 168 Q180 160 360 170 L360 200 L0 200Z" fill="#7FB8C9"/>${[[60, 182], [180, 186], [300, 180]].map(([wx, wy], i) => `<path class="s-twinkle" style="animation-delay:${i * .5}s" d="M${wx - 12} ${wy} q6 -3 12 0 t12 0" stroke="#fff" stroke-width="2" fill="none" opacity=".8"/>`).join('')}`;
+SCENE_ART.st_tau13 = (id) => `${sky(id, '#FFD9A0', '#FFF6E6')}${spinSun(64, 44, 15, '#FFB84D')}${drift(200, 24, .9, 46, 8)}
+  ${palmyra(24, 150, .95)}${palmyra(336, 150, .9)}${kovilTower(180, 142, .95, true)}${stripeWall(40, 126, 142, 34)}${stripeWall(234, 320, 142, 34)}
+  ${Array.from({ length: 14 }, (_, i) => `<path d="M${50 + i * 19} 70 l6 10 l6 -10" fill="${['#C0392B', '#F2C14E', '#2E86C1', '#27AE60'][i % 4]}"/>`).join('')}<path d="M44 70 Q180 64 316 70" stroke="#8B5A2B" stroke-width="1.2" fill="none"/>
+  <path d="M0 142 H360 V200 H0Z" fill="#EAD3A2"/><path d="M0 142 H360" stroke="#D8BC86" stroke-width="2"/>
+  <g transform="translate(247 152) scale(.62)"><path d="M-32 -26 H32 V-16 H-32Z" fill="#8B5A2B"/><path d="M-24 -50 H24 V-26 H-24Z" fill="#6A421E"/>${[-18, -6, 6].map(x => `<rect x="${x}" y="-46" width="8" height="14" rx="2" fill="#C98A0C"/>`).join('')}
+    ${[[-28, -50, 28, -60, '#C0392B'], [-23, -60, 23, -70, '#FBF7EE'], [-18, -70, 18, -80, '#C0392B'], [-12, -80, 12, -88, '#F5B731']].map(([x1, y1, x2, y2, c]) => `<path d="M${x1} ${y1} L${x2} ${y1} L${x2 - 5} ${y2} L${x1 + 5} ${y2}Z" fill="${c}" stroke="#7a1f14" stroke-width=".8"/>`).join('')}
+    <circle cx="0" cy="-92" r="3" fill="#C98A0C"/>${[-20, 20].map(x => `<circle cx="${x}" cy="-12" r="11" fill="#4A2E14"/><circle cx="${x}" cy="-12" r="6" fill="none" stroke="#C98A0C" stroke-width="1.6"/>`).join('')}
+    <path d="M-32 -20 Q-46 -14 -58 -2" stroke="#C9A227" stroke-width="2.4" fill="none"/><path d="M32 -20 Q46 -14 58 -2" stroke="#C9A227" stroke-width="2.4" fill="none"/></g>`;
 SCENE_ART.st_esu4 = (id) => SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55));
 
 export function storyScene(id) {

@@ -1,5 +1,5 @@
 // Generates every audio clip the app can play, for every course, using Azure
-// neural voices (Sinhala: si-LK-*, Spanish: es-MX-*, es-US-*, Uzbek: uz-UZ-*). Only missing clips
+// neural voices (Sinhala: si-LK-*, Spanish: es-MX-*, es-US-*, Uzbek: uz-UZ-*, Tamil: ta-LK-*). Only missing clips
 // are generated, so it's cheap to re-run after adding lessons.
 //
 //   AZURE_SPEECH_KEY=... AZURE_SPEECH_REGION=eastus node tools/generate-audio.mjs

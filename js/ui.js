@@ -1,5 +1,5 @@
 import { esc, rawTokens } from './util.js';
-import { hasRo, L, ro } from './lang.js';
+import { hasRo, L, ro, isIndic, scriptFont } from './lang.js';
 import { COURSE } from '../data/course.js';
 import { state } from './store.js';
 import { character } from './characters.js';
@@ -28,8 +28,8 @@ export const ICONS = {
   mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>',
   home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-7.2 9 7.2v9a1 1 0 0 1-1 1h-5.2v-6H9.2v6H4a1 1 0 0 1-1-1z" fill="currentColor"/></svg>',
   get letters() {
-    const si = COURSE.script === 'sinhala';
-    return `<svg viewBox="0 0 24 24" aria-hidden="true"><text x="12" y="18.5" text-anchor="middle" font-size="${si ? 18 : 17}" font-weight="${si ? 700 : 800}" fill="currentColor" font-family="${si ? 'Noto Sans Sinhala, Sinhala Sangam MN, sans-serif' : 'Nunito, sans-serif'}">${COURSE.letterIcon || 'Aa'}</text></svg>`;
+    const si = isIndic();
+    return `<svg viewBox="0 0 24 24" aria-hidden="true"><text x="12" y="18.5" text-anchor="middle" font-size="${si ? 18 : 17}" font-weight="${si ? 700 : 800}" fill="currentColor" font-family="${scriptFont()}">${COURSE.letterIcon || 'Aa'}</text></svg>`;
   },
   dumbbell: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.8" y="9" width="3" height="6" rx="1" fill="currentColor"/><rect x="5" y="6.5" width="3.5" height="11" rx="1.2" fill="currentColor"/><rect x="8.5" y="10.8" width="7" height="2.4" fill="currentColor"/><rect x="15.5" y="6.5" width="3.5" height="11" rx="1.2" fill="currentColor"/><rect x="19.2" y="9" width="3" height="6" rx="1" fill="currentColor"/></svg>',
   target: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/></svg>',

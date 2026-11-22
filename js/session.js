@@ -325,7 +325,7 @@ export function readableWords(known) {
     for (const c of Array.from(isSi() ? LEX[id].si : LEX[id].si.toLowerCase())) {
       if (c === ' ' || c === '‍' || /[?!.,…\-]/.test(c)) continue;
       if (knownSet.has(c)) continue;
-      if (/[්-ෟංඃ]/.test(c) && signOk(c)) continue;
+      if (/[්-ෟංඃ\u0BBE-\u0BCD\u0BD7]/.test(c) && signOk(c)) continue;
       return false;
     }
     return true;

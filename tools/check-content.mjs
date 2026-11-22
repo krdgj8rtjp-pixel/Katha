@@ -2,7 +2,7 @@
 import { COURSES } from '../data/course.js';
 import { hasPic } from '../js/pics.js';
 import { ALL_LETTERS } from '../data/letters.js';
-import { romanize, uzLatin } from '../js/translit.js';
+import { romanize, uzLatin, taRoman } from '../js/translit.js';
 
 let errors = 0;
 const err = (m) => { errors++; console.error('✗ ' + m); };
@@ -53,6 +53,13 @@ for (const C of Object.values(COURSES)) {
     }
     for (const l of C.ALL_LETTERS || []) if (l.ro.length < 4 && uzLatin(l.ch) !== l.ro && !'ец'.includes(l.ch)) err(tag + `letter ${l.ch}: converter gives "${uzLatin(l.ch)}", data says "${l.ro}"`);
   }
+  // Tamil: everything is in Tamil script (no stray Latin), and letters agree with the romanizer.
+  if (C.script === 'tamil') {
+    const texts = [...Object.entries(LEX).map(([id, x]) => [id, x.si]), ...Object.entries(SENT).map(([id, x]) => [id, x.si]),
+      ...Object.entries(STORIES).flatMap(([id, st]) => st.lines.filter(l => !l.q).map((l, i) => [`${id}#${i}`, l.si]))];
+    for (const [id, t] of texts) if (/[A-Za-z\u0D80-\u0DFF]/.test(t)) err(tag + `${id}: non-Tamil letters in "${t}"`);
+    for (const l of C.ALL_LETTERS || []) if (taRoman(l.ch) !== l.ro) err(tag + `letter ${l.ch}: taRoman gives "${taRoman(l.ch)}", data says "${l.ro}"`);
+  }
   const words = Object.keys(LEX).length, sents = Object.keys(SENT).length;
   console.log(`${C.name}: ${words} words/chunks, ${sents} sentences, ${Object.keys(STORIES).length} stories${C.ALL_LETTERS ? `, ${C.ALL_LETTERS.length} letters` : ''}`);
 }
@@ -63,7 +70,7 @@ for (const l of ALL_LETTERS) {
 
 if (process.argv.includes('-v')) {
   for (const C of Object.values(COURSES)) {
-    const lat = (t) => (C.script === 'sinhala' ? romanize(t) : C.script === 'cyrillic' ? uzLatin(t) : '');
+    const lat = (t) => (C.script === 'sinhala' ? romanize(t) : C.script === 'tamil' ? taRoman(t) : C.script === 'cyrillic' ? uzLatin(t) : '');
     for (const [id, x] of Object.entries(C.LEX)) console.log(id.padEnd(18), x.si.padEnd(20), lat(x.si).padEnd(20), x.en);
     for (const [id, x] of Object.entries(C.SENT)) console.log(id.padEnd(22), (lat(x.si) || x.si).padEnd(36), x.en);
   }

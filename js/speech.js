@@ -1,7 +1,7 @@
 // Speaking check: turn a recording into 16 kHz mono WAV, send it to the
 // "transcribe" helper (Azure, via Supabase), and grade it against the target.
 import { levenshtein } from './translit.js';
-import { foldT, isSi, isUz } from './lang.js';
+import { foldT, isSi, isTa, isUz } from './lang.js';
 import { COURSE } from '../data/course.js';
 import { transcribe, canTranscribe } from './sync.js';
 import { state } from './store.js';
@@ -69,12 +69,15 @@ const DIGITS_SI = { 1: 'එක', 2: 'දෙක', 3: 'තුන', 4: 'හතර',
 // Spoken/written spellings the recognizer may use for the same word.
 const DIGITS_ES = { 1: 'uno', 2: 'dos', 3: 'tres', 4: 'cuatro', 5: 'cinco', 6: 'seis', 7: 'siete', 8: 'ocho', 9: 'nueve', 10: 'diez', 15: 'quince', 20: 'veinte', 50: 'cincuenta', 100: 'cien' };
 const DIGITS_UZ = { 1: 'bir', 2: 'ikki', 3: 'uch', 4: 'toʻrt', 5: 'besh', 6: 'olti', 7: 'yetti', 8: 'sakkiz', 9: 'toʻqqiz', 10: 'oʻn', 15: 'oʻn besh', 20: 'yigirma', 50: 'ellik', 100: 'yuz', 1000: 'ming' };
-const SAME = [['නැහැ', 'නෑ', 'නැ'], ['ඕනේ', 'ඕනෑ'], ['හොඳයි', 'හොදයි'], ['ස්තුතියි', 'ස්තූතියි'], ['මොකක්ද', 'මොකද්ද'], ['කීයද', 'කීයක්ද']];
+// Sri Lankan Tamil numbers as spoken; the recognizer (Indian Tamil) may write digits or the written forms.
+const DIGITS_TA = { 1: 'ஒண்டு', 2: 'ரெண்டு', 3: 'மூண்டு', 4: 'நாலு', 5: 'அஞ்சு', 6: 'ஆறு', 7: 'ஏழு', 8: 'எட்டு', 9: 'ஒன்பது', 10: 'பத்து', 20: 'இருபது', 50: 'ஐம்பது', 100: 'நூறு', 200: 'இருநூறு', 1000: 'ஆயிரம்' };
+const SAME = [['නැහැ', 'නෑ', 'නැ'], ['ඕනේ', 'ඕනෑ'], ['හොඳයි', 'හොදයි'], ['ස්තුතියි', 'ස්තූතියි'], ['මොකක්ද', 'මොකද්ද'], ['කීයද', 'කීයක්ද'],
+  ['ஒண்டு', 'ஒன்று', 'ஒன்னு'], ['ரெண்டு', 'இரண்டு'], ['மூண்டு', 'மூன்று', 'மூணு'], ['அஞ்சு', 'ஐந்து'], ['ஓம்', 'ஆம்'], ['நன்றி', 'நன்றீ'], ['இண்டைக்கு', 'இன்றைக்கு'], ['எங்கை', 'எங்கே'], ['இஞ்சை', 'இங்கே'], ['வேணும்', 'வேண்டும்'], ['எப்பிடி', 'எப்படி']];
 const canon = {};
 SAME.forEach(g => g.forEach(w => { canon[w] = g[0]; }));
 
 function tokens(s) {
-  const D = isSi() ? DIGITS_SI : isUz() ? DIGITS_UZ : DIGITS_ES;
+  const D = isSi() ? DIGITS_SI : isTa() ? DIGITS_TA : isUz() ? DIGITS_UZ : DIGITS_ES;
   let text = String(s || '');
   if (isUz()) text = text.replace(/(\d+)[\s,.\u00a0]?000\b/g, '$1 ming'); // "50 000 so'm" → "50 ming so'm"
   const withWords = text.replace(/\d+/g, d => ` ${D[d] || d} `);

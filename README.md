@@ -1,26 +1,33 @@
-# Katha (කතා) — learn spoken Sinhala, Spanish and Uzbek
+# Katha (කතා) — learn spoken Sinhala, Spanish, Uzbek and Tamil
 
-A Duolingo-style app for **everyday spoken Sinhala**, **Latin American Spanish** and **Uzbek** (in Cyrillic), aiming at CEFR **A1**.
+A Duolingo-style app for **everyday spoken Sinhala**, **Latin American Spanish**, **Uzbek** (in Cyrillic) and **Sri Lankan Tamil**, aiming at CEFR **A1**.
 It's an installable web app (PWA) that runs offline, is hosted free on GitHub Pages,
 and can sync your progress across devices through a free Supabase project.
 
 ## What's in it
 
-- **Three courses**: Sinhala, Spanish and Uzbek. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
+- **Four courses**: Sinhala, Spanish, Uzbek and Tamil. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
   are shared; each course keeps its own path, words and practice.
   - Spanish and Uzbek each cover the whole of A1 in 10 units: Greetings, About me, Food, Numbers & money, Family,
     Getting around, Daily life, Time & weather, Faith (church, the Bible, prayer and talking about what you believe),
     and Health & plans (with simple past and future). About 200 words and phrases, 160+ sentences and 10 stories each.
   - Sinhala now covers A1 in 12 units, matching Spanish and Uzbek: Time & days, At home, Health & help, and Past & plans
     complete it. Its coming-soon units are now A2.
+  - Tamil teaches everyday spoken **Sri Lankan** Tamil (the way people talk in Jaffna), in 12 A1 units plus
+    "Hinduism around you": about 255 words and phrases, 225 sentences and 13 stories. It keeps the Jaffna forms
+    (ஓம் for yes, polite -ங்கோ requests, -அம் for "let's", கதை, தேத்தண்ணி, என்ரை/உங்கடை) and notes the written
+    forms in the tips. Church words follow Tamil Protestant usage (சபை, ஜெபம், தேவன், வேதாகமம், ஸ்தோத்திரம்), with
+    the Catholic words mentioned. It has a 47-letter Tamil script trainer, romanization under the Tamil (toggle in
+    settings), and typed answers are accepted in Tamil script or in romanization.
   - Faith around you: Sinhala Unit 13 (Buddhism: the temple, Poya, Vesak, monks and etiquette) and Uzbek Unit 11
-    (Islam: the mosque, prayer, Ramadan, Eid, everyday blessings and etiquette), for understanding and respecting
-    neighbours' faith. Pictures use symbols only, never images of the Buddha or the Prophet.
+    (Islam: the mosque, prayer, Ramadan, Eid, everyday blessings and etiquette), and Tamil Unit 13 (Hinduism: the
+    kovil, pooja, holy ash and pottu, Thai Pongal, Deepavali and the Nallur festival), for understanding and
+    respecting neighbours' faith. Pictures use symbols only, never images of the Buddha, the Prophet or Hindu deities.
   - Spanish uses Mexican and US Spanish neural voices.
   - Uzbek is written in Cyrillic, with a 35-letter Cyrillic trainer and the official Latin spelling shown under the
     Cyrillic (toggle in settings). Typed answers are accepted in either alphabet.
   - Pictures are drawn once by meaning and re-cast per course: Sofía, Mateo and a Latin American family for Spanish;
-    Dilnoza, Aziz and an Uzbek family for Uzbek.
+    Dilnoza, Aziz and an Uzbek family for Uzbek; Kavitha, Ravi and Ammamma (grandmother) for Tamil.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
 - **Find my level / Jump here?** (modelled on Duolingo): an adaptive placement test when you start a course (two right
   answers move up a unit, two misses stop it), and a 12-question test on the first lesson of any locked unit (3 lives).
@@ -55,8 +62,8 @@ js/                                       app code — no framework, no build st
   translit.js  romanization + answer matching
   config.js    ← your Supabase URL and key go here
 data/course.js                            the list of courses; the app reads the current one through it
-data/si.js, data/es.js, data/uz.js        each course's content (words, sentences, stories, units)
-data/letters.js, data/uz-letters.js       letters trainers (Sinhala script, Uzbek Cyrillic)
+data/si.js, es.js, uz.js, ta.js          each course's content (words, sentences, stories, units)
+data/letters.js, uz-letters.js, ta-letters.js   letters trainers (Sinhala, Uzbek Cyrillic, Tamil)
 js/lang.js                                small helpers for script/language differences between courses
 data/letters.js                           the letters trainer
 audio/                                    generated .mp3 clips + index.json
@@ -99,7 +106,11 @@ and `es-US-AlonsoNeural` (John). Uzbek uses `uz-UZ-MadinaNeural` (narrator, Diln
 (Aziz and John; Azure has only these two). Azure's Uzbek voices and speech recognition work in the Latin alphabet,
 so the app converts Cyrillic to official Latin spelling (`uzLatin` in `js/translit.js`) before generating audio,
 and compares what you said in Latin too. Clips are still named by the Cyrillic text.
-A voice written as `name@older` (Achchi, Buvi) is spoken slightly lower and slower, so the grandmothers sound
+Tamil uses Azure's Sri Lankan Tamil voices, `ta-LK-SaranyaNeural` (narrator, Kavitha, Ammamma) and
+`ta-LK-KumarNeural` (Ravi and John). Azure has no Sri Lankan Tamil speech recognition, so speaking is checked with
+Indian Tamil (`ta-IN`); the checker treats Sri Lankan and Indian forms of common words (ஓம்/ஆம், இண்டைக்கு/இன்றைக்கு,
+the numbers) as the same.
+A voice written as `name@older` (Achchi, Buvi, Ammamma) is spoken slightly lower and slower, so the grandmothers sound
 older with the same Azure voice; the whole string is part of the clip key.
 
 What exists in Azure (subscription *Azure subscription 1*, resource group `katha-rg`, West US 2):
@@ -150,7 +161,7 @@ Copy `data/es.js` (Latin alphabet) or `data/uz.js` (another script) to a new fil
 letters trainer if it has its own script), and run the checker. Pictures are shared by meaning, and the
 audio generator picks the new voices up automatically.
 
-**Please have native speakers review the Sinhala and the Uzbek.** It aims to be natural colloquial Sinhala, but it was drafted with AI help.
+**Please have native speakers review the Sinhala, the Uzbek and the Tamil.** It aims to be natural colloquial Sinhala, but it was drafted with AI help.
 
 ## Local development
 

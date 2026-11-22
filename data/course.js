@@ -4,8 +4,10 @@
 import * as si from './si.js';
 import * as es from './es.js';
 import * as uz from './uz.js';
+import * as ta from './ta.js';
 import * as siLetters from './letters.js';
 import * as uzLetters from './uz-letters.js';
+import * as taLetters from './ta-letters.js';
 import { uzLatin } from '../js/translit.js';
 
 export const COURSES = {
@@ -31,6 +33,16 @@ export const COURSES = {
     // Azure's Uzbek voices read the Latin alphabet, so clips are generated from the Latin spelling
     // (and single letters from their spoken names). Clips are still keyed by the Cyrillic text.
     say: (text) => uzLetters.ALL_LETTERS.find(l => l.ch === text)?.say || uzLatin(text),
+  },
+  ta: {
+    ...ta, ...taLetters, id: 'ta', name: 'Tamil', native: 'தமிழ்', lang: 'ta', speechLang: 'ta-IN', script: 'tamil',
+    mark: 'த', currency: 'ரூ', color: '#C0501A', cast: { kumari: 'kavitha', nimal: 'ravi', achchi: 'ammamma', grandpa: 'abuelo', grandma: 'ammamma' },
+    tagline: 'everyday spoken Sri Lankan Tamil — the way people talk in Jaffna, at church and at the market',
+    lettersTitle: 'Tamil letters', letterIcon: 'அ', praise: ['நல்லம்! (Great!)', 'சரி! (Right!)', 'அருமை! (Excellent!)'],
+    lettersBlurb: 'Learn to read Tamil script — signs, menus and bus boards will start to make sense.',
+    // Azure's Sri Lankan Tamil voices read the script directly; a few single letters are read by their names.
+    // (Speaking is graded with Azure's Tamil recognizer, ta-IN: there is no Sri Lankan one.)
+    say: (text) => taLetters.ALL_LETTERS.find(l => l.ch === text)?.say || text,
   },
 };
 export const COURSE_IDS = Object.keys(COURSES);

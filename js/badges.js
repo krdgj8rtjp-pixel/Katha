@@ -1,4 +1,5 @@
 import { COURSE } from '../data/course.js';
+import { isIndic, scriptFont } from './lang.js';
 // Achievement medals: a hexagonal badge whose metal changes with the level,
 // plus a white emblem for each achievement. Level 0 = not yet earned.
 const METALS = [
@@ -18,8 +19,8 @@ const EMBLEMS = {
   perfect: '<path d="M21 21h22l6 8-17 17-17-17z" fill="#fff"/><path d="M15 29h34L32 46z" fill="#fff" opacity=".7"/><path d="M25 21l-2.5 8h19L39 21" fill="none" style="stroke:var(--b-d)" stroke-width="1.6" opacity=".55"/>',
   // The letters medal shows a letter from the course being studied (අ, Ж, or Aa).
   get letters() {
-    const si = COURSE.script === 'sinhala';
-    return `<text x="32" y="${si ? 39 : 40}" text-anchor="middle" font-size="${si ? 22 : 21}" font-weight="800" fill="#fff" font-family="${si ? 'Noto Sans Sinhala, Sinhala Sangam MN, sans-serif' : 'Nunito, sans-serif'}">${COURSE.letterIcon || 'Aa'}</text>`;
+    const si = isIndic();
+    return `<text x="32" y="${si ? 39 : 40}" text-anchor="middle" font-size="${si ? 22 : 21}" font-weight="800" fill="#fff" font-family="${scriptFont()}">${COURSE.letterIcon || 'Aa'}</text>`;
   },
   stories: '<path d="M14 21c5-3 11-3 18 1 7-4 13-4 18-1v20c-5-3-11-3-18 1-7-4-13-4-18-1z" fill="#fff"/><path d="M32 22v20" style="stroke:var(--b-d)" stroke-width="1.8"/>',
 };
