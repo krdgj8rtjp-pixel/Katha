@@ -615,6 +615,18 @@ Object.assign(ART, {
   ta_pongal: () => `${sunIcon(22, 22, 11)}${[[16, 96, 58, 8], [84, 96, 44, 8]].map(([x1, y1, x2, y2]) => `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#7B3F7A" stroke-width="5.5" stroke-linecap="round"/>${[.25, .5, .75].map(t => `<circle cx="${(x1 + (x2 - x1) * t).toFixed(1)}" cy="${(y1 + (y2 - y1) * t).toFixed(1)}" r="3.4" fill="#5E2D5D"/>`).join('')}<path d="M${x2} ${y2} q-6 -4 -10 2 M${x2} ${y2} q6 -6 10 0" stroke="${P.leaf}" stroke-width="3" fill="none"/>`).join('')}
     ${shadow(30)}<path d="M30 60 Q26 90 50 92 Q74 90 70 60Z" fill="#C0533A"/><path d="M32 72 Q50 78 68 72" stroke="#F5B731" stroke-width="2.4" fill="none"/>${[38, 50, 62].map(x => `<circle cx="${x}" cy="82" r="2" fill="#FBF7EE"/>`).join('')}<ellipse cx="50" cy="60" rx="20" ry="6" fill="#A0412C"/>
     <g class="a-bob"><path d="M30 61 Q30 48 40 52 Q44 42 52 49 Q60 42 64 52 Q72 50 70 61 Q70 70 67 74 Q65 66 61 64 Q54 66 46 64 Q38 66 34 72 Q30 68 30 61Z" fill="#FFFDF5" stroke="#E9E2CF" stroke-width="1"/></g>`,
+  // Islam around you (Tamil): Sri Lankan touches, symbols only.
+  ta_salaam: () => `${chr('fathima', 2, 18, 70, { pose: 'heart' })}${bubble(52, 4, 44, 27, { stroke: '#1F7A6B', tail: 'bl' })}<g class="a-bob">${T(74, 22.5, 'ஸலாம்!', 9, '#1F7A6B', 'class="pic-si"')}</g>${sparkle(90, 60, .7, P.gold, .4)}`,
+  ta_mukkaadu: () => `${chr('fathima', 15, 10, 78)}${sparkle(86, 24, .7, P.gold)}`,
+  ta_toppi: () => `${shadow(34)}<g class="a-bob"><path d="M18 70 C18 38 34 26 50 26 C66 26 82 38 82 70Z" fill="#FBF9F4" stroke="#DAD4C6" stroke-width="2"/><path d="M18 70 H82" stroke="#DAD4C6" stroke-width="4" stroke-linecap="round"/>
+    ${['M24 62 Q50 55 76 62', 'M28 50 Q50 43 72 50', 'M36 39 Q50 33 64 39'].map(d => `<path d="${d}" stroke="#E3DDCF" stroke-width="1.6" fill="none" stroke-dasharray="2 2.4"/>`).join('')}
+    ${[[34, 62], [44, 62], [56, 62], [66, 62], [40, 52], [50, 52], [60, 52], [45, 42], [55, 42]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="#E3DDCF"/>`).join('')}<circle cx="50" cy="28" r="2.4" fill="#E3DDCF"/></g>`,
+  ta_kanji: () => `${shadow(36)}${steam(50, 34, .9)}<path d="M18 52 Q50 98 82 52Z" fill="#7A4A2A"/><path d="M22 56 Q50 92 78 56" stroke="#5E3720" stroke-width="2" fill="none" opacity=".6"/><ellipse cx="50" cy="52" rx="32" ry="8" fill="#9A6038"/><ellipse cx="50" cy="52" rx="28" ry="6" fill="#F2E3C4"/>
+    ${[[40, 51], [52, 53], [60, 50], [46, 54]].map(([x, y], i) => `<path d="M${x} ${y} q3 -3 6 0 q-3 2 -6 0" fill="${i % 2 ? '#4E9A3C' : '#3C8A2E'}"/>`).join('')}<circle cx="35" cy="52" r="1.4" fill="#C98A0C"/><circle cx="64" cy="54" r="1.4" fill="#C98A0C"/>
+    <path d="M70 46 L90 24" stroke="#B9885B" stroke-width="4" stroke-linecap="round"/><ellipse cx="68" cy="49" rx="7" ry="3.4" fill="#B9885B" transform="rotate(-40 68 49)"/>`,
+  ta_dates: () => `${shadow(38)}<ellipse cx="50" cy="74" rx="38" ry="11" fill="${P.china}" stroke="${P.chinaD}" stroke-width="2"/><ellipse cx="50" cy="72" rx="30" ry="7.4" fill="#fff"/>
+    <g class="a-bob">${[[32, 66, -20], [44, 62, 10], [57, 64, -8], [68, 67, 22], [40, 71, 30], [54, 72, -14], [64, 59, 0]].map(([x, y, r]) => `<g transform="translate(${x} ${y}) rotate(${r})"><ellipse rx="9" ry="5" fill="#6B2E14"/><ellipse cx="-2" cy="-1.6" rx="4.5" ry="1.4" fill="#A0522D" opacity=".75"/></g>`).join('')}</g>`,
+  ta_jumma: () => calendar(`${domeMosque(52, 84, .44)}`, '#1F7A6B', 'FRIDAY'),
   ta_deepavali: () => `${shadow(42)}${diya(24, 80, 1, 0)}${diya(50, 74, 1.25, .25)}${diya(76, 80, 1, .5)}${sparkle(18, 30, .7, P.gold, .2)}${sparkle(84, 26, .8, P.gold, .7)}${sparkle(52, 18, .6, P.pink, 1.1)}
     ${Array.from({ length: 9 }, (_, i) => `<circle cx="${14 + i * 9}" cy="94" r="1.6" fill="${P.purple}" opacity=".7"/>`).join('')}`,
 });

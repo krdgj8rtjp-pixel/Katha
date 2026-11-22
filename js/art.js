@@ -140,6 +140,12 @@ const kovilTower = (x, y, s = 1, gold = false) => `<g transform="translate(${x} 
   ${[0, 1, 2, 3, 4, 5].map(i => { const w = 48 - i * 7, yy = -16 - i * 12; return `<rect x="${-w / 2}" y="${yy - 12}" width="${w}" height="12" fill="${gold ? (i % 2 ? '#E6B43C' : '#F2C14E') : (i % 2 ? '#E8C27A' : '#F2D28B')}" stroke="#B5803A" stroke-width="1.2"/>${Array.from({ length: Math.max(1, 5 - i) }, (_, k) => `<rect x="${(-w / 2 + (k + .5) * w / Math.max(1, 5 - i) - 2).toFixed(1)}" y="${yy - 9}" width="4" height="7" rx="2" fill="#9A6A2E" opacity=".7"/>`).join('')}`; }).join('')}
   <path d="M-13 -88 Q0 -100 13 -88Z" fill="${gold ? '#F2C14E' : '#E8C27A'}" stroke="#B5803A" stroke-width="1.2"/>${[-7, 0, 7].map(dx => `<path d="M${dx} -94 v-6" stroke="#C98A0C" stroke-width="2"/><circle cx="${dx}" cy="-101" r="2" fill="#C98A0C"/>`).join('')}</g>`;
 const stripeWall = (x1, x2, y, h) => `<rect x="${x1}" y="${y - h}" width="${x2 - x1}" height="${h}" fill="#FBF7EE"/>${Array.from({ length: Math.floor((x2 - x1) / 10) }, (_, i) => `<rect x="${x1 + 3 + i * 10}" y="${y - h}" width="5" height="${h}" fill="#C0392B"/>`).join('')}<rect x="${x1 - 2}" y="${y - h - 4}" width="${x2 - x1 + 4}" height="5" fill="#E8C27A"/>`;
+// A Sri Lankan coastal mosque: white walls, green domes, two slim minarets with crescents.
+const lankaMosque = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+  ${[-50, 50].map(mx => `<rect x="${mx - 5}" y="-92" width="10" height="92" fill="#FBF9F4" stroke="#E2DCCF" stroke-width="1.2"/><rect x="${mx - 7}" y="-70" width="14" height="4" fill="#2E8B57"/><rect x="${mx - 7}" y="-96" width="14" height="5" fill="#FBF9F4" stroke="#E2DCCF" stroke-width="1.2"/><path d="M${mx - 6} -96 Q${mx} -110 ${mx + 6} -96Z" fill="#2E8B57"/><path d="M${mx - 1.5} -112 a3.4 3.4 0 1 0 2 -5 a2.6 2.6 0 1 1 -2 5z" fill="#F5B731"/>`).join('')}
+  <rect x="-40" y="-42" width="80" height="42" fill="#FBF9F4" stroke="#E2DCCF" stroke-width="1.2"/><path d="M-42 -42 H42 V-46 H-42Z" fill="#2E8B57"/>
+  <path d="M-24 -46 C-26 -80 26 -80 24 -46Z" fill="#2E8B57"/><path d="M-24 -46 C-25 -70 -8 -78 0 -78 C-10 -72 -16 -60 -16 -46Z" fill="#3FA56A"/><path d="M0 -78 V-86" stroke="#F5B731" stroke-width="2"/><path d="M-1.5 -88 a3.4 3.4 0 1 0 2 -5 a2.6 2.6 0 1 1 -2 5z" fill="#F5B731"/>
+  ${[-28, 28].map(ax => `<path d="M${ax - 6} -12 V-26 Q${ax} -34 ${ax + 6} -26 V-12Z" fill="#2E8B57" opacity=".8"/>`).join('')}<path d="M-9 0 V-22 Q0 -34 9 -22 V0Z" fill="#256F46"/></g>`;
 const SCENES = {
   u1: { who: 'aliya', art: () => `${palm(26, 150, .95)}${palm(160, 150, .8, true)}${sun(150, 26)}${cloud(48, 34, .9)}` },
   u2: { who: 'kumari', art: () => `${sigiriya(96, 150, .9)}${palm(18, 150, .8)}${cloud(150, 30)}` },
@@ -169,6 +175,7 @@ const SCENES = {
   u13: { who: 'john', art: () => `<path d="M0 150 L0 108 L30 88 L56 104 L90 80 L126 102 L160 84 L190 100 L190 150Z" fill="#9CCF7A" opacity=".7"/>${train(188, 150, .5, 2)}${sun(150, 26, 11)}${cloud(60, 28, .8)}` },
   tau12: { who: 'john', art: () => `<path d="M0 150 L0 116 L190 112 L190 150Z" fill="#E2C590" opacity=".7"/>${palmyra(20, 150, .85)}${palmyra(44, 150, .62)}${train(190, 150, .46, 2)}${sun(160, 24, 10)}${cloud(82, 26, .7)}` },
   tau13: { who: 'ammamma', art: () => `${kovilTower(158, 150, .62, true)}${palmyra(22, 150, .8)}${sun(40, 24, 10)}` },
+  tau14: { who: 'fathima', art: () => `${lankaMosque(160, 150, .5)}${palm(22, 150, .62)}${palm(44, 150, .5, true)}${sun(98, 26, 10)}` },
   uzmasjid: { who: 'john', art: () => `${mosque(160, 150, .52)}${poplar(20, 150, .8)}${poplar(36, 150, .65)}${sun(96, 24, 11)}` },
   esplaza: { who: 'kumari', art: () => `${colonial(146, 150, .72)}${fountain(30, 150, .72)}${sun(36, 30, 11)}${cloud(96, 24, .7)}` },
   esmarket: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${taxi(150, 150, .62)}${cloud(40, 28, .8)}` },
@@ -409,6 +416,12 @@ SCENE_ART.st_tau13 = (id) => `${sky(id, '#FFD9A0', '#FFF6E6')}${spinSun(64, 44, 
     ${[[-28, -50, 28, -60, '#C0392B'], [-23, -60, 23, -70, '#FBF7EE'], [-18, -70, 18, -80, '#C0392B'], [-12, -80, 12, -88, '#F5B731']].map(([x1, y1, x2, y2, c]) => `<path d="M${x1} ${y1} L${x2} ${y1} L${x2 - 5} ${y2} L${x1 + 5} ${y2}Z" fill="${c}" stroke="#7a1f14" stroke-width=".8"/>`).join('')}
     <circle cx="0" cy="-92" r="3" fill="#C98A0C"/>${[-20, 20].map(x => `<circle cx="${x}" cy="-12" r="11" fill="#4A2E14"/><circle cx="${x}" cy="-12" r="6" fill="none" stroke="#C98A0C" stroke-width="1.6"/>`).join('')}
     <path d="M-32 -20 Q-46 -14 -58 -2" stroke="#C9A227" stroke-width="2.4" fill="none"/><path d="M32 -20 Q46 -14 58 -2" stroke="#C9A227" stroke-width="2.4" fill="none"/></g>`;
+// Tamil course, Islam unit: sunset in Ramadan, a mosque among the palms, lamps on a neighbour's verandah.
+SCENE_ART.st_tau14 = (id) => `${sky(id, '#F7A072', '#FFE3B8')}<circle cx="300" cy="96" r="22" fill="#FFB65C" opacity=".9"/><g class="s-twinkle"><path d="M64 30 a10 10 0 1 0 6 -15 a8 8 0 1 1 -6 15z" fill="#FFF3C4"/></g>${[[110, 22], [150, 40], [240, 18]].map(([sx, sy], i) => `<circle class="s-twinkle" style="animation-delay:${i * .4}s" cx="${sx}" cy="${sy}" r="1.6" fill="#FFF8E1"/>`).join('')}
+  <path d="M0 132 Q180 122 360 130 L360 200 L0 200Z" fill="#C9A26B"/>${palm(22, 140, .8)}${palm(338, 140, .75, true)}${lankaMosque(176, 134, .78)}
+  <path d="M232 134 V96 H346 V134Z" fill="#F4E6CC"/><path d="M226 98 L289 74 L352 98Z" fill="#B5523B"/><rect x="250" y="106" width="16" height="28" rx="2" fill="#7A4A2A"/><rect x="300" y="106" width="22" height="16" rx="2" fill="#9CC9E0"/>
+  ${[244, 274, 304, 334].map((lx, i) => `<g transform="translate(${lx} 100)"><path d="M0 0 V6" stroke="#6b3a16" stroke-width="1"/><g class="a-flicker" style="animation-delay:${i * .3}s"><rect x="-3.5" y="6" width="7" height="9" rx="2" fill="#F5B731"/><rect x="-2" y="8" width="4" height="5" rx="1.4" fill="#FFF3C4"/></g></g>`).join('')}
+  <path d="M0 150 H360 V200 H0Z" fill="#B88F5C" opacity=".45"/>`;
 SCENE_ART.st_esu4 = (id) => SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55));
 
 export function storyScene(id) {

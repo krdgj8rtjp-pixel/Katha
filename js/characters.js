@@ -189,6 +189,15 @@ const BUILD = {
     hairFront: `<path d="M33 52 C34 34 46 28 60 28 L60 36 C48 37 38 42 33 52Z M87 52 C86 34 74 28 60 28 L60 36 C72 37 82 42 87 52Z" fill="#D3CEC6"/>`,
     extrasFace: `<g fill="none" stroke="#3b2a1c" stroke-width="1.6"><rect x="40" y="48.5" width="14" height="11" rx="4"/><rect x="66" y="48.5" width="14" height="11" rx="4"/><path d="M54 53 q6 -2.6 12 0"/></g><circle cx="33.5" cy="66" r="2.3" fill="#E2B13C"/><circle cx="86.5" cy="66" r="2.3" fill="#E2B13C"/><circle cx="56.5" cy="63.5" r="1.3" fill="#E2B13C"/>`,
   }, pose),
+  // Fathima: a Tamil-speaking Muslim neighbour (Tamil course), headscarf over hair and neck.
+  fathima: (pose) => person({
+    skin: '#A0683F', shade: '#86532F', browColor: '#22160f', lashes: true, lip: '#93403a',
+    shirt: '#F3DDB8',
+    shirtExtras: `<path d="M24 132 C28 112 40 100 56 96 L64 132Z" fill="#E8CB9C"/>${[34, 46, 58, 70, 82].map((x, i) => `<circle cx="${x}" cy="${118 + (i % 2) * 6}" r="1.8" fill="#1F7A6B" opacity=".55"/>`).join('')}`,
+    hairBack: `<path d="M26 60 C22 25 43 13 60 13 C77 13 98 25 94 60 C94 80 90 94 85 104 L35 104 C30 94 26 80 26 60Z" fill="#1F7A6B"/><path d="M35 104 C45 110 75 110 85 104 L88 112 C70 120 50 120 32 112Z" fill="#196457"/><path d="M27 62 C28 82 32 96 37 103" stroke="#196457" stroke-width="2" fill="none"/>`,
+    hairFront: `<path d="M31 52 C32 30 45 20 60 20 C75 20 88 30 89 52 C84 38 73 31 60 31 C47 31 36 38 31 52Z" fill="#1F7A6B"/><path d="M34 46 C40 35 50 31 60 31 C70 31 80 35 86 46" stroke="#2A9583" stroke-width="2.2" fill="none"/>`,
+    extrasHead: `<circle cx="80" cy="40" r="2" fill="#F5D46A"/>`,
+  }, pose),
   // ---- Family casts for the Spanish and Uzbek courses (they stand in for amma, thaththa, putha, duva),
   // plus grandparents used by every course.
   madre: (pose) => person({
@@ -334,6 +343,7 @@ export const CAST = {
   kavitha: { name: 'Kavitha', color: '#C0501A' },
   ravi: { name: 'Ravi', color: '#00796B' },
   ammamma: { name: 'Ammamma', color: '#5B2C6F' },
+  fathima: { name: 'Fathima', color: '#1F7A6B' },
 };
 
 let n = 0;

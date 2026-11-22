@@ -168,7 +168,7 @@ export function isTamil(s) { return /[஀-௿]/.test(s); }
 // Borrowed words the letters can't show (Tamil writes b/p, d/t, f the same way).
 const TA_WORDS = {
   'பில்': 'bil', 'பஸ்': 'bas', 'பஸ்ஸில': 'bassila', 'டொக்டர்': 'ḍokṭar', 'டொக்டரிட்டைப்': 'ḍokṭariṭṭaip', 'ரீவி': 'ṭīvi',
-  'ஃபான்': 'fān', 'ஃபானைப்': 'fānaip', 'மீற்றர்': 'mīṭṭar', 'தீபாவளி': 'dīpāvaḷi', 'சேர்ச்சுக்குப்': 'sērchukkup', 'சேர்ச்சுக்கு': 'sērchukku',
+  'ஃபான்': 'fān', 'ஃபானைப்': 'fānaip', 'மீற்றர்': 'mīṭṭar', 'தீபாவளி': 'dīpāvaḷi', 'சேர்ச்சுக்குப்': 'sērchukkup', 'சேர்ச்சுக்கு': 'sērchukku', 'ஜும்ஆ':"jum'ā", 'குர்ஆன்':"kur'ān", 'இப்தார்':'iftār', 'இப்தாருக்கு':'iftārukku', 'ஈத்':'īd', 'நோன்பு':'nōnbu', 'நோன்புப்':'nōnbup', 'நோன்புக்':'nōnbuk', 'நோன்பை':'nōnbai', 'அல்ஹம்துலில்லாஹ்':'alhamdulillāh', 'ரமழான்':'ramazān', 'பாத்திமா':'fātimā',
 };
 export function taRoman(text) {
   if (!text) return '';

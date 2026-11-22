@@ -14,20 +14,22 @@ and can sync your progress across devices through a free Supabase project.
   - Sinhala now covers A1 in 12 units, matching Spanish and Uzbek: Time & days, At home, Health & help, and Past & plans
     complete it. Its coming-soon units are now A2.
   - Tamil teaches everyday spoken **Sri Lankan** Tamil (the way people talk in Jaffna), in 12 A1 units plus
-    "Hinduism around you": about 255 words and phrases, 225 sentences and 13 stories. It keeps the Jaffna forms
+    two faith units, "Hinduism around you" and "Islam around you": about 280 words and phrases, 250 sentences and
+    14 stories. It keeps the Jaffna forms
     (ஓம் for yes, polite -ங்கோ requests, -அம் for "let's", கதை, தேத்தண்ணி, என்ரை/உங்கடை) and notes the written
     forms in the tips. Church words follow Tamil Protestant usage (சபை, ஜெபம், தேவன், வேதாகமம், ஸ்தோத்திரம்), with
     the Catholic words mentioned. It has a 47-letter Tamil script trainer, romanization under the Tamil (toggle in
     settings), and typed answers are accepted in Tamil script or in romanization.
   - Faith around you: Sinhala Unit 13 (Buddhism: the temple, Poya, Vesak, monks and etiquette) and Uzbek Unit 11
     (Islam: the mosque, prayer, Ramadan, Eid, everyday blessings and etiquette), and Tamil Unit 13 (Hinduism: the
-    kovil, pooja, holy ash and pottu, Thai Pongal, Deepavali and the Nallur festival), for understanding and
+    kovil, pooja, holy ash and pottu, Thai Pongal, Deepavali and the Nallur festival) and Unit 14 (Islam, with the
+    words Tamil-speaking Sri Lankan Muslims use: the mosque, prayer, Ramadan, nonbu kanji and Eid), for understanding and
     respecting neighbours' faith. Pictures use symbols only, never images of the Buddha, the Prophet or Hindu deities.
   - Spanish uses Mexican and US Spanish neural voices.
   - Uzbek is written in Cyrillic, with a 35-letter Cyrillic trainer and the official Latin spelling shown under the
     Cyrillic (toggle in settings). Typed answers are accepted in either alphabet.
   - Pictures are drawn once by meaning and re-cast per course: Sofía, Mateo and a Latin American family for Spanish;
-    Dilnoza, Aziz and an Uzbek family for Uzbek; Kavitha, Ravi and Ammamma (grandmother) for Tamil.
+    Dilnoza, Aziz and an Uzbek family for Uzbek; Kavitha, Ravi, Ammamma (grandmother) and their Muslim neighbour Fathima for Tamil.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
 - **Find my level / Jump here?** (modelled on Duolingo): an adaptive placement test when you start a course (two right
   answers move up a unit, two misses stop it), and a 12-question test on the first lesson of any locked unit (3 lives).
@@ -106,7 +108,7 @@ and `es-US-AlonsoNeural` (John). Uzbek uses `uz-UZ-MadinaNeural` (narrator, Diln
 (Aziz and John; Azure has only these two). Azure's Uzbek voices and speech recognition work in the Latin alphabet,
 so the app converts Cyrillic to official Latin spelling (`uzLatin` in `js/translit.js`) before generating audio,
 and compares what you said in Latin too. Clips are still named by the Cyrillic text.
-Tamil uses Azure's Sri Lankan Tamil voices, `ta-LK-SaranyaNeural` (narrator, Kavitha, Ammamma) and
+Tamil uses Azure's Sri Lankan Tamil voices, `ta-LK-SaranyaNeural` (narrator, Kavitha, Ammamma, Fathima) and
 `ta-LK-KumarNeural` (Ravi and John). Azure has no Sri Lankan Tamil speech recognition, so speaking is checked with
 Indian Tamil (`ta-IN`); the checker treats Sri Lankan and Indian forms of common words (ஓம்/ஆம், இண்டைக்கு/இன்றைக்கு,
 the numbers) as the same.
