@@ -45,9 +45,14 @@ const xml = (s) => s.replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function tts({ text, voice, slow }) {
-  const locale = voice.split('-').slice(0, 2).join('-');
-  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${locale}"><voice name="${voice}">` +
-    (slow ? `<prosody rate="-35%">${xml(text)}</prosody>` : xml(text)) + `</voice></speak>`;
+  // A voice can carry a style after "@": "older" makes a grandparent sound lower and slower than the
+  // narrator who shares the same Azure voice. The full string (with the style) is the clip's key.
+  const [name, style] = voice.split('@');
+  const locale = name.split('-').slice(0, 2).join('-');
+  const pitch = style === 'older' ? '-14%' : '0%';
+  const rate = (slow ? -35 : 0) + (style === 'older' ? -10 : 0);
+  const body = pitch !== '0%' || rate ? `<prosody pitch="${pitch}" rate="${rate}%">${xml(text)}</prosody>` : xml(text);
+  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${locale}"><voice name="${name}">${body}</voice></speak>`;
   for (let attempt = 0; attempt < 6; attempt++) {
     const r = await fetch(`https://${REGION}.tts.speech.microsoft.com/cognitiveservices/v1`, {
       method: 'POST',

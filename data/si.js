@@ -11,6 +11,7 @@ export const SPEAKERS = {
   kumari: { name: 'Kumari', voice: 'si-LK-ThiliniNeural', color: '#C2185B' },
   nimal: { name: 'Nimal', voice: 'si-LK-SameeraNeural', color: '#00796B' },
   john: { name: 'John', voice: 'si-LK-SameeraNeural', color: '#1565C0' },
+  achchi: { name: 'Achchi', voice: 'si-LK-ThiliniNeural@older', color: '#9C6B3C' },
 };
 export const DEFAULT_VOICE = 'si-LK-ThiliniNeural';
 
@@ -194,6 +195,29 @@ export const LEX = {
   ashirvada: { si: 'ආශීර්වාද කරත්වා', en: 'may (God) bless', alt: ['bless', 'may bless', 'god bless'], roAlt: ['ashirwada karathwa', 'ashirvada karatva'] },
   obata: { si: 'ඔබට', en: 'to you (formal)', alt: ['to you', 'you'], roAlt: ['obata'], note: 'ඔබ is the polite, written "you". You\'ll hear it in prayers, blessings and sermons.' },
   suba_iridavak: { si: 'සුබ ඉරිදාවක්', en: 'have a good Sunday', alt: ['happy sunday', 'good sunday', 'have a nice sunday', 'a good sunday'], roAlt: ['suba iridawak', 'suba iridavak'] },
+
+  // ---- Unit 9: Buddhism around you (understanding your neighbours' faith)
+  pansala: { si: 'පන්සල', en: 'Buddhist temple', alt: ['temple', 'buddhist temple'], pic: 'si_pansala', roAlt: ['pansala'] },
+  dagaba: { si: 'දාගැබ', en: 'stupa (dagoba)', alt: ['stupa', 'dagoba', 'pagoda'], pic: 'si_dagaba', note: 'The white dome that holds relics. People walk around it clockwise.', roAlt: ['dagaba', 'dageba'] },
+  bo_gaha: { si: 'බෝ ගහ', en: 'Bodhi tree', alt: ['bo tree', 'bodhi tree', 'sacred fig'], pic: 'si_bo', note: 'A sacred fig like the one under which the Buddha gained enlightenment. Most temples have one.', roAlt: ['bo gaha'] },
+  sapattu_galavanna: { si: 'සපත්තු ගලවන්න', en: 'take off your shoes', alt: ['take off your shoes', 'remove your shoes', 'shoes off'], pic: 'si_sapattu', roAlt: ['sapattu galawanna'] },
+  budun_vahanse: { si: 'බුදුන් වහන්සේ', en: 'the Buddha', alt: ['buddha', 'the buddha', 'lord buddha'], note: 'වහන්සේ shows great respect — as with දෙවියන් වහන්සේ.', roAlt: ['budun wahanse'] },
+  poya: { si: 'පෝය', en: 'Poya (full moon day)', alt: ['poya', 'full moon day', 'poya day'], pic: 'si_poya', note: 'Every full moon is a public holiday.', roAlt: ['poya', 'poye'] },
+  mal_puja: { si: 'මල් පූජා කරනවා', en: 'offer flowers', alt: ['offer flowers', 'make a flower offering'], pic: 'si_mal_puja', roAlt: ['mal puja karanawa'] },
+  pahana: { si: 'පහන', en: 'oil lamp', alt: ['lamp', 'oil lamp'], pic: 'si_pahana', roAlt: ['pahana'] },
+  sil: { si: 'සිල්', en: 'the precepts', alt: ['precepts', 'sil'], note: 'On Poya, devout Buddhists wear white and සිල් ගන්නවා: keep extra precepts for the day.' },
+  pin: { si: 'පින්', en: 'merit', alt: ['merit', 'good karma'], note: 'Good deeds earn පින්. පින් සිද්ධ වෙන්න! ("may you gain merit") is a warm thank-you.', roAlt: ['pin', 'pim'] },
+  hamuduruvo: { si: 'හාමුදුරුවෝ', en: 'monk', alt: ['monk', 'the monk', 'buddhist monk'], note: 'Speak to a monk as ස්වාමීන් වහන්ස ("Venerable Sir").', roAlt: ['hamuduruwo', 'hamuduruvo'] },
+  bana: { si: 'බණ', en: 'sermon (the Dhamma)', alt: ['sermon', 'teaching', 'dhamma talk'], roAlt: ['bana'] },
+  bhavana: { si: 'භාවනාව', en: 'meditation', alt: ['meditation'], roAlt: ['bhawanawa', 'bhavanava'] },
+  sadhu: { si: 'සාධු', en: 'sadhu (well done!)', alt: ['sadhu', 'well done', 'amen'], note: 'Called out three times to share joy in a good deed or blessing.', roAlt: ['sadu', 'sadhu'] },
+  teruvan: { si: 'තෙරුවන් සරණයි', en: 'may the Triple Gem protect you', alt: ['may the triple gem protect you', 'triple gem bless you', 'blessings'], note: 'A Buddhist goodbye. The Triple Gem is the Buddha, the Dhamma (teaching) and the Sangha (monks).', roAlt: ['teruwan saranai', 'theruwan saranai'] },
+  vesak: { si: 'වෙසක්', en: 'Vesak', alt: ['vesak', 'wesak'], pic: 'si_vesak_kudu', note: 'The May full moon: the Buddha\'s birth, enlightenment and passing.', roAlt: ['wesak', 'vesak'] },
+  dansala: { si: 'දන්සල', en: 'free food stall (dansala)', alt: ['dansala', 'free food stall', 'alms hall'], pic: 'kama', note: 'At Vesak, people give free food and drink to everyone who passes — a way of gaining merit.', roAlt: ['dansala'] },
+  budu_dahama: { si: 'බුදු දහම', en: 'Buddhism', alt: ['buddhism', 'the buddhist religion'], roAlt: ['budu dahama'] },
+  bauddha: { si: 'බෞද්ධ', en: 'Buddhist', alt: ['buddhist', 'a buddhist'], roAlt: ['bauddha', 'bouddha'] },
+  agama: { si: 'ආගම', en: 'religion', alt: ['religion', 'faith'], roAlt: ['agama'] },
+  garu_karanava: { si: 'ගරු කරනවා', en: 'to respect', alt: ['respect', 'to respect', 'honour'], roAlt: ['garu karanawa'] },
 };
 
 export const SENT = {
@@ -335,6 +359,25 @@ export const SENT = {
   yesusta_stuti: { si: 'යේසුස් වහන්සේට ස්තුති වේවා!', g: ['Jesus', '(to the holy one)', 'thanks', 'be'], en: 'Thanks be to Jesus!', alt: ['Praise Jesus!', 'Thank you, Jesus!', 'Thank Jesus!'] },
   deviyan_ashirvada: { si: 'දෙවියන් වහන්සේ ඔබට ආශීර්වාද කරත්වා!', g: ['God', '(holy title)', 'to you', 'blessing', 'may (He) do'], en: 'God bless you!', alt: ['May God bless you!'], speaker: 'nimal' },
   suba_iridavak_s: { si: 'සුබ ඉරිදාවක්!', g: ['good', 'a Sunday'], en: 'Have a good Sunday!', alt: ['Happy Sunday!', 'Have a nice Sunday!', 'Good Sunday!'] },
+
+  // ---- Unit 9
+  bd_ada_poya: { si: 'අද පෝය.', g: ['today', 'Poya'], en: 'Today is Poya.', alt: ["It's Poya today.", 'It is Poya today.'] },
+  bd_poya_kada: { si: 'පෝය දවසට කඩ වහලා.', g: ['Poya', 'on the day', 'shops', 'closed'], en: 'On Poya day the shops are closed.', alt: ['Shops are closed on Poya day.', 'The shops are closed on Poya.'] },
+  bd_pansal_yanava: { si: 'මම පන්සල් යනවා.', g: ['I', 'to the temple', 'am going'], en: "I'm going to the temple.", alt: ['I am going to the temple.', 'I go to the temple.'], speaker: 'achchi' },
+  bd_sudu_adum: { si: 'පන්සලට සුදු ඇඳුම් අඳින්න.', g: ['to the temple', 'white', 'clothes', 'wear'], en: 'Wear white clothes to the temple.', alt: ['Wear white to the temple.'] },
+  bd_sapattu_toppi: { si: 'සපත්තු ගලවන්න, තොප්පියත්.', g: ['shoes', 'take off', 'the hat too'], en: 'Take off your shoes, and your hat too.', alt: ['Take off your shoes and your hat.', 'Shoes off, and your hat too.'] },
+  bd_photo_epa: { si: 'බුදු පිළිමයට පිටුපාලා ෆොටෝ ගන්න එපා.', g: ['Buddha', 'to the statue', 'with your back turned', 'photo', 'take', "don't"], en: "Don't take photos with your back to a Buddha statue.", alt: ["Don't take a photo with your back to the Buddha statue."] },
+  bd_mal_puja: { si: 'අපි මල් පූජා කරනවා.', g: ['we', 'flowers', 'offering', 'make'], en: 'We offer flowers.', alt: ['We are offering flowers.', 'We make flower offerings.'] },
+  bd_pahanak: { si: 'පහනක් පත්තු කරමු.', g: ['a lamp', 'lit', "let's make"], en: "Let's light a lamp.", alt: ['Let us light a lamp.'], speaker: 'achchi' },
+  bd_pin_siddha: { si: 'පින් සිද්ධ වෙන්න!', g: ['merit', 'come true', 'may it'], en: 'May you gain merit!', alt: ['Thank you so much!', 'May you be blessed with merit!'], speaker: 'achchi' },
+  bd_bana_kiyanava: { si: 'හාමුදුරුවෝ බණ කියනවා.', g: ['the monk', 'sermon', 'is giving'], en: 'The monk is giving a sermon.', alt: ['The monk is preaching.', 'The monk gives a sermon.'] },
+  bd_vandinna: { si: 'හාමුදුරුවන්ට වඳින්න.', g: ['to the monk', 'bow with joined hands'], en: 'Pay respect to the monk.', alt: ['Bow to the monk.', 'Worship the monk.'] },
+  bd_sadhu: { si: 'සාධු! සාධු! සාධු!', g: ['sadhu', 'sadhu', 'sadhu'], en: 'Sadhu! Sadhu! Sadhu!' },
+  bd_teruvan: { si: 'තෙරුවන් සරණයි!', g: ['Triple Gem', 'is your refuge'], en: 'May the Triple Gem protect you!', alt: ['May the Triple Gem bless you!', 'Triple Gem blessings!'], speaker: 'achchi' },
+  bd_vesak_kudu: { si: 'වෙසක් කූඩු හරිම ලස්සනයි!', g: ['Vesak', 'lanterns', 'really', 'beautiful'], en: 'The Vesak lanterns are really beautiful!', alt: ['The Vesak lanterns are so beautiful!', 'The Vesak lanterns are beautiful!'], speaker: 'john' },
+  bd_dansala: { si: 'අද දන්සල තියෙනවා.', g: ['today', 'dansala', 'there is'], en: "There's a dansala today.", alt: ['There is a dansala today.', "There's a free food stall today."] },
+  bd_oya_bauddhada: { si: 'ඔයා බෞද්ධද?', g: ['you', 'Buddhist?'], en: 'Are you Buddhist?', alt: ['Are you a Buddhist?'], speaker: 'john' },
+  bd_bauddha_neveyi: { si: 'මම බෞද්ධ නෙවෙයි, ඒත් ඔයාගේ ආගමට ගරු කරනවා.', g: ['I', 'Buddhist', 'am not', 'but', 'your', 'religion (to)', 'respect', 'I do'], en: "I'm not Buddhist, but I respect your religion.", alt: ["I'm not a Buddhist, but I respect your religion.", "I am not Buddhist, but I respect your religion."], speaker: 'john' },
 };
 
 // Stories: lines (with speaker) and comprehension questions.
@@ -474,6 +517,25 @@ export const STORIES = {
       { sp: 'john', si: 'ආමෙන්!', g: ['amen'], en: 'Amen!' },
       { sp: 'nimal', si: 'දෙවියන් වහන්සේ ඔබට ආශීර්වාද කරත්වා!', g: ['God', '(holy title)', 'to you', 'blessing', 'may (He) do'], en: 'God bless you!' },
       { q: 'What does Nimal say to John at the end?', options: ['God bless you!', 'See you tomorrow!', "Let's eat!"], answer: 0 },
+    ],
+  },
+
+  st_u9: {
+    title: 'Poya at the Temple', scene: 'st_u9',
+    blurb: 'The shops are shut, and a neighbour invites John to the temple.',
+    lines: [
+      { sp: 'john', si: 'කුමාරි, අද කඩ ඔක්කොම වහලා. ඇයි?', g: ['Kumari', 'today', 'shops', 'all', 'closed', 'why?'], en: 'Kumari, all the shops are closed today. Why?' },
+      { sp: 'kumari', si: 'අද පෝය. බෞද්ධයෝ පන්සල් යනවා.', g: ['today', 'Poya', 'Buddhists', 'to the temple', 'go'], en: "It's Poya today. Buddhists go to the temple." },
+      { q: 'Why are the shops closed?', options: ["It's Poya", "It's raining", "It's Sunday"], answer: 0 },
+      { sp: 'achchi', si: 'ආයුබෝවන් දරුවනේ! මම පන්සල් යනවා. එන්නකෝ!', g: ['greetings', 'children', 'I', 'to the temple', 'am going', 'do come!'], en: "Hello, children! I'm going to the temple. Come along!" },
+      { sp: 'john', si: 'මම බෞද්ධ නෙවෙයි. එන්න පුළුවන්ද?', g: ['I', 'Buddhist', 'am not', 'to come', 'can?'], en: "I'm not Buddhist. Can I come?" },
+      { sp: 'achchi', si: 'පුළුවන් පුතේ! සුදු ඇඳුමක් අඳින්න, පන්සලේදී සපත්තු ගලවන්න.', g: ['you can', 'son', 'white', 'something to wear', 'wear', 'at the temple', 'shoes', 'take off'], en: 'Of course, son! Wear something white, and take your shoes off at the temple.' },
+      { q: 'What should John wear?', options: ['Something white', 'Something red', 'A hat'], answer: 0 },
+      { sp: 'achchi', si: 'අපි මල් පූජා කරලා පහන් පත්තු කරනවා.', g: ['we', 'flowers', 'offering', 'having made', 'lamps', 'lit', 'make'], en: 'We offer flowers and light lamps.' },
+      { sp: 'achchi', si: 'හාමුදුරුවෝ හවස බණ කියනවා. පස්සේ දන්සලත් තියෙනවා!', g: ['the monk', 'this evening', 'sermon', 'gives', 'afterwards', 'a dansala too', 'there is'], en: "The monk gives a sermon this evening. Afterwards there's a dansala too!" },
+      { sp: 'john', si: 'බොහොම ස්තුතියි, ආච්චි අම්මේ!', g: ['very', 'thanks', 'grandma', '(respectful)'], en: 'Thank you very much, Granny!' },
+      { sp: 'achchi', si: 'පින් සිද්ධ වෙන්න, පුතේ. තෙරුවන් සරණයි!', g: ['merit', 'come true', 'may it', 'son', 'Triple Gem', 'is your refuge'], en: 'May you gain merit, son. May the Triple Gem protect you!' },
+      { q: 'What happens after the sermon?', options: ['A dansala (free food)', 'A wedding', 'A cricket match'], answer: 0 },
     ],
   },
 };
@@ -645,6 +707,27 @@ export const UNITS = [
       { type: 'lesson', id: 'u8l4', title: 'Blessings', items: ['stuti_veva', 'ashirvada', 'obata', 'suba_iridavak'], sentences: ['deviyanta_stuti', 'yesusta_stuti', 'deviyan_ashirvada', 'suba_iridavak_s'] },
       { type: 'story', id: 'st_u8' },
       { type: 'review', id: 'u8r' },
+    ],
+  },
+  {
+    id: 'u9', title: 'Buddhism around you', si: 'පන්සල', color: '#C27C0E', scene: 'u9',
+    desc: 'Temples, Poya days and Vesak — and how to show respect',
+    guide: [
+      { h: 'Your neighbours\' faith', p: 'About seven in ten Sri Lankans are Buddhist, and the calendar follows the moon. These words help you understand what\'s happening around you and show respect.' },
+      { h: 'Poya days', p: 'Every full moon (පෝය) is a public holiday. Many people wear white, visit the temple and සිල් ගන්නවා (keep extra precepts). Shops selling alcohol and meat close.' },
+      { h: 'At the temple', p: 'Wear white or modest clothes, take off your shoes and hat, and walk clockwise around the දාගැබ. Never pose for a photo with your back to a Buddha statue, and don\'t show Buddha tattoos.' },
+      { h: 'Monks', p: 'Address a monk as ස්වාමීන් වහන්ස. Monks don\'t shake hands, and women should not touch them. Offer things with both hands, and sit lower than the monk.' },
+      { h: 'Vesak', p: 'The May full moon celebrates the Buddha\'s birth, enlightenment and passing. Streets fill with lanterns (වෙසක් කූඩු), and free food stalls (දන්සල) welcome everyone.' },
+    ],
+    phrases: ['bd_ada_poya', 'bd_sapattu_toppi', 'bd_pin_siddha', 'bd_teruvan', 'bd_bauddha_neveyi'],
+    path: [
+      { type: 'lesson', id: 'u9l1', title: 'At the temple', items: ['pansala', 'dagaba', 'bo_gaha', 'sapattu_galavanna', 'budun_vahanse'], sentences: ['bd_pansal_yanava', 'bd_sudu_adum', 'bd_sapattu_toppi', 'bd_photo_epa'] },
+      { type: 'lesson', id: 'u9l2', title: 'Poya & offerings', items: ['poya', 'mal_puja', 'pahana', 'sil', 'pin'], sentences: ['bd_ada_poya', 'bd_poya_kada', 'bd_mal_puja', 'bd_pahanak', 'bd_pin_siddha'] },
+      { type: 'chest', id: 'u9c1' },
+      { type: 'lesson', id: 'u9l3', title: 'Monks & teaching', items: ['hamuduruvo', 'bana', 'bhavana', 'sadhu', 'teruvan'], sentences: ['bd_bana_kiyanava', 'bd_vandinna', 'bd_sadhu', 'bd_teruvan'] },
+      { type: 'lesson', id: 'u9l4', title: 'Vesak & respect', items: ['vesak', 'dansala', 'budu_dahama', 'bauddha', 'agama', 'garu_karanava'], sentences: ['bd_vesak_kudu', 'bd_dansala', 'bd_oya_bauddhada', 'bd_bauddha_neveyi'] },
+      { type: 'story', id: 'st_u9' },
+      { type: 'review', id: 'u9r' },
     ],
   },
 ];

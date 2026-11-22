@@ -11,6 +11,9 @@ and can sync your progress across devices through a free Supabase project.
   - Spanish and Uzbek each cover the whole of A1 in 10 units: Greetings, About me, Food, Numbers & money, Family,
     Getting around, Daily life, Time & weather, Faith (church, the Bible, prayer and talking about what you believe),
     and Health & plans (with simple past and future). About 200 words and phrases, 160+ sentences and 10 stories each.
+  - Faith around you: Sinhala Unit 9 (Buddhism: the temple, Poya, Vesak, monks and etiquette) and Uzbek Unit 11
+    (Islam: the mosque, prayer, Ramadan, Eid, everyday blessings and etiquette), for understanding and respecting
+    neighbours' faith. Pictures use symbols only, never images of the Buddha or the Prophet.
   - Spanish uses Mexican and US Spanish neural voices.
   - Uzbek is written in Cyrillic, with a 35-letter Cyrillic trainer and the official Latin spelling shown under the
     Cyrillic (toggle in settings). Typed answers are accepted in either alphabet.
@@ -92,6 +95,8 @@ and `es-US-AlonsoNeural` (John). Uzbek uses `uz-UZ-MadinaNeural` (narrator, Diln
 (Aziz and John; Azure has only these two). Azure's Uzbek voices and speech recognition work in the Latin alphabet,
 so the app converts Cyrillic to official Latin spelling (`uzLatin` in `js/translit.js`) before generating audio,
 and compares what you said in Latin too. Clips are still named by the Cyrillic text.
+A voice written as `name@older` (Achchi, Buvi) is spoken slightly lower and slower, so the grandmothers sound
+older with the same Azure voice; the whole string is part of the clip key.
 
 What exists in Azure (subscription *Azure subscription 1*, resource group `katha-rg`, West US 2):
 - `katha-speech` — a Speech resource on the free **F0** tier.

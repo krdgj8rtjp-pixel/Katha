@@ -1017,3 +1017,8 @@ body:has(.upd.in) .nudge.float { display: none; }
 .hearts-pill.test-lives { color: var(--bad); }
 .big-mark { width: 64px !important; height: 64px !important; font-size: 36px !important; border-radius: 18px !important; margin: 0 auto; }
 body:has(.node-pop) .nudge.float { display: none; }
+.s-twinkle { animation: s-twinkle 2.4s ease-in-out infinite; }
+@keyframes s-twinkle { 50% { opacity: .25; } }
+.s-flicker { transform-box: fill-box; transform-origin: 50% 100%; animation: s-flicker .9s ease-in-out infinite alternate; }
+@keyframes s-flicker { from { transform: scale(1, 1); } to { transform: scale(.85, 1.15); opacity: .85; } }
+@media (prefers-reduced-motion: reduce) { .s-twinkle, .s-flicker { animation: none; } }

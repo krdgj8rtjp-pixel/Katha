@@ -525,6 +525,73 @@ Object.assign(ART, {
   g_learn: () => `${shadow(34)}${openBook(50, 62, .85, P.blue)}<g class="a-bob"><circle cx="50" cy="26" r="13" fill="${P.yellow}"/><rect x="44" y="37" width="12" height="7" rx="2" fill="${P.grayD}"/><path d="M45 28 q5 -8 10 0" stroke="${P.goldD}" stroke-width="1.8" fill="none"/></g>${rays(50, 26, 7, 22, .5, 200, 340)}`,
 });
 
+// ------------------------------------------------------------------ faith around you: Buddhism (Sinhala) and Islam (Uzbek)
+// Symbols only: no images of the Buddha or the Prophet, and no cartoon monks or imams.
+const dagobaShape = (x, y, s, glow = false) => `<g transform="translate(${x} ${y}) scale(${s})">${glow ? `<circle cx="0" cy="-30" r="34" fill="${P.gold}" opacity=".14"/>` : ''}
+  <rect x="-30" y="-8" width="60" height="8" rx="1.5" fill="#E6E1D6"/><rect x="-25" y="-14" width="50" height="7" rx="1.5" fill="#F1EDE4"/>
+  <path d="M-24 -14 C-26 -40 -12 -50 0 -50 C12 -50 26 -40 24 -14Z" fill="#FBFAF6"/><path d="M-24 -14 C-26 -40 -12 -50 0 -50 C-8 -44 -16 -32 -14 -14Z" fill="#ECE8DE"/>
+  <rect x="-6" y="-58" width="12" height="8" fill="#F1EDE4"/><path d="M-4 -58 L0 -80 L4 -58Z" fill="${P.gold}"/><circle cx="0" cy="-81" r="2.2" fill="${P.goldD}"/></g>`;
+const domeMosque = (x, y, s) => `<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M-48 0 L-40 0 L-42 -74 L-46 -74Z" fill="#E6D3A8"/><rect x="-49" y="-50" width="10" height="4" fill="#1E6FB8"/><rect x="-49" y="-80" width="10" height="6" fill="#E6D3A8"/><path d="M-49 -80 Q-44 -90 -39 -80Z" fill="#2A8BD0"/>
+  <path d="M-44 -92 a3.4 3.4 0 1 0 2 -5 a2.6 2.6 0 1 1 -2 5z" fill="${P.gold}"/>
+  <rect x="-32" y="-34" width="70" height="34" fill="#F1E3C2"/><path d="M-22 -34 C-24 -64 26 -64 24 -34Z" fill="#2A8BD0"/>${[-12, 1, 14].map(dx => `<path d="M${dx} -34 Q${dx * .6} -50 1 -57" stroke="#6FC0F0" stroke-width="1.6" fill="none"/>`).join('')}
+  <path d="M1 -57 V-64" stroke="${P.gold}" stroke-width="2"/><path d="M-1 -66 a3.2 3.2 0 1 0 2 -4.8 a2.4 2.4 0 1 1 -2 4.8z" fill="${P.gold}"/>
+  <path d="M-6 0 V-16 Q1 -26 8 -16 V0Z" fill="#1E6FB8"/>${[-22, 24].map(ax => `<path d="M${ax - 4} -10 V-18 Q${ax} -24 ${ax + 4} -18 V-10Z" fill="#1E6FB8" opacity=".75"/>`).join('')}</g>`;
+
+Object.assign(ART, {
+  si_pansala: () => `${shadow(40)}${dagobaShape(70, 90, .62)}<g transform="translate(34 90)"><rect x="-26" y="-30" width="52" height="30" fill="#FBF8F2"/><path d="M-32 -30 L0 -50 L32 -30Z" fill="#C0533A"/><path d="M-32 -30 L-36 -26 M32 -30 L36 -26" stroke="#C0533A" stroke-width="3" stroke-linecap="round"/>
+      <path d="M-7 0 V-16 h14 V0Z" fill="#8B5A2B"/><rect x="-20" y="-22" width="8" height="8" fill="#7FB6D9"/><rect x="12" y="-22" width="8" height="8" fill="#7FB6D9"/></g>
+    ${['#1F6FD6', '#F5C518', '#D7263D', '#FFFFFF', '#F28C28'].map((c, i) => `<rect x="${10 + i * 8}" y="22" width="7" height="9" fill="${c}" stroke="#ddd" stroke-width=".4"/>`).join('')}<path d="M8 22 Q30 18 52 22" stroke="${P.grayD}" stroke-width="1" fill="none"/>`,
+  si_dagaba: () => `${shadow(34)}<g class="a-bob">${dagobaShape(50, 92, 1, true)}</g>${sparkle(84, 22, .8)}${sparkle(16, 34, .6, P.gold, .5)}`,
+  si_bo: () => `${shadow(30)}<g class="a-bob"><path d="M50 12 C70 30 86 44 70 66 C62 76 54 80 50 92 C46 80 38 76 30 66 C14 44 30 30 50 12Z" fill="${P.leaf}"/><path d="M50 12 C42 30 38 46 46 62" stroke="${P.leafL}" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
+      <path d="M50 22 V90" stroke="${P.leafD}" stroke-width="2.6"/>${[34, 46, 58, 70].map((y, i) => `<path d="M50 ${y} q${i % 2 ? 14 : -14} -4 ${i % 2 ? 20 : -20} -12 M50 ${y + 4} q${i % 2 ? -14 : 14} -4 ${i % 2 ? -20 : 20} -12" stroke="${P.leafD}" stroke-width="1.4" fill="none" opacity=".7"/>`).join('')}
+      <path d="M50 92 q-2 4 -6 6" stroke="${P.leafD}" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>`,
+  si_sapattu: () => `${shadow(38)}<g transform="translate(20 74) rotate(-8)"><path d="M0 0 C0 -12 10 -14 16 -12 L30 -6 C38 -4 42 0 42 6 L0 6Z" fill="#6A421E"/><path d="M0 6 H42" stroke="#3a2412" stroke-width="3"/><path d="M8 -8 l10 4" stroke="#C98A0C" stroke-width="2"/></g>
+    <g transform="translate(46 84) rotate(6)"><path d="M0 0 C0 -12 10 -14 16 -12 L30 -6 C38 -4 42 0 42 6 L0 6Z" fill="#8A5A2E"/><path d="M0 6 H42" stroke="#3a2412" stroke-width="3"/></g>
+    <g class="a-bob"><path d="M34 34 C42 20 60 18 70 28" stroke="${P.blue}" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M64 20 L71 29 L60 32" stroke="${P.blue}" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>`,
+  si_poya: () => `<rect x="6" y="6" width="88" height="88" rx="20" fill="#1F2A55"/>${[[18, 20], [30, 40], [80, 22], [74, 72], [20, 72], [44, 16]].map(([x, y], i) => `<circle class="a-twinkle" style="animation-delay:${i * .3}s" cx="${x}" cy="${y}" r="1.6" fill="#fff"/>`).join('')}
+    <circle cx="54" cy="44" r="26" fill="#FFF2B8" opacity=".25"/><circle cx="54" cy="44" r="19" fill="#FFF4C7"/><circle cx="48" cy="40" r="3" fill="#EFE0A0"/><circle cx="60" cy="50" r="4" fill="#EFE0A0"/>
+    ${dagobaShape(30, 92, .42)}`,
+  si_mal_puja: () => `${shadow(36)}<ellipse cx="50" cy="76" rx="38" ry="11" fill="#C98A0C"/><ellipse cx="50" cy="72" rx="38" ry="11" fill="#F5B731"/>
+    <g class="a-bob">${[[34, 64], [50, 60], [66, 64], [42, 70], [58, 70]].map(([x, y], i) => `<g transform="translate(${x} ${y})">${[0, 72, 144, 216, 288].map(a => `<ellipse cx="0" cy="-5" rx="3.6" ry="5.6" fill="${i % 2 ? '#FFFFFF' : '#FBEFF3'}" stroke="#E8D9C8" stroke-width=".6" transform="rotate(${a})"/>`).join('')}<circle r="2.6" fill="${P.yellow}"/></g>`).join('')}
+      <path d="M22 56 C28 40 40 38 46 44 C40 46 32 50 22 56Z" fill="${P.pink}"/><path d="M78 56 C72 40 60 38 54 44 C60 46 68 50 78 56Z" fill="${P.pink}"/></g>`,
+  si_pahana: () => `${shadow(30)}<path d="M22 66 Q50 92 78 66 Q76 76 70 80 L30 80 Q24 76 22 66Z" fill="#B5652E"/><ellipse cx="50" cy="66" rx="28" ry="7" fill="#C9773A"/><ellipse cx="50" cy="65" rx="22" ry="4.6" fill="#6b3a16"/>
+    <path d="M72 62 Q82 58 80 52" stroke="#B5652E" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <g class="a-flicker"><path d="M80 52 C74 42 78 30 82 22 C86 32 92 40 84 52Z" fill="${P.orange}"/><path d="M81 50 C78 44 80 36 82 32 C84 38 86 44 82 50Z" fill="${P.yellow}"/></g>
+    <circle cx="82" cy="38" r="20" fill="${P.gold}" opacity=".12"/>`,
+  si_vesak_kudu: () => `<path d="M50 4 V16" stroke="${P.grayD}" stroke-width="2"/><g class="a-swing-tag" style="transform-origin:50% 0%">
+    <path d="M50 16 L76 34 L76 62 L50 80 L24 62 L24 34Z" fill="#FFE07A"/><path d="M50 16 L76 34 L50 48 L24 34Z" fill="#FF9F43"/><path d="M50 48 L76 34 V62 L50 80Z" fill="#FFC64D"/>
+    <path d="M24 34 L50 48 L76 34 M50 48 V80 M24 62 L50 48 L76 62" stroke="#E08A1E" stroke-width="1.4" fill="none"/>
+    ${[30, 40, 50, 60, 70].map((x, i) => `<path d="M${x} ${74 - Math.abs(x - 50) * .35} q${i % 2 ? 3 : -3} 9 0 18" stroke="${['#E5484D', '#1E9FE3', '#F5B731', '#3AAE5A', '#7B61C9'][i]}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`).join('')}
+    <circle cx="50" cy="48" r="16" fill="#FFF6C9" opacity=".35"/></g>`,
+
+  uz_masjid: () => `${shadow(42)}<g class="a-bob">${domeMosque(54, 92, .95)}</g>${sparkle(88, 24, .7)}`,
+  uz_namoz: () => `${shadow(30)}<g transform="rotate(-6 50 52)"><rect x="24" y="14" width="52" height="78" rx="4" fill="#B0302A"/><rect x="28" y="18" width="44" height="70" rx="3" fill="none" stroke="${P.gold}" stroke-width="2"/>
+      <path d="M36 82 V40 Q50 22 64 40 V82Z" fill="#7A1F1B"/><path d="M40 78 V42 Q50 30 60 42 V78Z" fill="none" stroke="${P.gold}" stroke-width="1.4"/>
+      ${[0, 1, 2].map(i => `<path d="M46 ${52 + i * 9} l4 -4 l4 4 l-4 4z" fill="${P.gold}" opacity=".85"/>`).join('')}
+      ${[28, 36, 44, 52, 60, 68].map(x => `<path d="M${x + 2} 92 v5" stroke="${P.gold}" stroke-width="1.6"/>`).join('')}</g>`,
+  uz_azon: () => `${shadow(20, 40)}<g transform="translate(40 92)"><path d="M-8 0 L8 0 L6 -62 L-6 -62Z" fill="#E6D3A8"/><rect x="-7" y="-36" width="14" height="4" fill="#1E6FB8"/><rect x="-9" y="-70" width="18" height="8" fill="#E6D3A8"/><path d="M-9 -70 Q0 -84 9 -70Z" fill="#2A8BD0"/>
+      <path d="M-2 -86 a3.4 3.4 0 1 0 2.4 -5 a2.6 2.6 0 1 1 -2.4 5z" fill="${P.gold}"/></g>
+    ${[0, 1, 2].map(i => `<path class="a-pulse" style="animation-delay:${i * .35}s" d="M${56 + i * 9} ${18 - i * 2} Q${66 + i * 11} ${30} ${56 + i * 9} ${42 + i * 2}" stroke="${P.blue}" stroke-width="3" fill="none" stroke-linecap="round"/>`).join('')}`,
+  uz_quron: () => `${shadow(34)}<path d="M18 86 L50 66 L82 86" stroke="#8A5A2E" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M26 92 L74 62 M74 92 L26 62" stroke="#6A421E" stroke-width="5" stroke-linecap="round"/>
+    <g class="a-bob"><path d="M50 30 L20 22 L20 66 L50 74Z" fill="#1F6B4F"/><path d="M50 30 L80 22 L80 66 L50 74Z" fill="#26805E"/><path d="M50 30 V74" stroke="#14513B" stroke-width="2"/>
+      <path d="M24 28 L46 34 L46 68 L24 62Z M54 34 L76 28 L76 62 L54 68Z" fill="none" stroke="${P.gold}" stroke-width="1.6"/>
+      <g transform="translate(35 48)"><path d="M0 -7 L2 -2 L7 0 L2 2 L0 7 L-2 2 L-7 0 L-2 -2Z" fill="${P.gold}"/></g><g transform="translate(65 48)"><path d="M0 -7 L2 -2 L7 0 L2 2 L0 7 L-2 2 L-7 0 L-2 -2Z" fill="${P.gold}"/></g></g>`,
+  uz_ramazon: () => `<rect x="6" y="6" width="88" height="88" rx="20" fill="#203260"/>${[[20, 22], [78, 70], [30, 78], [82, 28], [62, 16]].map(([x, y], i) => `<circle class="a-twinkle" style="animation-delay:${i * .4}s" cx="${x}" cy="${y}" r="1.6" fill="#fff"/>`).join('')}
+    <path d="M58 22 a26 26 0 1 0 14 44 a20 20 0 1 1 -14 -44z" fill="#FFE07A"/><g transform="translate(70 40)"><path class="a-twinkle" d="M0 -7 L2 -2 L7 -2 L3 1.4 L4.6 7 L0 3.6 L-4.6 7 L-3 1.4 L-7 -2 L-2 -2Z" fill="#FFE07A"/></g>
+    <g transform="translate(30 58)"><path d="M0 -24 V-16" stroke="#C98A0C" stroke-width="1.6"/><path d="M-8 -16 h16 l-3 22 h-10z" fill="#F5B731"/><path d="M-5 -12 h10 l-2 14 h-6z" fill="#FFF3B0" class="a-flicker"/><path d="M-8 6 h16" stroke="#C98A0C" stroke-width="2.4"/></g>`,
+  uz_iftor: () => `${shadow(42)}<rect x="6" y="6" width="88" height="40" rx="14" fill="#F59E5B" opacity=".35"/><circle cx="50" cy="46" r="14" fill="#F5832E" opacity=".75"/><rect x="6" y="46" width="88" height="10" fill="${P.china}"/>
+    <ellipse cx="50" cy="74" rx="42" ry="16" fill="#B0302A"/><ellipse cx="50" cy="72" rx="40" ry="14" fill="#C8463B"/>
+    <g class="a-bob"><ellipse cx="30" cy="70" rx="12" ry="5" fill="#C47A33"/><ellipse cx="30" cy="69" rx="12" ry="5" fill="#E2A35A"/>
+      <ellipse cx="62" cy="70" rx="13" ry="5.5" fill="#fff" stroke="#1E6FB8" stroke-width="1.4"/>${[[57, 68], [62, 70], [67, 68], [60, 66], [65, 66]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="2.6" ry="1.6" fill="#6A3412"/>`).join('')}
+      <path d="M44 60 q2 6 8 6 q6 0 8 -6z" fill="#fff" stroke="#1E6FB8" stroke-width="1.2"/></g>`,
+  uz_hayit: () => `${shadow(36)}<ellipse cx="50" cy="76" rx="36" ry="10" fill="#fff" stroke="#1E6FB8" stroke-width="2.4"/>
+    <g class="a-bob">${[[38, 66], [50, 62], [62, 66], [44, 70], [56, 70]].map(([x, y], i) => `<path d="M${x - 6} ${y + 4} Q${x} ${y - 6} ${x + 6} ${y + 4}Z" fill="${['#F5B731', '#E8891C', '#F27D9A', '#F5B731', '#C87A2E'][i]}"/>`).join('')}</g>
+    <path d="M60 14 a18 18 0 1 0 10 30 a14 14 0 1 1 -10 -30z" fill="${P.gold}"/>${sparkle(22, 26, .9)}${sparkle(84, 50, .7, P.pink, .4)}${sparkle(30, 46, .6, P.blue, .8)}`,
+  uz_halol: () => `${shadow(36)}<ellipse cx="50" cy="74" rx="34" ry="11" fill="${P.china}" stroke="${P.chinaD}" stroke-width="2"/><path d="M28 70 C30 58 44 54 52 58 C62 52 74 58 72 70Z" fill="#B5552E"/><path d="M34 66 q8 -6 16 -2 M54 62 q8 -2 12 4" stroke="#8A3A1C" stroke-width="2" fill="none"/>
+    <g transform="translate(74 30)"><g class="a-pop"><circle r="16" fill="${P.green}"/><circle r="12.5" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 2"/><path d="M-6 0 l4 4 l8 -9" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></g>`,
+});
+
 // Pictures for the app's own cards (not vocabulary).
 Object.assign(ART, {
   ui_practice: () => `${shadow(30)}<g class="a-bob"><g transform="rotate(-20 50 54)"><rect x="24" y="50" width="52" height="8" rx="4" fill="${P.grayD}"/>

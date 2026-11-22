@@ -101,6 +101,28 @@ const rainCloud = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s
 const umbrella = (x, y, s = 1, c = '#E5484D') => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0 V-30" stroke="#3E4A5C" stroke-width="2.4"/><path d="M0 0 q0 5 -5 5" stroke="#3E4A5C" stroke-width="2.4" fill="none"/><path d="M-24 -28 Q0 -52 24 -28 Q18 -32 12 -28 Q6 -32 0 -28 Q-6 -32 -12 -28 Q-18 -32 -24 -28Z" fill="${c}"/></g>`;
 const pharmacySign = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-2.5" y="-46" width="5" height="46" fill="#7D8496"/><rect x="-14" y="-72" width="28" height="28" rx="5" fill="#3AAE5A"/><path d="M0 -66 v16 M-8 -58 h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></g>`;
 const snowman = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><circle cx="0" cy="-14" r="14" fill="#fff"/><circle cx="0" cy="-36" r="10" fill="#fff"/><circle cx="-3.5" cy="-38" r="1.4" fill="#2b2230"/><circle cx="3.5" cy="-38" r="1.4" fill="#2b2230"/><path d="M0 -35 l7 2 l-7 1.4z" fill="#E8891C"/><path d="M-9 -28 Q0 -24 9 -28 L9 -25 Q0 -21 -9 -25Z" fill="#E5484D"/></g>`;
+// ---- faith around you
+const dagoba = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+  <rect x="-34" y="-8" width="68" height="8" fill="#E6E1D6"/><rect x="-28" y="-15" width="56" height="7" fill="#F1EDE4"/>
+  <path d="M-27 -15 C-30 -46 -14 -58 0 -58 C14 -58 30 -46 27 -15Z" fill="#FBFAF6"/><path d="M-27 -15 C-30 -46 -14 -58 0 -58 C-9 -51 -18 -37 -16 -15Z" fill="#ECE8DE"/>
+  <rect x="-7" y="-67" width="14" height="9" fill="#F1EDE4"/><path d="M-5 -67 L0 -92 L5 -67Z" fill="#F5B731"/><circle cx="0" cy="-93" r="2.4" fill="#C98A0C"/></g>`;
+const boTree = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-5 0 C-4 -16 -6 -26 -2 -36 L2 -36 C6 -26 4 -16 5 0Z" fill="#7A4A2A"/>
+  <ellipse cx="0" cy="-52" rx="30" ry="22" fill="#3E9150"/><ellipse cx="-16" cy="-44" rx="16" ry="12" fill="#4EA35D"/><ellipse cx="16" cy="-46" rx="16" ry="12" fill="#4EA35D"/>
+  ${[[-18, -56], [0, -66], [16, -58], [-6, -46], [10, -42]].map(([lx, ly]) => `<path d="M${lx} ${ly} c-4 -2 -4 -8 0 -9 c4 1 4 7 0 9z" fill="#6CCB86"/>`).join('')}
+  <path d="M-30 -22 Q0 -30 30 -22" stroke="#999" stroke-width=".8" fill="none"/>${['#1F6FD6', '#F5C518', '#D7263D', '#FFFFFF', '#F28C28', '#1F6FD6', '#F5C518'].map((c, i) => `<rect x="${-28 + i * 8}" y="${-25 + Math.abs(i - 3) * .6}" width="6" height="7" fill="${c}"/>`).join('')}</g>`;
+const kudu = (x, y, s = 1, d = 0) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 -14 V0" stroke="#888" stroke-width="1"/>
+  <g class="s-swing" style="animation-delay:${d}s"><path d="M0 0 L12 8 L12 20 L0 28 L-12 20 L-12 8Z" fill="#FFE07A"/><path d="M0 0 L12 8 L0 14 L-12 8Z" fill="#FF9F43"/><circle cx="0" cy="14" r="10" fill="#FFF3B0" opacity=".45"/>
+  ${[-6, 0, 6].map((dx, i) => `<path d="M${dx} 26 q${i % 2 ? 2 : -2} 6 0 12" stroke="${['#E5484D', '#1E9FE3', '#3AAE5A'][i]}" stroke-width="1.6" fill="none"/>`).join('')}</g></g>`;
+const moon = (x, y, r, full = true) => full
+  ? `<circle cx="${x}" cy="${y}" r="${r * 1.7}" fill="#FFF2B8" opacity=".18"/><circle cx="${x}" cy="${y}" r="${r}" fill="#FFF4C7"/><circle cx="${x - r * .3}" cy="${y - r * .2}" r="${r * .16}" fill="#EFE0A0"/>`
+  : `<path d="M${x} ${y - r} a${r} ${r} 0 1 0 ${r * .55} ${r * 1.84} a${r * .78} ${r * .78} 0 1 1 ${-r * .55} ${-r * 1.84}z" fill="#FFE07A"/>`;
+const stars = (pts) => pts.map(([sx, sy], i) => `<circle class="s-twinkle" style="animation-delay:${(i % 5) * .4}s" cx="${sx}" cy="${sy}" r="1.3" fill="#fff"/>`).join('');
+const mosque = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">
+  <path d="M-58 0 L-48 0 L-50 -92 L-56 -92Z" fill="#E6D3A8"/><rect x="-59" y="-60" width="12" height="4" fill="#1E6FB8"/><rect x="-59" y="-100" width="12" height="8" fill="#E6D3A8"/><path d="M-59 -100 Q-53 -112 -47 -100Z" fill="#2A8BD0"/>
+  <path d="M-55 -114 a3.6 3.6 0 1 0 2.2 -5.4 a2.8 2.8 0 1 1 -2.2 5.4z" fill="#F5B731"/>
+  <rect x="-40" y="-40" width="86" height="40" fill="#F1E3C2"/><path d="M-28 -40 C-30 -78 32 -78 30 -40Z" fill="#2A8BD0"/>${[-16, 1, 18].map(dx => `<path d="M${dx} -40 Q${dx * .6} -60 1 -69" stroke="#6FC0F0" stroke-width="1.8" fill="none"/>`).join('')}
+  <path d="M1 -69 V-78" stroke="#F5B731" stroke-width="2.2"/><path d="M-1 -80 a3.4 3.4 0 1 0 2 -5 a2.6 2.6 0 1 1 -2 5z" fill="#F5B731"/>
+  <path d="M-8 0 V-20 Q1 -32 10 -20 V0Z" fill="#1E6FB8"/>${[-28, 32].map(ax => `<path d="M${ax - 5} -12 V-22 Q${ax} -29 ${ax + 5} -22 V-12Z" fill="#1E6FB8" opacity=".75"/>`).join('')}</g>`;
 const sun = (x, y, r = 14) => `<g transform="translate(${x} ${y})"><circle r="${r}" fill="#FFC94D"/>${Array.from({ length: 8 }, (_, i) => `<path d="M0 -${r + 4} v-6" stroke="#FFC94D" stroke-width="3" stroke-linecap="round" transform="rotate(${i * 45})"/>`).join('')}</g>`;
 const cloud = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})" opacity=".9"><ellipse cx="0" cy="0" rx="18" ry="10" fill="#fff"/><ellipse cx="14" cy="-6" rx="12" ry="10" fill="#fff"/><ellipse cx="-12" cy="-4" rx="10" ry="8" fill="#fff"/></g>`;
 
@@ -126,6 +148,8 @@ const SCENES = {
   uzweather: { who: 'kumari', art: () => `${snowman(162, 150, 1.1)}${poplar(22, 150, .8)}${cloud(90, 28, .8)}${[[40, 30], [120, 50], [170, 30], [70, 70], [150, 90]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.4" fill="#fff" stroke="#D8E2EC" stroke-width=".8"/>`).join('')}` },
   uzchurch: { who: 'nimal', art: () => `${smallChurch(160, 150, .72)}${poplar(22, 150, .85)}${sun(40, 28, 11)}${cloud(110, 24, .7)}` },
   uzhealth: { who: 'nimal', art: () => `${uzHouse(164, 150, .62)}${pharmacySign(30, 150, 1)}${poplar(186, 150, .5)}${sun(160, 24, 10)}` },
+  u9: { who: 'aliya', art: () => `${dagoba(160, 150, .62)}${boTree(30, 150, .9)}${sun(96, 24, 11)}` },
+  uzmasjid: { who: 'john', art: () => `${mosque(160, 150, .52)}${poplar(20, 150, .8)}${poplar(36, 150, .65)}${sun(96, 24, 11)}` },
   esplaza: { who: 'kumari', art: () => `${colonial(146, 150, .72)}${fountain(30, 150, .72)}${sun(36, 30, 11)}${cloud(96, 24, .7)}` },
   esmarket: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${taxi(150, 150, .62)}${cloud(40, 28, .8)}` },
 };
@@ -317,6 +341,20 @@ SCENE_ART.st_uzhome = (id) => SCENE_ART.st_u5(id).replace(palm(58, 112, .5), pop
 SCENE_ART.st_uzsnow = (id) => greySky(SCENE_ART.st_uzu1(id)).replace(spinSun(300, 40), `<g transform="translate(300 40)"><circle cx="-14" cy="0" r="12" fill="#fff"/><circle cx="4" cy="-6" r="15" fill="#fff"/><circle cx="20" cy="2" r="11" fill="#fff"/></g>`)
   .replace('fill="#9CCF7A"', 'fill="#EEF3F8"').replace('fill="#D9C9A8"', 'fill="#F4F7FB"').replace('fill="#CBB892"', 'fill="#E4EBF2"')
   + `${snowman(330, 186, 1)}${snowOverlay()}`;
+// Faith around you: a full-moon Poya night at the temple, and an iftar at sunset.
+SCENE_ART.st_u9 = (id) => `${sky(id, '#1C2756', '#4B3B78')}${stars([[20, 20], [60, 34], [110, 14], [150, 40], [200, 18], [250, 30], [300, 12], [340, 44], [90, 52], [320, 66]])}${moon(280, 46, 16)}
+  <path d="M0 136 Q90 126 180 132 Q270 138 360 128 L360 200 L0 200Z" fill="#2F4A3A"/>
+  ${boTree(56, 160, 1.4)}${dagoba(200, 164, 1.25)}
+  <path d="M0 162 Q180 154 360 162 L360 200 L0 200Z" fill="#D9CFBC"/><path d="M0 178 Q180 172 360 178 L360 200 L0 200Z" fill="#CBBFA8"/>
+  <path d="M96 66 Q200 84 330 62" stroke="#999" stroke-width="1" fill="none"/>${[[120, 72], [170, 79], [230, 78], [290, 70]].map(([kx, ky], i) => kudu(kx, ky, .9, -i * .6)).join('')}
+  ${[[150, 176], [180, 180], [222, 180], [252, 176]].map(([lx, ly], i) => `<g transform="translate(${lx} ${ly})"><ellipse cx="0" cy="0" rx="6" ry="2" fill="#B5652E"/><path class="s-flicker" style="animation-delay:${i * .3}s" d="M0 -1 C-2 -5 -1 -8 0 -11 C1 -8 2 -5 0 -1Z" fill="#FFC64D"/></g>`).join('')}`;
+SCENE_ART.st_uzu11 = (id) => `${sky(id, '#F28C5B', '#FFD9A0')}${moon(300, 34, 12, false)}${stars([[40, 18], [120, 12], [250, 20], [340, 30]])}
+  <circle cx="190" cy="118" r="26" fill="#FFB067" opacity=".55"/>
+  ${mosque(250, 132, .95)}${poplar(30, 140, .9)}${poplar(48, 140, .7)}${poplar(352, 140, .8)}
+  <path d="M0 132 Q180 124 360 132 L360 200 L0 200Z" fill="#C9A877"/>
+  ${tapchan(120, 186, 1.8)}
+  ${[0, 1].map(i => `<path class="s-steam" style="animation-delay:${i * .8}s" d="M${114 + i * 6} 118 q-4 -6 0 -12 q4 -6 0 -12" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/>`).join('')}
+  <path d="M0 188 Q180 182 360 188 L360 200 L0 200Z" fill="#B8955F"/>`;
 SCENE_ART.st_esu4 = (id) => SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55));
 
 export function storyScene(id) {

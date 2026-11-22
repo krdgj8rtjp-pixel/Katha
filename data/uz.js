@@ -7,6 +7,7 @@ export const SPEAKERS = {
   dilnoza: { name: 'Dilnoza', voice: 'uz-UZ-MadinaNeural', color: '#C2185B' },
   aziz: { name: 'Aziz', voice: 'uz-UZ-SardorNeural', color: '#00796B' },
   john: { name: 'John', voice: 'uz-UZ-SardorNeural', color: '#1565C0' },
+  buvi: { name: 'Buvi', voice: 'uz-UZ-MadinaNeural@older', color: '#7A2B3A' },
 };
 export const DEFAULT_VOICE = 'uz-UZ-MadinaNeural';
 
@@ -227,6 +228,29 @@ export const LEX = {
   uz_bormoqchiman: { si: 'бормоқчиман', en: 'I plan to go', alt: ['i plan to go', 'i want to go', "i'm going to go"], note: '-моқчи = intend to: бормоқчиман = I intend to go.' },
   uz_umid: { si: 'умид қиламан', en: 'I hope', alt: ['i hope'] },
   uz_kelasi_yil: { si: 'келаси йил', en: 'next year', alt: ['next year'] },
+
+  // ---- Unit 11: Ислом атрофимизда (Islam around you) — understanding your neighbours' faith
+  uz_masjid: { si: 'масжид', en: 'mosque', alt: ['mosque', 'the mosque'], pic: 'uz_masjid', note: 'Friday midday prayers (жума намози) fill the mosques.' },
+  uz_namoz: { si: 'намоз', en: 'prayer (namaz)', alt: ['prayer', 'namaz', 'ritual prayer'], pic: 'uz_namoz', note: 'The five daily prayers. You "read" them: намоз ўқимоқ.' },
+  uz_azon: { si: 'азон', en: 'call to prayer', alt: ['call to prayer', 'the call to prayer', 'azan', 'adhan'], pic: 'uz_azon' },
+  uz_imom: { si: 'имом', en: 'imam', alt: ['imam', 'the imam'], note: 'The one who leads the prayers at a mosque.' },
+  uz_alloh: { si: 'Аллоҳ', en: 'Allah (God)', alt: ['allah', 'god'], note: 'Muslims say both Аллоҳ and Худо. Uzbek Christians say Худо.', roAlt: ['alloh', 'allah'] },
+  uz_islom: { si: 'Ислом', en: 'Islam', roAlt: ['islom', 'islam'] },
+  uz_musulmon: { si: 'мусулмон', en: 'Muslim', alt: ['muslim', 'a muslim'], roAlt: ['musulmon'] },
+  uz_quron: { si: 'Қуръон', en: 'the Quran', alt: ['the quran', 'quran', 'koran'], pic: 'uz_quron', note: 'Treated with great respect: never put it on the floor or put things on top of it.', roAlt: ['quron', 'kuron', 'qur\'on'] },
+  uz_paygambar: { si: 'пайғамбар', en: 'prophet', alt: ['prophet', 'the prophet'], note: 'Muslims mean Muhammad. They also honour Исо (Jesus) as a prophet.', roAlt: ['paygambar'] },
+  uz_din: { si: 'дин', en: 'religion', alt: ['religion', 'faith'] },
+  uz_hurmat: { si: 'ҳурмат қиламан', en: 'I respect', alt: ['i respect', 'i honor', 'i honour'], roAlt: ['hurmat qilaman', 'hurmat kilaman'] },
+  uz_ramazon: { si: 'Рамазон', en: 'Ramadan', alt: ['ramadan', 'ramazan'], pic: 'uz_ramazon', roAlt: ['ramazon'] },
+  uz_roza: { si: 'рўза', en: 'the fast', alt: ['fast', 'fasting', 'the fast'], note: 'Рўза тутмоқ = to fast: no food or drink from dawn until sunset during Ramadan.', roAlt: ['roza', 'ruza'] },
+  uz_iftorlik: { si: 'ифторлик', en: 'iftar (evening meal)', alt: ['iftar', 'the iftar', 'iftar meal', 'breaking the fast'], pic: 'uz_iftor', note: 'The meal that breaks the fast at sunset. Being invited is an honour.', roAlt: ['iftorlik', 'iftor'] },
+  uz_mehmon: { si: 'меҳмон', en: 'guest', alt: ['guest', 'a guest', 'visitor'], note: 'Меҳмон отангдан улуғ — "a guest is greater than your father," an Uzbek proverb.', roAlt: ['mehmon'] },
+  uz_hayit: { si: 'ҳайит', en: 'Eid (festival)', alt: ['eid', 'festival', 'holiday', 'hayit'], pic: 'uz_hayit', note: 'Рамазон ҳайити ends Ramadan; Қурбон ҳайити, the festival of sacrifice, comes about seventy days later.', roAlt: ['hayit', 'hait'] },
+  uz_muborak: { si: 'муборак', en: 'blessed', alt: ['blessed', 'happy'], note: 'Ҳайитингиз муборак бўлсин! = Happy Eid!', roAlt: ['muborak'] },
+  uz_halol: { si: 'ҳалол', en: 'halal (permitted)', alt: ['halal', 'permitted', 'allowed'], pic: 'uz_halol', note: 'Also means honest: ҳалол одам = an honest person. The opposite is ҳаром (forbidden).', roAlt: ['halol', 'halal'] },
+  uz_xudo_xohlasa: { si: 'Худо хоҳласа', en: 'God willing', alt: ['god willing', 'if god wills', 'hopefully'], note: 'Said about anything in the future. You\'ll also hear the Arabic inshallah.', roAlt: ['hudo hohlasa', 'xudo xohlasa'] },
+  uz_bismilloh: { si: 'Бисмиллоҳ', en: 'in the name of God', alt: ['bismillah', 'in the name of god', 'in god\'s name'], note: 'Said before eating, or before starting anything.', roAlt: ['bismilloh', 'bismillah'] },
+  uz_alhamdulilloh: { si: 'Алҳамдулиллоҳ', en: 'praise God', alt: ['praise god', 'thank god', 'alhamdulillah', 'praise be to god'], note: 'Said after a meal or good news, much like Худога шукур.', roAlt: ['alhamdulilloh', 'alhamdulillah'] },
 };
 
 export const SENT = {
@@ -416,6 +440,25 @@ export const SENT = {
   uzs_buvimnikiga: { si: 'Бувимникига бормоқчиман.', g: ["to my grandmother's", 'I plan to go'], en: "I'm planning to go to my grandmother's.", alt: ["I want to go to my grandma's.", "I plan to go to my grandmother's."] },
   uzs_yana_korishga: { si: 'Сизни яна кўришга умид қиламан.', g: ['you', 'again', 'to see', 'hope', 'I do'], en: 'I hope to see you again.', alt: ['Hope to see you again.'] },
   uzs_kelasi_yil_amerika: { si: 'Келаси йил Америкага бораман.', g: ['next', 'year', 'to America', "I'll go"], en: "Next year I'm going to America.", alt: ['Next year I will go to America.', "I'm going to America next year."], speaker: 'john' },
+
+  // ---- Unit 11
+  uzs_masjid_qayerda: { si: 'Масжид қаерда?', g: ['mosque', 'where?'], en: 'Where is the mosque?', alt: ["Where's the mosque?"], speaker: 'john' },
+  uzs_azon_bolyapti: { si: 'Азон бўляпти.', g: ['the call to prayer', 'is happening'], en: 'The call to prayer is sounding.', alt: ["It's the call to prayer.", 'The call to prayer is on.'] },
+  uzs_besh_marta: { si: 'Улар кунига беш марта намоз ўқийди.', g: ['they', 'per day', 'five', 'times', 'prayer', 'read (perform)'], en: 'They pray five times a day.', alt: ['They pray five times every day.'] },
+  uzs_juma_masjid: { si: 'Жума куни эркаклар масжидга боради.', g: ['Friday', 'on (the day)', 'men', 'to the mosque', 'go'], en: 'On Friday the men go to the mosque.', alt: ['Men go to the mosque on Friday.', 'On Fridays the men go to the mosque.'] },
+  uzs_musulmon_emasman: { si: 'Мен мусулмон эмасман, лекин динингизни ҳурмат қиламан.', g: ['I', 'Muslim', 'am not', 'but', 'your religion', 'respect', 'I do'], en: "I'm not Muslim, but I respect your religion.", alt: ["I'm not a Muslim, but I respect your religion.", "I'm not Muslim, but I respect your faith."], speaker: 'john' },
+  uzs_isoni_paygambar: { si: 'Мусулмонлар Исони пайғамбар деб билади.', g: ['Muslims', 'Jesus (him)', 'a prophet', 'as', 'regard'], en: 'Muslims see Jesus as a prophet.', alt: ['Muslims consider Jesus a prophet.', 'Muslims regard Jesus as a prophet.'] },
+  uzs_quronni_yerga: { si: 'Қуръонни ерга қўйманг.', g: ['the Quran (it)', 'on the floor', "don't put"], en: "Don't put the Quran on the floor.", alt: ["Don't put the Quran on the ground."] },
+  uzs_ramazon_oyi: { si: 'Ҳозир Рамазон ойи.', g: ['now', 'Ramadan', 'month (its)'], en: "It's the month of Ramadan now.", alt: ["It's Ramadan now.", 'Now it is the month of Ramadan.'] },
+  uzs_roza_tutyapsizmi: { si: 'Рўза тутяпсизми?', g: ['fast', 'are you keeping?'], en: 'Are you fasting?', speaker: 'john' },
+  uzs_hech_narsa: { si: 'Ҳа, кечқурунгача ҳеч нарса емаймиз.', g: ['yes', 'until evening', 'no', 'thing', "we don't eat"], en: "Yes, we don't eat anything until the evening.", alt: ["Yes, we don't eat anything until evening.", 'Yes, we eat nothing until the evening.'], speaker: 'buvi' },
+  uzs_iftorlikka_keling: { si: 'Ифторликка келинг!', g: ['to the iftar', 'come!'], en: 'Come to the iftar meal!', alt: ['Come for iftar!', 'Come to iftar!', 'Come to the iftar!'], speaker: 'buvi' },
+  uzs_mehmon_otangdan: { si: 'Меҳмон отангдан улуғ.', g: ['a guest', 'than your father', 'greater'], en: 'A guest is greater than your father.', alt: ['A guest is more important than your father.'] },
+  uzs_ramazon_muborak: { si: 'Рамазон муборак бўлсин!', g: ['Ramadan', 'blessed', 'may it be'], en: 'Blessed Ramadan!', alt: ['Happy Ramadan!', 'Have a blessed Ramadan!'] },
+  uzs_hayitingiz_muborak: { si: 'Ҳайитингиз муборак бўлсин!', g: ['your Eid', 'blessed', 'may it be'], en: 'Happy Eid!', alt: ['Blessed Eid!', 'Have a blessed Eid!', 'Eid Mubarak!'] },
+  uzs_gosht_halolmi: { si: 'Бу гўшт ҳалолми?', g: ['this', 'meat', 'is it halal?'], en: 'Is this meat halal?', speaker: 'john' },
+  uzs_xudo_xohlasa_ertaga: { si: 'Худо хоҳласа, эртага келаман.', g: ['God', 'if he wills', 'tomorrow', 'I will come'], en: "God willing, I'll come tomorrow.", alt: ['God willing, I will come tomorrow.'] },
+  uzs_bismilloh_marhamat: { si: 'Бисмиллоҳ, марҳамат!', g: ['in the name of God', 'please, go ahead'], en: 'In the name of God — please, help yourself!', alt: ['Bismillah, please eat!', 'Please, help yourself!', 'In the name of God, please eat!'], speaker: 'buvi' },
 };
 
 export const STORIES = {
@@ -569,6 +612,24 @@ export const STORIES = {
       { sp: 'dilnoza', si: 'Эртага йиғилишда сиз учун ибодат қиламан.', g: ['tomorrow', 'at the service', 'you', 'for', 'prayer', "I'll do"], en: "Tomorrow I'll pray for you at the service." },
       { sp: 'aziz', si: 'Раҳмат! Якшанбагача тузалишга умид қиламан.', g: ['thank you', 'by Sunday', 'to get better', 'hope', 'I do'], en: 'Thanks! I hope to be better by Sunday.' },
       { q: 'When will Dilnoza pray for Aziz?', options: ['Tomorrow at the service', 'Right now', 'Next year'], answer: 0 },
+    ],
+  },
+
+  st_uzu11: {
+    title: 'An Iftar Invitation', scene: 'st_uzu11',
+    blurb: 'It\'s Ramadan, and an older neighbour invites John to break the fast.',
+    lines: [
+      { sp: 'buvi', si: 'Жон ўғлим, бугун кечқурун ифторликка келинг!', g: ['John', 'my son', 'today', 'in the evening', 'to the iftar', 'come!'], en: 'John, my son, come to iftar this evening!' },
+      { sp: 'john', si: 'Катта раҳмат, буви! Рўза тутяпсизми?', g: ['big', 'thanks', 'Granny', 'fast', 'are you keeping?'], en: 'Thank you so much, Granny! Are you fasting?' },
+      { sp: 'buvi', si: 'Ҳа, Рамазон ойи. Қуёш ботгунча ҳеч нарса емаймиз.', g: ['yes', 'Ramadan', 'month (its)', 'the sun', 'until it sets', 'no', 'thing', "we don't eat"], en: "Yes, it's Ramadan. We don't eat anything until the sun sets." },
+      { q: 'When does Granny eat during Ramadan?', options: ['After sunset', 'At noon', 'Before lunch'], answer: 0 },
+      { sp: 'john', si: 'Мен мусулмон эмасман. Келсам майлими?', g: ['I', 'Muslim', 'am not', 'if I come', 'is it okay?'], en: "I'm not Muslim. Is it okay if I come?" },
+      { sp: 'buvi', si: 'Албатта! Меҳмон отангдан улуғ.', g: ['of course', 'a guest', 'than your father', 'greater'], en: 'Of course! A guest is greater than your father.' },
+      { q: 'What does Granny say about guests?', options: ['A guest is greater than your father', 'Guests must fast too', 'Guests only come on Fridays'], answer: 0 },
+      { sp: 'buvi', si: 'Азон бўляпти. Бисмиллоҳ, марҳамат!', g: ['the call to prayer', 'is sounding', 'in the name of God', 'please, go ahead'], en: "There's the call to prayer. Bismillah — please, help yourself!" },
+      { sp: 'john', si: 'Ош жуда мазали! Ҳайитда ҳам келайми?', g: ['plov', 'very', 'delicious', 'at Eid', 'also', 'shall I come?'], en: 'The plov is delicious! Shall I come at Eid too?' },
+      { sp: 'buvi', si: 'Ҳа, келинг! Худо хоҳласа, ҳаммамиз бирга бўламиз.', g: ['yes', 'come!', 'God', 'if he wills', 'all of us', 'together', 'will be'], en: "Yes, come! God willing, we'll all be together." },
+      { q: 'What will John do at Eid?', options: ['Visit Granny again', 'Fast all day', 'Travel to Tashkent'], answer: 0 },
     ],
   },
 };
@@ -782,6 +843,27 @@ export const UNITS = [
       { type: 'lesson', id: 'uzu10l4', title: "Tomorrow I'll…", items: ['uz_bormoqchiman', 'uz_umid', 'uz_kelasi_yil'], sentences: ['uzs_ertaga_ishga', 'uzs_buvimnikiga', 'uzs_yana_korishga', 'uzs_kelasi_yil_amerika'] },
       { type: 'story', id: 'st_uzu10' },
       { type: 'review', id: 'uzu10r' },
+    ],
+  },
+  {
+    id: 'uzu11', title: 'Islam around you', si: 'Ислом', color: '#1B7F5A', scene: 'uzmasjid',
+    desc: 'The mosque, Ramadan and Eid — and how to show respect',
+    guide: [
+      { h: 'Your neighbours\' faith', p: 'Most Uzbeks are Muslim, and Islam shapes the calendar, greetings and hospitality. Many words are shared with Christians: Худо, имон, ибодат.' },
+      { h: 'Ramadan', p: 'For a month, Muslims fast from dawn to sunset (рўза тутмоқ). Eat discreetly around people who are fasting, and accept an ифторлик invitation if you can — it\'s an honour.' },
+      { h: 'Two Eids', p: 'Рамазон ҳайити ends Ramadan; Қурбон ҳайити, the festival of sacrifice, comes about seventy days later. Families visit each other and share food. Greet people with Ҳайитингиз муборак бўлсин!' },
+      { h: 'At a mosque', p: 'Dress modestly, take off your shoes, and women cover their hair. Don\'t walk in front of someone who is praying.' },
+      { h: 'After a meal', p: 'Your hosts may open their hands for a short blessing and then pass them over their faces. You can sit quietly with them until they finish.' },
+    ],
+    phrases: ['uzs_ramazon_muborak', 'uzs_hayitingiz_muborak', 'uzs_xudo_xohlasa_ertaga', 'uzs_musulmon_emasman', 'uzs_mehmon_otangdan'],
+    path: [
+      { type: 'lesson', id: 'uzu11l1', title: 'Mosque & prayer', items: ['uz_masjid', 'uz_namoz', 'uz_azon', 'uz_imom', 'uz_alloh'], sentences: ['uzs_masjid_qayerda', 'uzs_azon_bolyapti', 'uzs_besh_marta', 'uzs_juma_masjid'] },
+      { type: 'lesson', id: 'uzu11l2', title: 'Faith words', items: ['uz_islom', 'uz_musulmon', 'uz_quron', 'uz_paygambar', 'uz_din', 'uz_hurmat'], sentences: ['uzs_musulmon_emasman', 'uzs_isoni_paygambar', 'uzs_quronni_yerga'] },
+      { type: 'chest', id: 'uzu11c1' },
+      { type: 'lesson', id: 'uzu11l3', title: 'Ramadan', items: ['uz_ramazon', 'uz_roza', 'uz_iftorlik', 'uz_mehmon'], sentences: ['uzs_ramazon_oyi', 'uzs_roza_tutyapsizmi', 'uzs_hech_narsa', 'uzs_iftorlikka_keling', 'uzs_mehmon_otangdan'] },
+      { type: 'lesson', id: 'uzu11l4', title: 'Eid & blessings', items: ['uz_hayit', 'uz_muborak', 'uz_halol', 'uz_xudo_xohlasa', 'uz_bismilloh', 'uz_alhamdulilloh'], sentences: ['uzs_ramazon_muborak', 'uzs_hayitingiz_muborak', 'uzs_gosht_halolmi', 'uzs_xudo_xohlasa_ertaga', 'uzs_bismilloh_marhamat'] },
+      { type: 'story', id: 'st_uzu11' },
+      { type: 'review', id: 'uzu11r' },
     ],
   },
 ];

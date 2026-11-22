@@ -246,6 +246,15 @@ const BUILD = {
     extrasFace: `<path d="M35 62 C36 86 48 98 60 98 C72 98 84 86 85 62 C80 72 72 76 60 76 C48 76 40 72 35 62Z" fill="#F4F1EC"/><path d="M47 67 q6.5 -5.4 13 -1.6 q6.5 -3.8 13 1.6 q-6.5 3.6 -13 .8 q-6.5 2.8 -13 -.8z" fill="#F4F1EC"/>`,
     extrasHead: `<path d="M35 40 L38 21 Q60 15 82 21 L85 40 Q60 35 35 40Z" fill="#17131a"/>${[[46, 32, -1], [60, 29, 1], [74, 32, 1]].map(([x, y, d]) => `<path d="M${x - 2 * d} ${y + 5} C${x - 5 * d} ${y - 1} ${x - d} ${y - 5} ${x + 3 * d} ${y - 6} C${x + d} ${y - 2} ${x + 2 * d} ${y + 2} ${x - 2 * d} ${y + 5}Z" fill="#fff"/>`).join('')}`,
   }, pose),
+  // Sri Lankan grandmother in a white osariya (the sari worn to the temple), grey hair in a bun.
+  achchi: (pose) => person({
+    skin: '#A86E48', shade: '#8C5834', browColor: '#d9d4cf', lashes: true, lip: '#7a3434',
+    shirt: '#F7F5F0',
+    shirtExtras: `<path d="M24 132 C30 112 44 98 62 94 L78 132Z" fill="#ECE8DF"/><path d="M62 94 L80 132" stroke="#E2B13C" stroke-width="3"/><path d="M27 124 Q50 116 70 122" stroke="#E2B13C" stroke-width="2" fill="none"/><path d="M50 92 Q60 99 70 92" stroke="#E2B13C" stroke-width="2.4" fill="none"/>`,
+    hairBack: `<ellipse cx="60" cy="24" rx="12" ry="9" fill="#BDB7B0"/><path d="M31 56 C29 32 44 24 60 24 C76 24 91 32 89 56 C88 62 86 66 84 68 L36 68 C34 66 32 62 31 56Z" fill="#C9C3BC"/>`,
+    hairFront: `<path d="M33 52 C34 34 46 28 60 28 L60 36 C48 37 38 42 33 52Z M87 52 C86 34 74 28 60 28 L60 36 C72 37 82 42 87 52Z" fill="#D6D1CA"/>`,
+    extrasFace: `<g fill="none" stroke="#5b3a22" stroke-width="1.6"><circle cx="47" cy="54" r="7"/><circle cx="73" cy="54" r="7"/><path d="M54 53.5 q6 -3 12 0"/></g><circle cx="33.5" cy="66" r="2.2" fill="#E2B13C"/><circle cx="86.5" cy="66" r="2.2" fill="#E2B13C"/>`,
+  }, pose),
   buvi: (pose) => person({
     skin: '#D9A880', shade: '#BE8C64', browColor: '#cfc9c2', lashes: true, lip: '#8a3a3a',
     shirt: '#7A2B3A',
@@ -292,6 +301,8 @@ export const CAST = {
   sofia: { name: 'Sofía', color: '#C2185B' },
   mateo: { name: 'Mateo', color: '#00796B' },
   dilnoza: { name: 'Dilnoza', color: '#8E3FA8' },
+  achchi: { name: 'Achchi', color: '#9C6B3C' },
+  buvi: { name: 'Buvi', color: '#7A2B3A' },
   aziz: { name: 'Aziz', color: '#2D5B9A' },
 };
 
