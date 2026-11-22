@@ -408,6 +408,7 @@ function friendsTab() {
   }
   return `<div class="friends-tab"><div class="tab-hero"><h1>Friends</h1><p>Weekly leaderboard · ends in ${weekEndsIn()}</p></div>
     <div class="board">${friendsCache ? boardHTML(friendsCache) : '<div class="board-loading"><span class="spinner"></span> Loading your league…</div>'}</div>
+    ${friendsCache ? suggestHTML(friendsCache) : ''}
     <h3 class="sec-title">Your friend code</h3>
     <div class="panel code-card"><div class="fc-code">${sync.friendCode() ? [...sync.friendCode()].map((c, i) => `<b style="--i:${i}">${c}</b>`).join('') : '<span class="muted">Syncing…</span>'}</div>
       <p class="muted">Friends type this in, or tap your invite link.</p>
@@ -448,11 +449,26 @@ function friendListHTML(data) {
       ${f ? `<button class="btn small ghost" data-unfollow="${p.id}">Unfollow</button>` : `<button class="btn small primary" data-follow="${p.id}">Follow back</button>`}</div>`;
   }).join('')}</div>`;
 }
+// Friend suggestions: friends of your friends. "Not now" hides someone on this device.
+const HIDE_KEY = 'katha.hideSuggest';
+const hiddenSuggest = () => { try { return JSON.parse(S.storage.get(HIDE_KEY) || '[]'); } catch { return []; } };
+function hideSuggest(id) { S.storage.set(HIDE_KEY, JSON.stringify([...new Set([...hiddenSuggest(), id])].slice(-200))); }
+function suggestHTML(data) {
+  const hidden = new Set(hiddenSuggest());
+  const list = (data.suggest || []).filter(p => !hidden.has(p.id) && !data.following.has(p.id));
+  if (!list.length) return '';
+  const why = (p) => p.via ? (p.mutual > 1 ? `Friends with ${esc(p.via)} + ${plural(p.mutual - 1, 'other')}` : `Friends with ${esc(p.via)}`) : plural(p.mutual, 'mutual friend');
+  return `<h3 class="sec-title">Friend suggestions</h3><div class="sugg-row">${list.map((p, i) => `<div class="sugg" data-sugg="${p.id}" style="--i:${i}">
+      <button class="sugg-x" data-hide-sugg="${p.id}" aria-label="Not now">${ICONS.close}</button>
+      ${avatarHead(p.avatar, 64)}<b>${esc(p.name || 'Learner')}</b><small>${why(p)}</small>
+      <button class="btn small primary" data-follow-sugg="${p.id}" data-name="${esc(p.name || '')}">Follow</button></div>`).join('')}</div>`;
+}
 function inviteLink() { return `${location.origin}${location.pathname}#/add/${sync.friendCode()}`; }
 async function refreshFriends() {
   try {
     if (!sync.friendCode()) await sync.syncNow();
-    friendsCache = await sync.loadFriends();
+    const [friends, suggest] = await Promise.all([sync.loadFriends(), sync.suggestFriends().catch(e => { console.warn('suggestions', e); return []; })]);
+    friendsCache = { ...friends, suggest };
   } catch (e) {
     console.warn('friends', e);
     if (!friendsCache) friendsCache = { uid: sync.user()?.id, profiles: [], following: new Set(), followers: new Set() };
@@ -465,7 +481,20 @@ function mountFriends() {
   if (!root || !sync.user()) return;
   if ((!friendsCache || Date.now() - friendsAt > 30000) && !mountFriends.busy) { mountFriends.busy = true; refreshFriends().finally(() => { mountFriends.busy = false; }); }
   root.addEventListener('click', async (e) => {
-    const b = e.target.closest('[data-act], [data-follow], [data-unfollow]'); if (!b) return;
+    const b = e.target.closest('[data-act], [data-follow], [data-unfollow], [data-follow-sugg], [data-hide-sugg]'); if (!b) return;
+    if (b.dataset.followSugg || b.dataset.hideSugg) {
+      const id = b.dataset.followSugg || b.dataset.hideSugg, card = b.closest('.sugg');
+      if (b.dataset.followSugg) {
+        b.disabled = true;
+        try { await sync.follow(id); } catch (err) { b.disabled = false; return toast(err.message || 'Couldn\'t follow'); }
+        sfx.chest(); toast(`You're now following ${b.dataset.name || 'them'}`, { icon: ICONS.check });
+        friendsCache?.following.add(id);
+      } else hideSuggest(id);
+      card.classList.add('gone');
+      setTimeout(() => { const row = card.parentElement; card.remove(); if (row && !row.children.length) { row.previousElementSibling?.remove(); row.remove(); } }, 320);
+      if (b.dataset.followSugg) refreshFriends();
+      return;
+    }
     if (b.dataset.act === 'share') {
       const url = inviteLink();
       if (navigator.share) { try { await navigator.share({ title: `Learn ${COURSE.name} with me on Katha`, text: `Add me on Katha — my friend code is ${sync.friendCode()}`, url }); } catch {} }
@@ -577,6 +606,7 @@ function profileTab() {
       ${tog('listening', 'Listening exercises')}
       ${tog('speaking', 'Speaking exercises')}
       ${tog('speechCheck', 'Check my speaking', 'Sends your recordings to Azure to grade them (needs sign-in)')}
+      ${tog('suggest', 'Show me in friend suggestions', 'Friends of your friends can see your name and avatar')}
     </div>
     <h3 class="sec-title">Audio</h3>
     <div class="panel"><p class="muted">${audio.hasClips() ? `Using recorded ${COURSE.name} voices.` : audio.deviceVoice() ? `Using this device's ${COURSE.name} voice (${esc(audio.deviceVoice().name)}). Recorded voices will replace it once they're generated.` : 'No Sinhala audio yet on this device — listening exercises are hidden until voice clips are generated (see README).'}</p></div>

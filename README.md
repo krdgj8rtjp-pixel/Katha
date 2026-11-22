@@ -37,7 +37,8 @@ and can sync your progress across devices through a free Supabase project.
 - **Motivation**: XP, daily goal, streaks (with streak freezes and milestone gifts), hearts, gems, daily quests and a daily chest,
   achievements, a shop. Bonuses: +XP for a flawless lesson and for answers in a row, a 15-minute 2× XP boost (daily chest or shop),
   early-bird and night-owl gems.
-- **Friends**: a friend code and invite link per account, follow/unfollow, and a weekly XP leaderboard (Monday–Sunday).
+- **Friends**: a friend code and invite link per account, follow/unfollow, a weekly XP leaderboard (Monday–Sunday), and
+  friend suggestions (friends of your friends), which anyone can opt out of in Settings.
 - **Sync**: email + password accounts. Progress merges safely between devices (each device's counters are kept separately, so nothing double-counts).
 - **Offline**: a service worker caches the app and audio once you've opened it.
 
@@ -83,7 +84,8 @@ Two optional settings in the Supabase dashboard (**Authentication**):
 
 Friends use two more tables, also in `supabase/schema.sql`: `profiles` (name, avatar, weekly XP and streak; you can only
 read your own row and rows of people you follow or who follow you) and `follows`. The `find_friend(code)` function looks
-someone up by exact friend code without exposing anyone else.
+someone up by exact friend code without exposing anyone else. `suggest_friends()` returns friends of your friends
+(name and avatar only), skipping anyone who has turned suggestions off.
 
 To recreate this in a fresh project: run `supabase/schema.sql` in the SQL editor and put the new URL and publishable key in `js/config.js`.
 Never put the secret / `service_role` key in the app.

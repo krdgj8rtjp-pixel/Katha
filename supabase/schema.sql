@@ -78,3 +78,44 @@ language sql stable security definer set search_path = '' as $$
 $$;
 revoke all on function public.find_friend(text) from public, anon;
 grant execute on function public.find_friend(text) to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Friend suggestions (migration "friend_suggestions").
+
+-- People can opt out of appearing in friend suggestions (Profile → Settings).
+alter table public.profiles add column if not exists suggest boolean not null default true;
+
+-- Friends of friends: people connected (either follow direction) to someone you follow
+-- or who follows you, that you don't already follow and who don't already follow you.
+-- Returns only name and avatar, plus how many of your friends they know and one friend's name.
+create or replace function public.suggest_friends()
+returns table (id uuid, name text, avatar text, mutual integer, via text)
+language sql stable security definer set search_path = '' as $$
+  with me as (select (select auth.uid()) as uid),
+  circle as (
+    select f.followee as cid from public.follows f, me where f.follower = me.uid
+    union
+    select f.follower from public.follows f, me where f.followee = me.uid
+  ),
+  links as (
+    select f.followee as cand, f.follower as via from public.follows f join circle c on f.follower = c.cid
+    union
+    select f.follower, f.followee from public.follows f join circle c on f.followee = c.cid
+  )
+  select p.id, p.name, p.avatar, count(distinct l.via)::int as mutual,
+         (array_agg(v.name order by v.name) filter (where coalesce(v.name, '') <> ''))[1] as via
+  from links l
+  join public.profiles p on p.id = l.cand
+  left join public.profiles v on v.id = l.via
+  cross join me
+  where me.uid is not null
+    and l.cand <> me.uid
+    and p.suggest
+    and not exists (select 1 from public.follows f where f.follower = me.uid and f.followee = l.cand)
+    and not exists (select 1 from public.follows f where f.followee = me.uid and f.follower = l.cand)
+  group by p.id
+  order by mutual desc, p.xp_week desc, p.name
+  limit 12;
+$$;
+revoke all on function public.suggest_friends() from public, anon;
+grant execute on function public.suggest_friends() to authenticated;

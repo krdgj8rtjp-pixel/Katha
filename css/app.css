@@ -890,6 +890,17 @@ svg { display: block; }
 .add-form input { flex: 1; min-width: 0; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
 .add-form .add-msg { flex-basis: 100%; margin: 0; }
 .fr { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.sugg-row { display: flex; gap: 10px; overflow-x: auto; padding: 2px 2px 10px; margin: 0 -2px; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.sugg-row::-webkit-scrollbar { display: none; }
+.sugg { position: relative; flex: 0 0 138px; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 10px 12px; background: var(--card, #fff); border: 2px solid var(--line); border-radius: 18px; text-align: center; animation: sugg-in .45s cubic-bezier(.3,1.4,.5,1) both; animation-delay: calc(var(--i) * 70ms); transition: transform .3s, opacity .3s; }
+.sugg b { font-size: 15px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sugg small { color: var(--muted); font-weight: 700; font-size: 12px; line-height: 1.25; min-height: 30px; display: flex; align-items: center; }
+.sugg .btn { width: 100%; margin-top: 4px; }
+.sugg.gone { transform: scale(.7); opacity: 0; }
+.sugg .char { border-radius: 50%; background: var(--soft); border: 3px solid var(--line); overflow: hidden; margin-bottom: 4px; }
+.sugg-x { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border: 0; background: none; color: var(--muted); border-radius: 50%; padding: 4px; cursor: pointer; }
+.sugg-x svg { width: 100%; height: 100%; }
+@keyframes sugg-in { from { transform: translateY(10px) scale(.92); opacity: 0; } }
 .fr + .fr { border-top: 2px solid var(--line); }
 .fr .char { border-radius: 50%; background: var(--soft); flex: none; }
 .fr-main { flex: 1; min-width: 0; } .fr-main small { display: block; color: var(--muted); font-weight: 700; }

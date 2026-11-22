@@ -417,7 +417,7 @@ export function weekXP() {
   return n;
 }
 export function publicProfile() {
-  return { name: (state.profile.name || '').slice(0, 40), avatar: state.profile.avatar || 'aliya', xp_total: totalXP(), xp_week: weekXP(), week: weekStartKey(), streak: streakInfo().streak };
+  return { name: (state.profile.name || '').slice(0, 40), avatar: state.profile.avatar || 'aliya', xp_total: totalXP(), xp_week: weekXP(), week: weekStartKey(), streak: streakInfo().streak, suggest: state.profile.settings.suggest !== false };
 }
 
 export function ensureWelcome() { if (!state.claims.welcome) { state.claims.welcome = Date.now(); save({ quiet: true }); } }

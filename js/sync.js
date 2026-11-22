@@ -146,6 +146,11 @@ export async function findFriend(code) {
   const r = await api('/rest/v1/rpc/find_friend', { method: 'POST', body: { code } });
   return r?.[0] || null;
 }
+// Friends of friends (name and avatar only), most shared friends first.
+export async function suggestFriends() {
+  await fresh();
+  return (await api('/rest/v1/rpc/suggest_friends', { method: 'POST', body: {} })) || [];
+}
 export async function follow(id) {
   await fresh();
   await api('/rest/v1/follows?on_conflict=follower,followee', { method: 'POST', headers: { Prefer: 'resolution=ignore-duplicates,return=minimal' }, body: { follower: session.user.id, followee: id } });
