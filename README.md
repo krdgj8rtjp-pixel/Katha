@@ -8,11 +8,14 @@ and can sync your progress across devices through a free Supabase project.
 
 - **Four courses**: Sinhala, Spanish, Uzbek and Tamil. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
   are shared; each course keeps its own path, words and practice.
-  - Spanish and Uzbek each cover the whole of A1 in 10 units: Greetings, About me, Food, Numbers & money, Family,
-    Getting around, Daily life, Time & weather, Faith (church, the Bible, prayer and talking about what you believe),
-    and Health & plans (with simple past and future). About 200 words and phrases, 160+ sentences and 10 stories each.
-  - Sinhala now covers A1 in 12 units, matching Spanish and Uzbek: Time & days, At home, Health & help, and Past & plans
-    complete it. Its coming-soon units are now A2.
+  - Spanish covers A1 in 10 units: Greetings, About me, Food, Numbers & money, Family, Getting around, Daily life,
+    Time & weather, Faith (church, the Bible, prayer and talking about what you believe), and Health & plans (with
+    simple past and future). About 200 words and phrases, 160+ sentences and 10 stories.
+  - Uzbek has the fullest A1: those 10 units plus At home, Shopping & clothes, Around town, Describing, Work & free
+    time, Making plans, Dates & celebrations, What happened? (the past tense) and Islam around you. About 390 words and
+    phrases, 345 sentences and 19 stories.
+  - Sinhala covers A1 in 12 units: Time & days, At home, Health & help, and Past & plans complete it. Its coming-soon
+    units are now A2.
   - Tamil teaches everyday spoken **Sri Lankan** Tamil (the way people talk in Jaffna), in 12 A1 units plus
     two faith units, "Hinduism around you" and "Islam around you": about 280 words and phrases, 250 sentences and
     14 stories. It keeps the Jaffna forms
@@ -29,9 +32,9 @@ and can sync your progress across devices through a free Supabase project.
   - Uzbek is written in Cyrillic, with a 35-letter Cyrillic trainer and the official Latin spelling shown under the
     Cyrillic (toggle in settings). Typed answers are accepted in either alphabet.
     The setting is Osh (Kyrgyzstan) and Andijan, in the Fergana Valley. Where everyday speech there uses the Russian
-    word, the course teaches that word (аптека, врач, больница, туалет, остановка, счёт, давай), every such note gives
-    the Uzbek equivalent (дорихона, шифокор, касалхона, ҳожатхона, бекат, ҳисоб, майли/кетдик), and either word is
-    accepted when typing or speaking.
+    word, the course teaches that word (аптека, врач, больница, туалет, остановка, счёт, давай, магазин, размер,
+    скидка, номер, холодильник…), every such note gives the Uzbek equivalent (дорихона, шифокор, касалхона, ҳожатхона,
+    бекат, ҳисоб, дўкон, ўлчам, чегирма, рақам, музлатгич…), and either word is accepted when typing or speaking.
   - Pictures are drawn once by meaning and re-cast per course: Sofía, Mateo and a Latin American family for Spanish;
     Dilnoza, Aziz and an Uzbek family for Uzbek; Kavitha, Ravi, Ammamma (grandmother) and their Muslim neighbour Fathima for Tamil.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.

@@ -146,6 +146,17 @@ const lankaMosque = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale($
   <rect x="-40" y="-42" width="80" height="42" fill="#FBF9F4" stroke="#E2DCCF" stroke-width="1.2"/><path d="M-42 -42 H42 V-46 H-42Z" fill="#2E8B57"/>
   <path d="M-24 -46 C-26 -80 26 -80 24 -46Z" fill="#2E8B57"/><path d="M-24 -46 C-25 -70 -8 -78 0 -78 C-10 -72 -16 -60 -16 -46Z" fill="#3FA56A"/><path d="M0 -78 V-86" stroke="#F5B731" stroke-width="2"/><path d="M-1.5 -88 a3.4 3.4 0 1 0 2 -5 a2.6 2.6 0 1 1 -2 5z" fill="#F5B731"/>
   ${[-28, 28].map(ax => `<path d="M${ax - 6} -12 V-26 Q${ax} -34 ${ax + 6} -26 V-12Z" fill="#2E8B57" opacity=".8"/>`).join('')}<path d="M-9 0 V-22 Q0 -34 9 -22 V0Z" fill="#256F46"/></g>`;
+// Fergana Valley: a grapevine arbour over the courtyard, Sulaiman-Too (the rock in the middle of Osh,
+// with Babur's little house on top) and a Наврўз cauldron of сумалак.
+const vineArbor = (x, y, w, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">${[0, w].map(px => `<rect x="${px - 2.5}" y="-62" width="5" height="62" fill="#7A4A2A"/>`).join('')}<path d="M-6 -62 H${w + 6}" stroke="#7A4A2A" stroke-width="4"/>
+  ${Array.from({ length: Math.ceil(w / 11) + 2 }, (_, i) => `<ellipse cx="${-6 + i * 11}" cy="${-64 + (i % 2) * 5}" rx="9" ry="7" fill="${i % 3 ? '#4E9A3C' : '#3C8A2E'}"/>`).join('')}
+  ${Array.from({ length: Math.floor(w / 26) }, (_, i) => `<g transform="translate(${14 + i * 26} -56)">${[[0, 0], [-3, 4], [3, 4], [0, 8], [-2, 12], [2, 12]].map(([dx, dy]) => `<circle cx="${dx}" cy="${dy}" r="2.6" fill="#7E3F8F"/>`).join('')}</g>`).join('')}</g>`;
+const sulaimanToo = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-110 0 L-80 -26 L-58 -30 L-40 -58 L-20 -64 L-4 -84 L14 -80 L30 -60 L52 -54 L70 -34 L96 -24 L120 0Z" fill="#9C8A7A"/><path d="M-40 -58 L-28 -40 L-44 -34 M-4 -84 L6 -56 L-8 -48 M30 -60 L36 -40" stroke="#7F6E60" stroke-width="2" fill="none"/>
+  <g transform="translate(-4 -84)"><rect x="-7" y="-10" width="14" height="10" fill="#F3E6CF"/><path d="M-8 -10 Q0 -20 8 -10Z" fill="#6E9E9E"/><rect x="-2" y="-6" width="4" height="6" fill="#7A4A2A"/></g></g>`;
+const kazan = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-22 -6 L-26 4 M22 -6 L26 4" stroke="#55555F" stroke-width="3"/><g class="s-flicker">${[-10, 0, 10].map((fx, i) => `<path d="M${fx} 2 C${fx - 6} -6 ${fx - 2} -14 ${fx} -18 C${fx + 2} -12 ${fx + 7} -6 ${fx} 2Z" fill="${i === 1 ? '#FFC94D' : '#F39C12'}"/>`).join('')}</g>
+  <path d="M-26 -30 Q-26 -8 0 -8 Q26 -8 26 -30Z" fill="#3A3A44"/><ellipse cx="0" cy="-30" rx="27" ry="6" fill="#2A2A32"/><ellipse cx="0" cy="-30" rx="23" ry="4.4" fill="#7A4A2A"/><path d="M8 -32 L30 -66" stroke="#A0703F" stroke-width="4" stroke-linecap="round"/></g>`;
+const tulipS = (x, y, s, c) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M0 0 V-18" stroke="#3C8A2E" stroke-width="2.4"/><path d="M0 -6 Q-8 -10 -9 -18 Q-3 -15 0 -9" fill="#4E9A3C"/><path d="M-5 -28 Q-6 -20 0 -17 Q6 -20 5 -28 L2.5 -24 L0 -30 L-2.5 -24Z" fill="${c}"/></g>`;
+const blossomTree = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})"><path d="M-3 0 L-2 -30 L2 -30 L3 0Z" fill="#7A4A2A"/><path d="M0 -24 L-12 -36 M0 -28 L10 -40" stroke="#7A4A2A" stroke-width="2.4"/>${[[-14, -40, 12], [0, -48, 15], [14, -40, 12], [-6, -34, 10], [8, -32, 10]].map(([cx, cy, r]) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#F8C8D8"/>`).join('')}${Array.from({ length: 9 }, (_, i) => `<circle cx="${-16 + (i * 13) % 32}" cy="${-52 + (i * 7) % 22}" r="2" fill="#E57FA0"/>`).join('')}</g>`;
 const SCENES = {
   u1: { who: 'aliya', art: () => `${palm(26, 150, .95)}${palm(160, 150, .8, true)}${sun(150, 26)}${cloud(48, 34, .9)}` },
   u2: { who: 'kumari', art: () => `${sigiriya(96, 150, .9)}${palm(18, 150, .8)}${cloud(150, 30)}` },
@@ -176,6 +187,9 @@ const SCENES = {
   tau12: { who: 'john', art: () => `<path d="M0 150 L0 116 L190 112 L190 150Z" fill="#E2C590" opacity=".7"/>${palmyra(20, 150, .85)}${palmyra(44, 150, .62)}${train(190, 150, .46, 2)}${sun(160, 24, 10)}${cloud(82, 26, .7)}` },
   tau13: { who: 'ammamma', art: () => `${kovilTower(158, 150, .62, true)}${palmyra(22, 150, .8)}${sun(40, 24, 10)}` },
   tau14: { who: 'fathima', art: () => `${lankaMosque(160, 150, .5)}${palm(22, 150, .62)}${palm(44, 150, .5, true)}${sun(98, 26, 10)}` },
+  uzhovli: { who: 'grandma', art: () => `${vineArbor(110, 150, 64, 1)}${tapchan(142, 150, .5)}${uzHouse(40, 150, .5)}${sun(176, 22, 10)}` },
+  uzosh: { who: 'john', art: () => `${sulaimanToo(120, 150, .62)}${poplar(18, 150, .8)}${poplar(34, 150, .64)}${sun(170, 20, 10)}${cloud(86, 26, .6)}` },
+  uznavruz: { who: 'grandma', art: () => `${blossomTree(40, 150, 1)}${kazan(150, 150, .9)}${tulipS(108, 150, 1, '#E03A3E')}${tulipS(118, 150, .8, '#FFC94D')}${tulipS(178, 150, .9, '#E03A3E')}${sun(176, 20, 9)}` },
   uzmasjid: { who: 'john', art: () => `${mosque(160, 150, .52)}${poplar(20, 150, .8)}${poplar(36, 150, .65)}${sun(96, 24, 11)}` },
   esplaza: { who: 'kumari', art: () => `${colonial(146, 150, .72)}${fountain(30, 150, .72)}${sun(36, 30, 11)}${cloud(96, 24, .7)}` },
   esmarket: { who: 'john', art: () => `${fruitStall(60, 150, .95)}${taxi(150, 150, .62)}${cloud(40, 28, .8)}` },
@@ -422,6 +436,16 @@ SCENE_ART.st_tau14 = (id) => `${sky(id, '#F7A072', '#FFE3B8')}<circle cx="300" c
   <path d="M232 134 V96 H346 V134Z" fill="#F4E6CC"/><path d="M226 98 L289 74 L352 98Z" fill="#B5523B"/><rect x="250" y="106" width="16" height="28" rx="2" fill="#7A4A2A"/><rect x="300" y="106" width="22" height="16" rx="2" fill="#9CC9E0"/>
   ${[244, 274, 304, 334].map((lx, i) => `<g transform="translate(${lx} 100)"><path d="M0 0 V6" stroke="#6b3a16" stroke-width="1"/><g class="a-flicker" style="animation-delay:${i * .3}s"><rect x="-3.5" y="6" width="7" height="9" rx="2" fill="#F5B731"/><rect x="-2" y="8" width="4" height="5" rx="1.4" fill="#FFF3C4"/></g></g>`).join('')}
   <path d="M0 150 H360 V200 H0Z" fill="#B88F5C" opacity=".45"/>`;
+// Uzbek A1 additions: a courtyard evening under the vines, the streets of Osh below Sulaiman-Too, and Наврўз.
+SCENE_ART.st_uzhovli = (id) => `${sky(id, '#3B4A7A', '#F3B27A')}${moon(300, 34, 14)}${[[60, 20], [120, 34], [200, 16], [250, 40]].map(([sx, sy], i) => `<circle class="s-twinkle" style="animation-delay:${i * .4}s" cx="${sx}" cy="${sy}" r="1.6" fill="#FFF8E1"/>`).join('')}
+  <rect x="0" y="96" width="360" height="104" fill="#E9D7B0"/><rect x="0" y="92" width="360" height="8" fill="#D8C49A"/>${uzHouse(300, 160, 1.1)}
+  ${vineArbor(20, 170, 230, 1.05)}${tapchan(150, 182, 1.1)}<path d="M0 182 H360" stroke="#CDB98C" stroke-width="2"/>`;
+SCENE_ART.st_uzosh = (id) => `${sky(id, '#8FD0F2', '#FFF1D6')}${spinSun(318, 30, 13)}${drift(70, 26, .9, 46, 6)}${drift(220, 20, .7, 40, 22)}
+  ${sulaimanToo(180, 140, 1.2)}${[[18, 92, 46], [70, 104, 34], [262, 98, 40], [312, 90, 44]].map(([bx, by, bw]) => `<rect x="${bx}" y="${by}" width="${bw}" height="${150 - by}" fill="#D8CFC2"/>${Array.from({ length: Math.floor((140 - by) / 12) }, (_, r) => Array.from({ length: Math.floor(bw / 12) }, (_, c) => `<rect x="${bx + 4 + c * 12}" y="${by + 6 + r * 12}" width="7" height="6" fill="${(r + c) % 4 ? '#A9C6DA' : '#FFD98A'}"/>`).join('')).join('')}`).join('')}
+  <rect x="0" y="140" width="360" height="60" fill="#CFC6B8"/><rect x="0" y="156" width="360" height="44" fill="#9AA0AE"/><path d="M0 178 H360" stroke="#fff" stroke-width="2.4" stroke-dasharray="16 12"/>${poplar(110, 142, .9)}${poplar(246, 142, .9)}${bird(140, 50, .8, .3)}${bird(170, 40, .6, 1.2)}`;
+SCENE_ART.st_uznavruz = (id) => `${sky(id, '#A8DCF5', '#FFF4DC')}${spinSun(300, 34, 14)}${drift(120, 28, .9, 48, 8)}
+  <rect x="0" y="120" width="360" height="80" fill="#A9D67E"/>${uzHouse(70, 140, 1)}${blossomTree(190, 132, 1.3)}${blossomTree(330, 136, 1)}
+  ${kazan(270, 170, 1.2)}${[[20, 186, '#E03A3E'], [36, 190, '#FFC94D'], [150, 188, '#E03A3E'], [166, 192, '#F27D9A'], [340, 190, '#FFC94D']].map(([tx, ty, c]) => tulipS(tx, ty, 1.1, c)).join('')}`;
 SCENE_ART.st_esu4 = (id) => SCENE_ART.st_u4(id).replace(tuktuk(0, 0, .55), taxi(0, 0, .55));
 
 export function storyScene(id) {
