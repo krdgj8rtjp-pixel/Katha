@@ -73,8 +73,10 @@ const DIGITS_UZ = { 1: 'bir', 2: 'ikki', 3: 'uch', 4: 'toʻrt', 5: 'besh', 6: 'o
 const DIGITS_TA = { 1: 'ஒண்டு', 2: 'ரெண்டு', 3: 'மூண்டு', 4: 'நாலு', 5: 'அஞ்சு', 6: 'ஆறு', 7: 'ஏழு', 8: 'எட்டு', 9: 'ஒன்பது', 10: 'பத்து', 20: 'இருபது', 50: 'ஐம்பது', 100: 'நூறு', 200: 'இருநூறு', 1000: 'ஆயிரம்' };
 const SAME = [['නැහැ', 'නෑ', 'නැ'], ['ඕනේ', 'ඕනෑ'], ['හොඳයි', 'හොදයි'], ['ස්තුතියි', 'ස්තූතියි'], ['මොකක්ද', 'මොකද්ද'], ['කීයද', 'කීයක්ද'],
   ['ஒண்டு', 'ஒன்று', 'ஒன்னு'], ['ரெண்டு', 'இரண்டு'], ['மூண்டு', 'மூன்று', 'மூணு'], ['அஞ்சு', 'ஐந்து'], ['ஓம்', 'ஆம்'], ['நன்றி', 'நன்றீ'], ['இண்டைக்கு', 'இன்றைக்கு'], ['எங்கை', 'எங்கே'], ['இஞ்சை', 'இங்கே'], ['வேணும்', 'வேண்டும்'], ['எப்பிடி', 'எப்படி']];
+// Uzbek: everyday Russian words and their Uzbek equivalents count as the same word (with common endings).
+const SAME_UZ = [['apteka', 'dorihona'], ['aptekaga', 'dorihonaga'], ['aptekada', 'dorihonada'], ['aptekadan', 'dorihonadan'], ['aptekani', 'dorihonani'], ['vrach', 'shifokor', 'doktor'], ['vrachga', 'shifokorga', 'doktorga'], ['vrachda', 'shifokorda', 'doktorda'], ['vrachdan', 'shifokordan', 'doktordan'], ['vrachni', 'shifokorni', 'doktorni'], ['tualet', 'hojathona'], ['tualetga', 'hojathonaga'], ['tualetda', 'hojathonada'], ['tualetdan', 'hojathonadan'], ['tualetni', 'hojathonani'], ['schyot', 'hisob', 'schet'], ['schyotga', 'hisobga', 'schetga'], ['schyotda', 'hisobda', 'schetda'], ['schyotdan', 'hisobdan', 'schetdan'], ['schyotni', 'hisobni', 'schetni'], ['ostanovka', 'bekat'], ['ostanovkaga', 'bekatga'], ['ostanovkada', 'bekatda'], ['ostanovkadan', 'bekatdan'], ['ostanovkani', 'bekatni']];
 const canon = {};
-SAME.forEach(g => g.forEach(w => { canon[w] = g[0]; }));
+[...SAME, ...SAME_UZ].forEach(g => g.forEach(w => { canon[w] = g[0]; }));
 
 function tokens(s) {
   const D = isSi() ? DIGITS_SI : isTa() ? DIGITS_TA : isUz() ? DIGITS_UZ : DIGITS_ES;
