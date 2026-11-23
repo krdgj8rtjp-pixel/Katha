@@ -28,9 +28,10 @@ and can sync your progress across devices through a free Supabase project.
   - Spanish uses Mexican and US Spanish neural voices.
   - Uzbek is written in Cyrillic, with a 35-letter Cyrillic trainer and the official Latin spelling shown under the
     Cyrillic (toggle in settings). Typed answers are accepted in either alphabet.
-    Where everyday speech (especially in Tashkent) uses the Russian word, the course teaches that word: аптека,
-    врач, туалет, остановка, счёт. The notes give the Uzbek word seen on signs (дорихона, шифокор, ҳожатхона, бекат,
-    ҳисоб), and either word is accepted when typing or speaking.
+    The setting is Osh (Kyrgyzstan) and Andijan, in the Fergana Valley. Where everyday speech there uses the Russian
+    word, the course teaches that word (аптека, врач, больница, туалет, остановка, счёт, давай), every such note gives
+    the Uzbek equivalent (дорихона, шифокор, касалхона, ҳожатхона, бекат, ҳисоб, майли/кетдик), and either word is
+    accepted when typing or speaking.
   - Pictures are drawn once by meaning and re-cast per course: Sofía, Mateo and a Latin American family for Spanish;
     Dilnoza, Aziz and an Uzbek family for Uzbek; Kavitha, Ravi, Ammamma (grandmother) and their Muslim neighbour Fathima for Tamil.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
