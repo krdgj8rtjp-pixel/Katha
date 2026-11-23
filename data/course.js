@@ -5,6 +5,7 @@ import * as si from './si.js';
 import * as es from './es.js';
 import * as uz from './uz.js';
 import * as ta from './ta.js';
+import * as sw from './sw.js';
 import * as siLetters from './letters.js';
 import * as uzLetters from './uz-letters.js';
 import * as taLetters from './ta-letters.js';
@@ -43,6 +44,13 @@ export const COURSES = {
     // Azure's Sri Lankan Tamil voices read the script directly; a few single letters are read by their names.
     // (Speaking is graded with Azure's Tamil recognizer, ta-IN: there is no Sri Lankan one.)
     say: (text) => taLetters.ALL_LETTERS.find(l => l.ch === text)?.say || text,
+  },
+  sw: {
+    ...sw, id: 'sw', name: 'Swahili', native: 'Kiswahili', lang: 'sw', speechLang: 'sw-KE', script: 'latin',
+    mark: 'Sw', currency: 'KSh', color: '#BB0000',
+    cast: { kumari: 'neema', nimal: 'baraka', amma: 'mama_sw', thaththa: 'baba_sw', putha: 'baraka', duva: 'neema', achchi: 'nyanya', grandpa: 'babu', grandma: 'nyanya' },
+    praise: ['Vizuri sana! (Very good!)', 'Hongera! (Well done!)', 'Safi! (Great!)'],
+    tagline: 'everyday Kenyan Swahili, the way people talk at home, at church and at the market',
   },
 };
 export const COURSE_IDS = Object.keys(COURSES);

@@ -68,6 +68,7 @@ function encodeWav(samples, rate) {
 const DIGITS_SI = { 1: 'එක', 2: 'දෙක', 3: 'තුන', 4: 'හතර', 5: 'පහ', 6: 'හය', 7: 'හත', 8: 'අට', 9: 'නවය', 10: 'දහය', 20: 'විස්ස', 50: 'පනහ', 80: 'අසූව', 100: 'සීය' };
 // Spoken/written spellings the recognizer may use for the same word.
 const DIGITS_ES = { 1: 'uno', 2: 'dos', 3: 'tres', 4: 'cuatro', 5: 'cinco', 6: 'seis', 7: 'siete', 8: 'ocho', 9: 'nueve', 10: 'diez', 15: 'quince', 20: 'veinte', 50: 'cincuenta', 100: 'cien' };
+const DIGITS_SW = { 1: 'moja', 2: 'mbili', 3: 'tatu', 4: 'nne', 5: 'tano', 6: 'sita', 7: 'saba', 8: 'nane', 9: 'tisa', 10: 'kumi', 20: 'ishirini', 50: 'hamsini', 80: 'themanini', 100: 'mia moja' };
 const DIGITS_UZ = { 1: 'bir', 2: 'ikki', 3: 'uch', 4: 'toʻrt', 5: 'besh', 6: 'olti', 7: 'yetti', 8: 'sakkiz', 9: 'toʻqqiz', 10: 'oʻn', 15: 'oʻn besh', 20: 'yigirma', 50: 'ellik', 100: 'yuz', 1000: 'ming' };
 // Sri Lankan Tamil numbers as spoken; the recognizer (Indian Tamil) may write digits or the written forms.
 const DIGITS_TA = { 1: 'ஒண்டு', 2: 'ரெண்டு', 3: 'மூண்டு', 4: 'நாலு', 5: 'அஞ்சு', 6: 'ஆறு', 7: 'ஏழு', 8: 'எட்டு', 9: 'ஒன்பது', 10: 'பத்து', 20: 'இருபது', 50: 'ஐம்பது', 100: 'நூறு', 200: 'இருநூறு', 1000: 'ஆயிரம்' };
@@ -79,7 +80,7 @@ const canon = {};
 [...SAME, ...SAME_UZ].forEach(g => g.forEach(w => { canon[w] = g[0]; }));
 
 function tokens(s) {
-  const D = isSi() ? DIGITS_SI : isTa() ? DIGITS_TA : isUz() ? DIGITS_UZ : DIGITS_ES;
+  const D = isSi() ? DIGITS_SI : isTa() ? DIGITS_TA : isUz() ? DIGITS_UZ : COURSE.id === 'sw' ? DIGITS_SW : DIGITS_ES;
   let text = String(s || '');
   if (isUz()) text = text.replace(/(\d+)[\s,.\u00a0]?000\b/g, '$1 ming'); // "50 000 so'm" → "50 ming so'm"
   const withWords = text.replace(/\d+/g, d => ` ${D[d] || d} `);

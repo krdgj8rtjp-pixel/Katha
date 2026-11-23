@@ -1,12 +1,12 @@
-# Katha (කතා) — learn spoken Sinhala, Spanish, Uzbek and Tamil
+# Katha (කතා) — learn spoken Sinhala, Spanish, Uzbek, Tamil and Swahili
 
-A Duolingo-style app for **everyday spoken Sinhala**, **Latin American Spanish**, **Uzbek** (in Cyrillic) and **Sri Lankan Tamil**, aiming at CEFR **A1**.
+A Duolingo-style app for **everyday spoken Sinhala**, **Latin American Spanish**, **Uzbek** (in Cyrillic), **Sri Lankan Tamil** and **Kenyan Swahili**, aiming at CEFR **A1**.
 It's an installable web app (PWA) that runs offline, is hosted free on GitHub Pages,
 and can sync your progress across devices through a free Supabase project.
 
 ## What's in it
 
-- **Four courses**: Sinhala, Spanish, Uzbek and Tamil. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
+- **Five courses**: Sinhala, Spanish, Uzbek, Tamil and Swahili. Tap the course badge (top left) to switch. Streak, XP, gems, quests and friends
   are shared; each course keeps its own path, words and practice.
   - Spanish covers A1 in 10 units: Greetings, About me, Food, Numbers & money, Family, Getting around, Daily life,
     Time & weather, Faith (church, the Bible, prayer and talking about what you believe), and Health & plans (with
@@ -23,6 +23,11 @@ and can sync your progress across devices through a free Supabase project.
     forms in the tips. Church words follow Tamil Protestant usage (சபை, ஜெபம், தேவன், வேதாகமம், ஸ்தோத்திரம்), with
     the Catholic words mentioned. It has a 47-letter Tamil script trainer, romanization under the Tamil (toggle in
     settings), and typed answers are accepted in Tamil script or in romanization.
+  - Swahili is just beginning: everyday **Kenyan** Swahili in 6 units (Greetings, About me, Food & drink, Numbers &
+    money, Family, Church & faith), with about 130 words and phrases, 110 sentences and 6 stories. It teaches what
+    people say day to day (sasa/poa, chai, mandazi, M-Pesa, bei gani, nyanya for grandmother) alongside the
+    polite forms (Hujambo? Sijambo). Church words follow Kenyan Protestant usage (kanisa, ibada, maombi, mchungaji, Bwana asifiwe).
+    Getting around, Everyday verbs, Time & weather and Health & help are listed as coming soon.
   - Faith around you: Sinhala Unit 13 (Buddhism: the temple, Poya, Vesak, monks and etiquette) and Uzbek Unit 11
     (Islam: the mosque, prayer, Ramadan, Eid, everyday blessings and etiquette), and Tamil Unit 13 (Hinduism: the
     kovil, pooja, holy ash and pottu, Thai Pongal, Deepavali and the Nallur festival) and Unit 14 (Islam, with the
@@ -36,7 +41,8 @@ and can sync your progress across devices through a free Supabase project.
     скидка, номер, холодильник…), every such note gives the Uzbek equivalent (дорихона, шифокор, касалхона, ҳожатхона,
     бекат, ҳисоб, дўкон, ўлчам, чегирма, рақам, музлатгич…), and either word is accepted when typing or speaking.
   - Pictures are drawn once by meaning and re-cast per course: Sofía, Mateo and a Latin American family for Spanish;
-    Dilnoza, Aziz and an Uzbek family for Uzbek; Kavitha, Ravi, Ammamma (grandmother) and their Muslim neighbour Fathima for Tamil.
+    Dilnoza, Aziz and an Uzbek family for Uzbek; Kavitha, Ravi, Ammamma (grandmother) and their Muslim neighbour Fathima for Tamil;
+    Neema, Baraka, Nyanya and Babu (grandparents) and Mama Neema for Swahili.
 - **Course path**: units of lessons, treasure chests, a story and a unit review per unit, plus a guidebook (tips + key phrases) for each unit.
 - **Find my level / Jump here?** (modelled on Duolingo): an adaptive placement test when you start a course (two right
   answers move up a unit, two misses stop it), and a 12-question test on the first lesson of any locked unit (3 lives).
@@ -71,7 +77,7 @@ js/                                       app code — no framework, no build st
   translit.js  romanization + answer matching
   config.js    ← your Supabase URL and key go here
 data/course.js                            the list of courses; the app reads the current one through it
-data/si.js, es.js, uz.js, ta.js          each course's content (words, sentences, stories, units)
+data/si.js, es.js, uz.js, ta.js, sw.js   each course's content (words, sentences, stories, units)
 data/letters.js, uz-letters.js, ta-letters.js   letters trainers (Sinhala, Uzbek Cyrillic, Tamil)
 js/lang.js                                small helpers for script/language differences between courses
 data/letters.js                           the letters trainer
@@ -119,7 +125,10 @@ Tamil uses Azure's Sri Lankan Tamil voices, `ta-LK-SaranyaNeural` (narrator, Kav
 `ta-LK-KumarNeural` (Ravi and John). Azure has no Sri Lankan Tamil speech recognition, so speaking is checked with
 Indian Tamil (`ta-IN`); the checker treats Sri Lankan and Indian forms of common words (ஓம்/ஆம், இண்டைக்கு/இன்றைக்கு,
 the numbers) as the same.
-A voice written as `name@older` (Achchi, Buvi, Ammamma) is spoken slightly lower and slower, so the grandmothers sound
+Swahili uses `sw-KE-ZuriNeural` (narrator, Neema), `sw-KE-RafikiNeural` (Baraka, Babu), `sw-TZ-RehemaNeural`
+(Mama Neema, Nyanya) and `sw-TZ-DaudiNeural` (John); Azure has two Kenyan voices, so the Tanzanian ones fill in.
+Speaking is checked with Kenyan Swahili (`sw-KE`).
+A voice written as `name@older` (Achchi, Buvi, Ammamma, Nyanya, Babu) is spoken slightly lower and slower, so the grandparents sound
 older with the same Azure voice; the whole string is part of the clip key.
 
 What exists in Azure (subscription *Azure subscription 1*, resource group `katha-rg`, West US 2):
@@ -170,7 +179,7 @@ Copy `data/es.js` (Latin alphabet) or `data/uz.js` (another script) to a new fil
 letters trainer if it has its own script), and run the checker. Pictures are shared by meaning, and the
 audio generator picks the new voices up automatically.
 
-**Please have native speakers review the Sinhala, the Uzbek and the Tamil.** It aims to be natural colloquial Sinhala, but it was drafted with AI help.
+**Please have native speakers review the Sinhala, the Uzbek, the Tamil and the Swahili.** It aims to be natural colloquial Sinhala, but it was drafted with AI help.
 
 ## Local development
 

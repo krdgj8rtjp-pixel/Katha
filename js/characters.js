@@ -198,6 +198,53 @@ const BUILD = {
     hairFront: `<path d="M31 52 C32 30 45 20 60 20 C75 20 88 30 89 52 C84 38 73 31 60 31 C47 31 36 38 31 52Z" fill="#1F7A6B"/><path d="M34 46 C40 35 50 31 60 31 C70 31 80 35 86 46" stroke="#2A9583" stroke-width="2.2" fill="none"/>`,
     extrasHead: `<circle cx="80" cy="40" r="2" fill="#F5D46A"/>`,
   }, pose),
+  // Swahili course (Kenya): Neema in a kitenge-print top, Baraka in a check shirt, Mama Neema in a headwrap,
+  // Baba in a sweater vest, Nyanya (grandmother) in a kanga headwrap, Babu (grandfather) with a flat cap.
+  neema: (pose) => person({
+    skin: '#7A4A2E', shade: '#623A23', browColor: '#140c08', lashes: true, lip: '#5e2a24',
+    shirt: '#E67E22',
+    shirtExtras: `${[[36, 104], [52, 112], [68, 104], [84, 112], [44, 124], [60, 122], [76, 126]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="5" fill="${i % 2 ? '#1A5276' : '#F4D03F'}"/><circle cx="${x}" cy="${y}" r="2" fill="#7B241C"/>`).join('')}`,
+    hairBack: `<circle cx="60" cy="20" r="14" fill="#140c08"/><path d="M28 56 C26 30 42 18 60 18 C78 18 94 30 92 56 C90 50 88 46 86 44 L34 44 C32 46 30 50 28 56Z" fill="#140c08"/>`,
+    hairFront: `<path d="M32 52 C32 32 45 23 60 23 C75 23 88 32 88 52 C84 40 74 33 60 33 C46 33 36 40 32 52Z" fill="#140c08"/>${[38, 46, 54, 62, 70, 78].map(x => `<path d="M${x} ${x < 60 ? 30 + (60 - x) * .25 : 30 + (x - 60) * .25} L${x + (x < 60 ? -2 : 2)} 46" stroke="#2b1a10" stroke-width="1.2"/>`).join('')}`,
+    extrasHead: `<circle cx="33" cy="68" r="2.6" fill="#F4D03F"/><circle cx="87" cy="68" r="2.6" fill="#F4D03F"/>`,
+  }, pose),
+  baraka: (pose) => person({
+    skin: '#6B4226', shade: '#55331C', browColor: '#120a06', lip: '#4e241e',
+    shirt: '#2E86C1',
+    shirtExtras: `${[30, 44, 58, 72, 86].map(x => `<path d="M${x} 96 V132" stroke="#1B4F72" stroke-width="2" opacity=".5"/>`).join('')}${[104, 116, 128].map(y => `<path d="M20 ${y} H100" stroke="#1B4F72" stroke-width="2" opacity=".5"/>`).join('')}<path d="M49 92 L60 104 L71 92 L67 90 L60 98 L53 90Z" fill="#fff"/>`,
+    hairFront: `<path d="M33 50 C32 30 45 22 60 22 C75 22 88 30 87 50 C84 40 74 33 60 33 C46 33 36 40 33 50Z" fill="#120a06"/>`,
+  }, pose),
+  mama_sw: (pose) => person({
+    skin: '#74462B', shade: '#5C3721', browColor: '#140c08', lashes: true, lip: '#5e2a24',
+    shirt: '#117A65',
+    shirtExtras: `${[[30, 108], [50, 118], [70, 108], [90, 118], [40, 128], [80, 128]].map(([x, y]) => `<path d="M${x - 6} ${y} Q${x} ${y - 8} ${x + 6} ${y} Q${x} ${y + 8} ${x - 6} ${y}Z" fill="#F5B041"/>`).join('')}`,
+    hairBack: `<path d="M26 56 C22 24 42 10 60 10 C78 10 98 24 94 56 L88 48 L32 48Z" fill="#117A65"/>`,
+    hairFront: `<path d="M30 50 C30 26 44 14 60 14 C76 14 90 26 90 50 C82 38 72 32 60 32 C48 32 38 38 30 50Z" fill="#117A65"/><path d="M34 40 Q60 26 86 40" stroke="#F5B041" stroke-width="3" fill="none"/><path d="M78 16 Q94 8 92 26 Q86 20 80 22Z" fill="#0E6655"/>`,
+    extrasHead: `<circle cx="33" cy="68" r="2.4" fill="#F5B041"/><circle cx="87" cy="68" r="2.4" fill="#F5B041"/>`,
+  }, pose),
+  baba_sw: (pose) => person({
+    skin: '#664026', shade: '#4F311C', browColor: '#120a06', lip: '#4e241e',
+    shirt: '#F2F3F4',
+    shirtExtras: `<path d="M24 100 Q60 92 96 100 L98 132 H22Z" fill="#7D5A3C"/><path d="M48 96 L60 120 L72 96" fill="#F2F3F4"/><path d="M57 100 L60 118 L63 100Z" fill="#922B21"/>`,
+    hairFront: `<path d="M33 50 C32 30 45 22 60 22 C75 22 88 30 87 50 C84 40 74 33 60 33 C46 33 36 40 33 50Z" fill="#120a06"/>`,
+    extrasFace: `<path d="M48 77 Q60 72 72 77 Q66 80 60 79 Q54 80 48 77Z" fill="#120a06"/>`,
+  }, pose),
+  nyanya: (pose) => person({
+    skin: '#6E4429', shade: '#57341F', browColor: '#d9d4cf', lashes: true, lip: '#5e2a24',
+    shirt: '#C0392B',
+    shirtExtras: `<path d="M16 108 Q60 94 104 108 L106 132 H14Z" fill="#F4D03F"/><path d="M16 108 Q60 94 104 108" stroke="#1E8449" stroke-width="4" fill="none"/>${[30, 46, 62, 78, 94].map(x => `<circle cx="${x}" cy="120" r="4" fill="#1E8449"/>`).join('')}`,
+    hairBack: `<path d="M27 56 C23 24 42 12 60 12 C78 12 97 24 93 56 L88 50 L32 50Z" fill="#C0392B"/>`,
+    hairFront: `<path d="M31 52 C31 26 45 16 60 16 C75 16 89 26 89 52 C82 40 72 34 60 34 C48 34 38 40 31 52Z" fill="#C0392B"/><path d="M32 46 C36 40 40 37 44 36 M88 46 C84 40 80 37 76 36" stroke="#d9d4cf" stroke-width="3" stroke-linecap="round"/>${[42, 56, 70].map(x => `<circle cx="${x}" cy="24" r="3" fill="#F4D03F"/>`).join('')}<path d="M70 14 Q92 6 90 24 Q84 18 76 20Z" fill="#A93226"/>`,
+    extrasFace: `<g fill="none" stroke="#3b2a1e" stroke-width="1.8"><circle cx="47" cy="54" r="7.5"/><circle cx="73" cy="54" r="7.5"/><path d="M54.5 53.5 q5.5 -3 11 0"/></g>`,
+  }, pose),
+  babu: (pose) => person({
+    skin: '#664026', shade: '#4F311C', browColor: '#e6e2dc', lip: '#4e241e',
+    shirt: '#7E5109',
+    shirtExtras: `<path d="M48 92 L60 112 L72 92" fill="#F2F3F4"/><path d="M38 96 L50 132 M82 96 L70 132" stroke="#5D3B06" stroke-width="2.4"/><circle cx="60" cy="118" r="2" fill="#5D3B06"/><circle cx="60" cy="126" r="2" fill="#5D3B06"/>`,
+    hairFront: `<path d="M33 54 C32 44 34 38 38 36 M87 54 C88 44 86 38 82 36" stroke="#e6e2dc" stroke-width="5" stroke-linecap="round" fill="none"/>`,
+    extrasHead: `<path d="M28 40 C30 22 46 14 62 14 C80 14 92 24 92 38 Q60 30 28 40Z" fill="#5D6D7E"/><path d="M26 40 Q60 30 98 42 Q102 46 96 46 Q60 38 28 46Z" fill="#4D5D6E"/>`,
+    extrasFace: `<g fill="none" stroke="#3b2a1e" stroke-width="1.8"><circle cx="47" cy="54" r="7.5"/><circle cx="73" cy="54" r="7.5"/><path d="M54.5 53.5 q5.5 -3 11 0"/></g><path d="M47 77 Q60 72 73 77 Q66 81 60 80 Q54 81 47 77Z" fill="#e6e2dc"/>`,
+  }, pose),
   // ---- Family casts for the Spanish and Uzbek courses (they stand in for amma, thaththa, putha, duva),
   // plus grandparents used by every course.
   madre: (pose) => person({
@@ -344,6 +391,12 @@ export const CAST = {
   ravi: { name: 'Ravi', color: '#00796B' },
   ammamma: { name: 'Ammamma', color: '#5B2C6F' },
   fathima: { name: 'Fathima', color: '#1F7A6B' },
+  neema: { name: 'Neema', color: '#D35400' },
+  baraka: { name: 'Baraka', color: '#1E8449' },
+  mama_sw: { name: 'Mama Neema', color: '#117A65' },
+  baba_sw: { name: 'Baba Neema', color: '#7D5A3C' },
+  nyanya: { name: 'Nyanya', color: '#922B21' },
+  babu: { name: 'Babu', color: '#6E2C00' },
 };
 
 let n = 0;

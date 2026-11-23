@@ -533,6 +533,7 @@ svg { display: block; }
 .story-stage.intro { height: 250px; }
 .story-stage .scene { position: absolute; inset: 0; width: 100%; height: 100%; }
 .stage-cast { position: absolute; left: 0; right: 0; bottom: 4px; display: flex; justify-content: center; align-items: flex-end; gap: 34px; }
+.stage-cast.many { gap: 8px; }
 .stage-slot { position: relative; display: flex; flex-direction: column; align-items: center; transition: transform .25s, filter .25s; }
 .stage-slot span { font-size: 12px; font-weight: 900; color: var(--ink-2); background: rgba(255,255,255,.88); border-radius: 8px; padding: 0 7px; margin-top: -8px; }
 .story-stage:not(.intro) .stage-slot:not(.on) { filter: saturate(.55) brightness(.94); transform: scale(.94); transform-origin: 50% 100%; }
@@ -939,6 +940,7 @@ svg { display: block; }
 .cr-bar > i { display: block; height: 100%; background: var(--brand); border-radius: 99px; }
 .cr-on { width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; }
 .cr-on svg { width: 16px; height: 16px; }
+.brand-mark.c-sw { background: linear-gradient(180deg, #1a1a1a 0 33%, #BB0000 33% 67%, #006600 67%); color: #fff; font-family: var(--font); font-weight: 900; letter-spacing: -.5px; }
 .brand-mark.c-ta { background: linear-gradient(135deg, #C0501A, #F39C12); color: #fff; font-family: 'Noto Sans Tamil', var(--font); font-weight: 700; }
 .brand-mark.c-uz { background: linear-gradient(135deg, #0E8FB0, #1EB53A); color: #fff; font-family: var(--font); font-weight: 900; }
 .course-pick { flex-wrap: wrap; gap: 8px; padding: 0 4px; }
